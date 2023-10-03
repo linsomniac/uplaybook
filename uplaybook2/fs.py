@@ -38,6 +38,26 @@ def _chmod(path: str, mode: Optional[Union[str, int]] = None, is_directory: bool
 
 
 @make_task
+class mkfileClass(BaseTask):
+    name = "mkfile"
+
+    def __init__(self):
+        pass
+
+    def __call__(self, path: str, mode: Optional[Union[str, int]] = None) -> Return:
+        new_mode = mode
+        if not os.path.exists(path):
+            new_mode = _mode_from_arg(new_mode)
+            mode_arg = {} if new_mode is None else {'mode': new_mode}
+            fd = os.open(path, os.O_CREAT, **mode_arg)
+            os.close(fd)
+
+            return Return(changed=True)
+
+        return _chmod(path, new_mode)
+
+
+@make_task
 class mkdirClass(BaseTask):
     name = "mkdir"
 
@@ -48,12 +68,27 @@ class mkdirClass(BaseTask):
         new_mode = mode
         if not os.path.exists(path):
             new_mode = _mode_from_arg(new_mode, is_directory=True)
-
-            mode_arg = {}
-            if new_mode is not None:
-                mode_arg = {'mode': new_mode}
-
+            mode_arg = {} if new_mode is None else {'mode': new_mode}
             os.mkdir(path, **mode_arg)
+
+            return Return(changed=True)
+
+        return _chmod(path, new_mode, is_directory=True)
+
+
+@make_task
+class makedirsClass(BaseTask):
+    name = "makedirs"
+
+    def __init__(self):
+        pass
+
+    def __call__(self, path: str, mode: Optional[Union[str, int]] = None) -> Return:
+        new_mode = mode
+        if not os.path.exists(path):
+            new_mode = _mode_from_arg(new_mode, is_directory=True)
+            mode_arg = {} if new_mode is None else {'mode': new_mode}
+            os.makedirs(path, **mode_arg)
 
             return Return(changed=True)
 

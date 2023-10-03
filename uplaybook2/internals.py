@@ -33,7 +33,7 @@ class Return:
 
                 parent_function_name = values["self"].name
                 add_msg = f" ({self.extra_message})" if self.extra_message else ""
-                prefix = "=>" if self.changed else "=="
+                prefix = "=>" if self.changed else "=#"
                 print(f"{prefix} {parent_function_name}({call_args}){add_msg}")
                 break
 
