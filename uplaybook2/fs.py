@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from .internals import Return, TemplateStr, template_args
+from .internals import Return, TemplateStr, template_args, calling_context
 from typing import Union, Optional
 import symbolicmode
 import os
@@ -46,6 +46,7 @@ def _chmod(
     return Return(changed=False)
 
 
+@calling_context
 @template_args
 def mkfile(path: TemplateStr, mode: Optional[Union[TemplateStr, int]] = None) -> Return:
     new_mode = mode
@@ -60,6 +61,7 @@ def mkfile(path: TemplateStr, mode: Optional[Union[TemplateStr, int]] = None) ->
     return _chmod(path, new_mode)
 
 
+@calling_context
 @template_args
 def mkdir(path: TemplateStr, mode: Optional[Union[TemplateStr, int]] = None) -> Return:
     new_mode = mode
@@ -73,6 +75,7 @@ def mkdir(path: TemplateStr, mode: Optional[Union[TemplateStr, int]] = None) -> 
     return _chmod(path, new_mode, is_directory=True)
 
 
+@calling_context
 @template_args
 def makedirs(
     path: TemplateStr, mode: Optional[Union[TemplateStr, int]] = None

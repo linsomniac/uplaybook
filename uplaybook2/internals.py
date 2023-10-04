@@ -4,8 +4,6 @@ import sys
 import inspect
 from typing import Optional
 from typing import Callable, Any
-from inspect import signature
-from jinja2 import Template
 from functools import wraps
 import jinja2
 import os
@@ -14,6 +12,7 @@ import os
 class UpContext:
     def __init__(self):
         self.context = {}
+        self.calling_context = {}
 
         self.jinja_env = jinja2.Environment()
         self.jinja_env.filters["basename"] = os.path.basename
@@ -34,7 +33,7 @@ class TemplateStr(str):
 
 def template_args(func: Callable[..., Any]) -> Callable[..., Any]:
     """
-    Decorator the pre-processes arguments to the function of type TemplateStr through Jinja.
+    Decorator to pre-processes arguments to the function of type TemplateStr through Jinja.
 
     If an argument has a type annotation of TemplateStr this decorator will treat the string
     value of that argument as a Jinja2 template and render it. The resulting value (after
@@ -53,16 +52,15 @@ def template_args(func: Callable[..., Any]) -> Callable[..., Any]:
 
     example_function("Hello {{ 'World' }}")  # Outputs: "Hello World"
     """
-    sig = signature(func)
+    sig = inspect.signature(func)
 
     def _render_jinja_arg(s: str) -> str:
-        '''Render the arguments as Jinja2, use the up_context and the calling environment.
+        """Render the arguments as Jinja2, use the up_context and the calling environment.
         NOTE: This is hardcoded to be run from inside this decorator
         Is likely to be fragile.
-        '''
-        current_frame = inspect.currentframe()
-        env = current_frame.f_back.f_back.f_locals.copy()
-        env.update(up_context.context)
+        """
+        env = up_context.context.copy()
+        env.update(up_context.calling_context)
         return up_context.jinja_env.from_string(s).render(env)
 
     @wraps(func)
@@ -93,6 +91,32 @@ def template_args(func: Callable[..., Any]) -> Callable[..., Any]:
     return wrapper
 
 
+def calling_context(func: Callable[..., Any]) -> Callable[..., Any]:
+    """
+    Decorator to save off the calling function namespace into up_context.calling_context.
+
+    This decorator saves off the namespace of the function that calls the wrapped function
+    for later use by templating.
+
+    Args:
+    - func (Callable): The function to be wrapped.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        current_frame = inspect.currentframe()
+        env = current_frame.f_back.f_back.f_locals.copy()
+        up_context.calling_context = env
+
+        ret = func(*args, **kwargs)
+
+        up_context.calling_context = {}
+
+        return ret
+
+    return wrapper
+
+
 class Return:
     def __init__(self, changed: bool, extra_message: Optional[str] = None):
         self.changed = changed
@@ -102,7 +126,7 @@ class Return:
     def print_status(self):
         for parent_frame_info in inspect.stack()[2:]:
             parent_function_name = parent_frame_info.function
-            if not parent_function_name.startswith('_'):
+            if not parent_function_name.startswith("_"):
                 break
         args, _, _, values = inspect.getargvalues(parent_frame_info.frame)
         call_args = ", ".join([f"{arg}={values[arg]}" for arg in args if arg != "self"])
