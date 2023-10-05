@@ -16,7 +16,7 @@ def debug(msg: Optional[TemplateStr] = None, var: Optional[object] = None) -> Re
         output = "\n".join("    " + line for line in output.splitlines())
     output = output.rstrip()
 
-    return Return(changed=True, output=output, hide_args=True)
+    return Return(changed=False, output=output, hide_args=True)
 
 
 @calling_context

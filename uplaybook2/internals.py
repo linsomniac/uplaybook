@@ -72,10 +72,16 @@ def platform_info() -> types.SimpleNamespace:
 
 
 class UpContext:
+    """
+    A singleton object for storing and managing context data.
+    """
+
     def __init__(self):
         self.globals = {"environ": os.environ, "platform": platform_info()}
         self.context = {}
         self.calling_context = {}
+        self.changed_count = 0
+        self.total_count = 0
 
         self.jinja_env = jinja2.Environment()
         self.jinja_env.filters["basename"] = os.path.basename
@@ -188,6 +194,10 @@ def calling_context(func: Callable[..., Any]) -> Callable[..., Any]:
 
 
 class Return:
+    """
+    A return type from tasks to track success/failure, display status, etc...
+    """
+
     def __init__(
         self,
         changed: bool,
@@ -201,7 +211,14 @@ class Return:
         self.hide_args = hide_args
         self.print_status()
 
-    def print_status(self):
+        up_context.total_count += 1
+        if changed:
+            up_context.changed_count += 1
+
+    def print_status(self) -> None:
+        """
+        Display the output and status of the task.
+        """
         parent_function_name = "<Unknown>"
         for parent_frame_info in inspect.stack()[2:]:
             parent_function_name = parent_frame_info.function
@@ -223,7 +240,15 @@ class Return:
             print(self.output)
 
 
-def cli():
+def cli() -> None:
+    """
+    The main entry point for the CLI.
+    """
     with open(sys.argv[1], "r") as fp:
         playbook = fp.read()
         exec(playbook)
+
+        print()
+        print(
+            f"*** RECAP:  total={up_context.total_count} changed={up_context.changed_count}"
+        )
