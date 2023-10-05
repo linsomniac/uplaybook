@@ -11,6 +11,8 @@ import platform
 import types
 import multiprocessing
 import socket
+from types import SimpleNamespace
+import traceback
 
 
 def platform_info() -> types.SimpleNamespace:
@@ -81,7 +83,9 @@ class UpContext:
         self.context = {}
         self.calling_context = {}
         self.changed_count = 0
+        self.failure_count = 0
         self.total_count = 0
+        self.ignore_failure_count = 0
 
         self.jinja_env = jinja2.Environment()
         self.jinja_env.filters["basename"] = os.path.basename
@@ -89,12 +93,17 @@ class UpContext:
         self.jinja_env.filters["abspath"] = os.path.abspath
 
     def get_env(self, env_in: Optional[dict] = None) -> dict:
+        """Returns the jinja template environment"""
         env = self.globals.copy()
         env.update(self.context)
         env.update(self.calling_context)
         if env_in:
             env.update(env_in)
         return env
+
+    def ignore_failures(self):
+        """Is ignore_failures mode active?"""
+        return self.ignore_failure_count > 0
 
 
 up_context = UpContext()
@@ -136,8 +145,7 @@ def template_args(func: Callable[..., Any]) -> Callable[..., Any]:
         NOTE: This is hardcoded to be run from inside this decorator
         Is likely to be fragile.
         """
-        env = up_context.get_env()
-        return up_context.jinja_env.from_string(s).render(env)
+        return up_context.jinja_env.from_string(s).render(up_context.get_env())
 
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -150,7 +158,7 @@ def template_args(func: Callable[..., Any]) -> Callable[..., Any]:
 
         # Process bound arguments and replace if type is TemplateStr
         for name, value in bound_args.arguments.items():
-            if not isinstance(value, str) or value not in args:
+            if not isinstance(value, str) or (value not in args and name not in kwargs):
                 continue
 
             annotation = sig.parameters[name].annotation
@@ -160,7 +168,10 @@ def template_args(func: Callable[..., Any]) -> Callable[..., Any]:
                 hasattr(annotation, "__origin__")
                 and issubclass(TemplateStr, annotation.__args__)
             ):
-                args[bound_args.args.index(value)] = _render_jinja_arg(value)
+                if name in kwargs:
+                    kwargs[name] = _render_jinja_arg(value)
+                else:
+                    args[bound_args.args.index(value)] = _render_jinja_arg(value)
 
         return func(*args, **kwargs)
 
@@ -201,19 +212,25 @@ class Return:
     def __init__(
         self,
         changed: bool,
+        failure: bool = False,
         extra_message: Optional[str] = None,
         output: Optional[str] = None,
         hide_args: bool = False,
+        extra: Optional[SimpleNamespace] = None,
     ) -> None:
         self.changed = changed
         self.extra_message = extra_message
         self.output = output
         self.hide_args = hide_args
         self.print_status()
+        self.extra = extra
+        self.failure = failure
 
         up_context.total_count += 1
         if changed:
             up_context.changed_count += 1
+        if failure:
+            up_context.failure_count += 1
 
     def print_status(self) -> None:
         """
@@ -239,6 +256,26 @@ class Return:
         if self.output:
             print(self.output)
 
+    def __repr__(self) -> str:
+        values = [f"changed={self.changed}"]
+        if self.extra_message is not None:
+            values.append(f"extra_message={repr(self.extra_message)}")
+        if self.extra is not None:
+            for k, v in vars(self.extra).items():
+                values.append(f"extra.{k}={repr(v)}")
+
+        formatted_output = ""
+        if self.output is not None:
+            if len(self.output) < 60 or self.output.count("\n") < 4:
+                values.append(f"output={repr(self.output)}")
+            else:
+                formatted_output = ',\noutput="""\n' + self.output + '"""'
+        return f"Return({', '.join(values)}{formatted_output})"
+
+
+class Failure(Exception):
+    pass
+
 
 def cli() -> None:
     """
@@ -246,9 +283,12 @@ def cli() -> None:
     """
     with open(sys.argv[1], "r") as fp:
         playbook = fp.read()
-        exec(playbook)
+        try:
+            exec(playbook)
+        except Exception as e:
+            print(traceback.format_exc())
 
         print()
         print(
-            f"*** RECAP:  total={up_context.total_count} changed={up_context.changed_count}"
+            f"*** RECAP:  total={up_context.total_count} changed={up_context.changed_count} failure={up_context.failure_count}"
         )
