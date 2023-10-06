@@ -2,7 +2,7 @@
 
 import sys
 import inspect
-from typing import Optional
+from typing import Optional, Union
 from typing import Callable, Any
 from functools import wraps
 import jinja2
@@ -13,6 +13,7 @@ import multiprocessing
 import socket
 from types import SimpleNamespace
 import traceback
+import ast
 
 
 def platform_info() -> types.SimpleNamespace:
@@ -277,6 +278,36 @@ class Failure(Exception):
     pass
 
 
+def extract_docstring_from_file(filename: str) -> Union[str, None]:
+    """Open the specified file and retrieve the docstring from it.
+
+    Returns None if no docstring is found"""
+    with open(filename, "r") as f:
+        try:
+            node = ast.parse(f.read())
+        except Exception:
+            return None
+
+        if (
+            node.body
+            and isinstance(node.body[0], ast.Expr)
+            and isinstance(node.body[0].value, ast.Str)
+        ):
+            return ast.get_docstring(node)
+
+    return None
+
+
+# Test the function
+import sys
+
+docstring = extract_docstring_from_file(sys.argv[1])
+if docstring:
+    print(docstring)
+else:
+    print("No docstring found!")
+
+
 def cli() -> None:
     """
     The main entry point for the CLI.
@@ -285,7 +316,7 @@ def cli() -> None:
         playbook = fp.read()
         try:
             exec(playbook)
-        except Exception as e:
+        except Exception:
             print(traceback.format_exc())
 
         print()
