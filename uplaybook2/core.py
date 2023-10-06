@@ -44,7 +44,9 @@ def render(s: TemplateStr) -> str:
 
 @calling_context
 @template_args
-def run(command: TemplateStr, shell: bool = True) -> object:
+def run(
+    command: TemplateStr, shell: bool = True, ignore_failures: bool = False
+) -> object:
     sys.stdout.flush()
     sys.stderr.flush()
 
@@ -53,10 +55,14 @@ def run(command: TemplateStr, shell: bool = True) -> object:
     extra = SimpleNamespace()
     extra.stderr = p.stderr
     extra.returncode = p.returncode
-    failure = p.returncode != 0 if not up_context.ignore_failures() else False
-    r = Return(changed=True, failure=failure, output=p.stdout, extra=extra)
-
-    if failure:
-        raise Failure(f"Exit code {p.returncode}")
+    failure = p.returncode != 0
+    r = Return(
+        changed=True,
+        failure=failure,
+        output=p.stdout,
+        extra=extra,
+        ignore_failure=ignore_failures,
+        failure_exc=Failure(f"Exit code {p.returncode}"),
+    )
 
     return r

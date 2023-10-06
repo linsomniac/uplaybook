@@ -87,6 +87,7 @@ class UpContext:
         self.failure_count = 0
         self.total_count = 0
         self.ignore_failure_count = 0
+        self.handler_list = []
 
         self.jinja_env = jinja2.Environment()
         self.jinja_env.filters["basename"] = os.path.basename
@@ -105,6 +106,24 @@ class UpContext:
     def ignore_failures(self):
         """Is ignore_failures mode active?"""
         return self.ignore_failure_count > 0
+
+    def add_handler(self, fn: Callable) -> None:
+        """Add a notify function."""
+        if fn in self.handler_list:
+            return
+
+        self.handler_list.append(fn)
+
+    def flush_handlers(self) -> None:
+        """Run all the handler functions."""
+        did_handler = False
+        while self.handler_list:
+            did_handler = True
+            fn = self.handler_list.pop(0)
+            print(f">> *** Starting handler: {fn.__name__}")
+            fn()
+        if did_handler:
+            print(f">> *** Done with handlers")
 
 
 up_context = UpContext()
@@ -219,6 +238,8 @@ class Return:
         hide_args: bool = False,
         secret_args: set = set(),
         extra: Optional[SimpleNamespace] = None,
+        ignore_failure: Optional[bool] = None,
+        failure_exc: Optional[Exception] = None,
     ) -> None:
         self.changed = changed
         self.extra_message = extra_message
@@ -227,14 +248,20 @@ class Return:
         self.extra = extra
         self.failure = failure
         self.secret_args = secret_args
+        self.failure_exc = failure_exc
 
         self.print_status()
+
+        failure_ok = ignore_failure is True or up_context.ignore_failures is True
 
         up_context.total_count += 1
         if changed:
             up_context.changed_count += 1
-        if failure:
+        if failure and not failure_ok:
             up_context.failure_count += 1
+            raise self.failure_exc if self.failure_exc is not None else Failure(
+                "Unspecified failure in task"
+            )
 
     def print_status(self) -> None:
         """
@@ -259,8 +286,16 @@ class Return:
             )
 
         add_msg = f" ({self.extra_message})" if self.extra_message else ""
-        prefix = "=>" if self.changed else "=#"
-        print(f"{prefix} {parent_function_name}({call_args}){add_msg}")
+
+        prefix = "=#"
+        suffix = ""
+        if self.changed:
+            prefix = "=>"
+        if self.failure:
+            prefix = "=!"
+            suffix = " (failure ignored)"
+
+        print(f"{prefix} {parent_function_name}({call_args}){add_msg}{suffix}")
         if self.output:
             print(self.output)
 
@@ -279,6 +314,13 @@ class Return:
             else:
                 formatted_output = ',\noutput="""\n' + self.output + '"""'
         return f"Return({', '.join(values)}{formatted_output})"
+
+    def __bool__(self):
+        return not self.failure
+
+    def notify(self, fn: Callable) -> None:
+        if self.changed:
+            up_context.add_handler(fn)
 
 
 class Failure(Exception):
@@ -312,9 +354,11 @@ def cli() -> None:
     with open(sys.argv[1], "r") as fp:
         playbook = fp.read()
         try:
-            exec(playbook)
+            exec(playbook, globals(), locals())
         except Exception:
             print(traceback.format_exc())
+
+        up_context.flush_handlers()
 
         print()
         print(
