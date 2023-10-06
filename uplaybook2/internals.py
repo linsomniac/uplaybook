@@ -217,15 +217,18 @@ class Return:
         extra_message: Optional[str] = None,
         output: Optional[str] = None,
         hide_args: bool = False,
+        secret_args: set = set(),
         extra: Optional[SimpleNamespace] = None,
     ) -> None:
         self.changed = changed
         self.extra_message = extra_message
         self.output = output
         self.hide_args = hide_args
-        self.print_status()
         self.extra = extra
         self.failure = failure
+        self.secret_args = secret_args
+
+        self.print_status()
 
         up_context.total_count += 1
         if changed:
@@ -248,7 +251,11 @@ class Return:
         else:
             args, _, _, values = inspect.getargvalues(parent_frame_info.frame)
             call_args = ", ".join(
-                [f"{arg}={values[arg]}" for arg in args if arg != "self"]
+                [
+                    f"{arg}=" + ("***" if arg in self.secret_args else f"{values[arg]}")
+                    for arg in args
+                    if arg != "self"
+                ]
             )
 
         add_msg = f" ({self.extra_message})" if self.extra_message else ""
@@ -296,16 +303,6 @@ def extract_docstring_from_file(filename: str) -> Union[str, None]:
             return ast.get_docstring(node)
 
     return None
-
-
-# Test the function
-import sys
-
-docstring = extract_docstring_from_file(sys.argv[1])
-if docstring:
-    print(docstring)
-else:
-    print("No docstring found!")
 
 
 def cli() -> None:
