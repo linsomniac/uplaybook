@@ -19,18 +19,18 @@ including detecting when no changes are made and updating permissions:
 
     from uplaybook2 import fs, core, up_context
 
-    fs.mkdir("testdir", mode="a=rX,u+w")
-    fs.cd('testdir')
-
     def test_handler2():
-        global fs
+        #global fs
         fs.mkfile('qux')
         fs.mkfile('xyzzy')
 
     def test_handler():
-        global fs, test_handler2
+        #global fs, test_handler2
         fs.mkfile('bar').notify(test_handler2)
         fs.mkfile('baz').notify(test_handler2)
+
+    fs.mkdir("testdir", mode="a=rX,u+w")
+    fs.cd('testdir')
 
     foo = "test"
     fs.mkfile("foo{{foo}}").notify(test_handler)
@@ -44,13 +44,13 @@ including detecting when no changes are made and updating permissions:
 
 Which produces the following output:
 
-    [I] sean@seans-laptop ~/p/u/up2 (main)> up2 testpb
+    [N] sean@seans-laptop ~/p/u/up2 (main)> up2 testpb
     => mkdir(path=testdir, mode=a=rX,u+w)
     =# cd(path=testdir)
-    => mkfile(path=footest, mode=None)
+    => mkfile(path=foo, mode=None)
     => makedirs(path=foodir/bar/baz, mode=a=rX,u+w)
     => run(command=date, shell=True, ignore_failures=False, change=True)
-    Fri Oct  6 06:05:55 PM MDT 2023
+    Sat Oct  7 06:09:34 AM MDT 2023
 
     => run(command=true, shell=True, ignore_failures=False, change=True)
     Successfully ran true
@@ -68,10 +68,10 @@ Which produces the following output:
     [N] sean@seans-laptop ~/p/u/up2 (main)> up2 testpb
     =# mkdir(path=testdir, mode=a=rX,u+w)
     =# cd(path=testdir)
-    =# mkfile(path=footest, mode=None)
+    =# mkfile(path=foo, mode=None)
     =# makedirs(path=foodir/bar/baz, mode=a=rX,u+w)
     => run(command=date, shell=True, ignore_failures=False, change=True)
-    Fri Oct  6 06:05:57 PM MDT 2023
+    Sat Oct  7 06:09:55 AM MDT 2023
 
     => run(command=true, shell=True, ignore_failures=False, change=True)
     Successfully ran true
