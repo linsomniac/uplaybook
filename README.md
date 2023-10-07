@@ -20,12 +20,10 @@ including detecting when no changes are made and updating permissions:
     from uplaybook2 import fs, core, up_context
 
     def test_handler2():
-        #global fs
         fs.mkfile('qux')
         fs.mkfile('xyzzy')
 
     def test_handler():
-        #global fs, test_handler2
         fs.mkfile('bar').notify(test_handler2)
         fs.mkfile('baz').notify(test_handler2)
 
