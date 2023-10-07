@@ -1,76 +1,81 @@
 # uPlaybook2
 
-An experiment into a python-centric ansible-like system.  Currently not usable except
+An experiment into a python-centric ansible/cookiecutter-like system.  Currently not usable except
 by the author.
+
+Some core ideas of it:
+
+    - Python-like syntax
+    - Declare the state you want to end up at.
+    - Tasks communicate whether they have changed something.
+    - Changed tasks can trigger a handler (if this file changes, restart a service).
+    - Jinja2 templating of arguments and files delivered via fs.template()
+    - Status output.
 
 Example showing what a playbook might look like, and the output of running it
 including detecting when no changes are made and updating permissions:
 
     #!/usr/bin/env python3
 
-    from uplaybook2 import fs, core, IgnoreFailure
+    from uplaybook2 import fs, core, up_context
+
+    fs.mkdir("testdir", mode="a=rX,u+w")
+    fs.cd('testdir')
+
+    def test_handler2():
+        global fs
+        fs.mkfile('qux')
+        fs.mkfile('xyzzy')
+
+    def test_handler():
+        global fs, test_handler2
+        fs.mkfile('bar').notify(test_handler2)
+        fs.mkfile('baz').notify(test_handler2)
 
     foo = "test"
-    fs.mkfile("foo{{foo}}")
-    print(core.render("foo{{platform.fqdn}}"))
-    r = fs.mkfile("foo{{platform.fqdn}}")
-    core.debug(msg="Test message {{foo}}")
-    core.debug(var=r)
-    core.debug(var=core.lookup('platform'))
-    r = core.run("date")
-    core.debug(var=r)
-    r = core.run("head -5 /etc/services")
-    core.debug(var=r)
-    with IgnoreFailure():
-        r = core.run("false")
-    core.debug(var=r)
+    fs.mkfile("foo{{foo}}").notify(test_handler)
+
+    fs.makedirs("foodir/bar/baz", mode="a=rX,u+w")
+    core.run('date')
+    if core.run('true'):
+        print('Successfully ran true')
+    if not core.run('false', ignore_failures=True):
+        print('Successfully ran false')
 
 Which produces the following output:
 
+    [I] sean@seans-laptop ~/p/u/up2 (main)> up2 testpb
+    => mkdir(path=testdir, mode=a=rX,u+w)
+    =# cd(path=testdir)
     => mkfile(path=footest, mode=None)
-    fooseans-laptop
-    => mkfile(path=fooseans-laptop, mode=None)
-    =# debug(...)
-    Test message test
-    =# debug(...)
-        Return(changed=True)
-    =# debug(...)
-        namespace(system='Linux',
-                  release_name='Ubuntu',
-                  release_id='ubuntu',
-                  release_version='22.04',
-                  release_like='debian',
-                  release_codename='jammy',
-                  arch='x86_64',
-                  cpu_count=12,
-                  fqdn='seans-laptop',
-                  memory_total=33246973952,
-                  memory_available=19445350400,
-                  memory_used=10147008512,
-                  memory_percent_used=41.5)
-    => run(command=date, shell=True)
-    Thu Oct  5 07:42:03 AM MDT 2023
+    => makedirs(path=foodir/bar/baz, mode=a=rX,u+w)
+    => run(command=date, shell=True, ignore_failures=False, change=True)
+    Fri Oct  6 06:05:55 PM MDT 2023
 
-    =# debug(...)
-        Return(changed=True, extra.stderr='', extra.returncode=0, output='Thu Oct  5 07:42:03 AM MDT 2023\n')
-    => run(command=head -5 /etc/services, shell=True)
-    # Network services, Internet style
-    #
-    # Updated from https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml .
-    #
-    # New ports will be added on request if they have been officially assigned
+    => run(command=true, shell=True, ignore_failures=False, change=True)
+    Successfully ran true
+    =! run(command=false, shell=True, ignore_failures=True, change=True) (failure ignored)
+    Successfully ran false
+    >> *** Starting handler: test_handler
+    => mkfile(path=bar, mode=None)
+    => mkfile(path=baz, mode=None)
+    >> *** Starting handler: test_handler2
+    => mkfile(path=qux, mode=None)
+    => mkfile(path=xyzzy, mode=None)
+    >> *** Done with handlers
 
-    =# debug(...)
-        Return(changed=True, extra.stderr='', extra.returncode=0,
-        output="""
-        # Network services, Internet style
-        #
-        # Updated from https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml .
-        #
-        # New ports will be added on request if they have been officially assigned
-        """)
-    => run(command=false, shell=True)
-    =# debug(...)
-        Return(changed=True, extra.stderr='', extra.returncode=1, output='')
+    *** RECAP:  total=11 changed=10 failure=0
+    [N] sean@seans-laptop ~/p/u/up2 (main)> up2 testpb
+    =# mkdir(path=testdir, mode=a=rX,u+w)
+    =# cd(path=testdir)
+    =# mkfile(path=footest, mode=None)
+    =# makedirs(path=foodir/bar/baz, mode=a=rX,u+w)
+    => run(command=date, shell=True, ignore_failures=False, change=True)
+    Fri Oct  6 06:05:57 PM MDT 2023
 
-    *** RECAP:  total=11 changed=5 failure=0
+    => run(command=true, shell=True, ignore_failures=False, change=True)
+    Successfully ran true
+    =! run(command=false, shell=True, ignore_failures=True, change=True) (failure ignored)
+    Successfully ran false
+
+    *** RECAP:  total=7 changed=3 failure=0
