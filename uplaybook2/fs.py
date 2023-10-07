@@ -57,6 +57,13 @@ def _chmod(
 
 @calling_context
 @template_args
+def cd(path: TemplateStr) -> Return:
+    os.chdir(path)
+    return Return(changed=False)
+
+
+@calling_context
+@template_args
 def mkfile(path: TemplateStr, mode: Optional[Union[TemplateStr, int]] = None) -> Return:
     new_mode = mode
     if not os.path.exists(path):

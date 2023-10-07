@@ -45,7 +45,10 @@ def render(s: TemplateStr) -> str:
 @calling_context
 @template_args
 def run(
-    command: TemplateStr, shell: bool = True, ignore_failures: bool = False
+    command: TemplateStr,
+    shell: bool = True,
+    ignore_failures: bool = False,
+    change: bool = True,
 ) -> object:
     sys.stdout.flush()
     sys.stderr.flush()
@@ -57,7 +60,7 @@ def run(
     extra.returncode = p.returncode
     failure = p.returncode != 0
     r = Return(
-        changed=True,
+        changed=change,
         failure=failure,
         output=p.stdout,
         extra=extra,
