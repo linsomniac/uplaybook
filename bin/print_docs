@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+
+import inspect
+import re
+
+
+def collect_docstrings(module):
+    """Collect docstrings from all methods in a module."""
+    docstrings = {}
+
+    for name, obj in inspect.getmembers(module):
+        if inspect.isfunction(obj) or inspect.ismethod(obj):
+            doc = inspect.getdoc(obj)
+            if doc:
+                docstrings[name] = doc
+
+    return docstrings
+
+
+def is_taskdoc(doc):
+    return "#taskdoc" in doc
+
+
+if __name__ == "__main__":
+    from uplaybook2 import fs, core, internals
+
+    doc_list = []
+
+    for module in fs, core, internals:
+        docs = collect_docstrings(module)
+        for name, doc in docs.items():
+            if not is_taskdoc(doc):
+                continue
+
+            doc = re.sub(r"#taskdoc\b", "", doc).rstrip()
+            doc_list.append(
+                (
+                    f"{module.__name__}.{name}",
+                    f"### {module.__name__}.{name}:\n\n{doc}\n",
+                )
+            )
+
+    for name, desc in sorted(doc_list):
+        print(desc)

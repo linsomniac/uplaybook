@@ -409,7 +409,7 @@ def cli() -> None:
     """
     try:
         pb_name = sys.argv[1]
-        docstr = extract_docstring_from_file(pb_name)
+        # docstr = extract_docstring_from_file(pb_name)
         # print(docstr)
         pb = import_script_as_module(pb_name, [pb_name, f"./{pb_name}"])
     except Exception:

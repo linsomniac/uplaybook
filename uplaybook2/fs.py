@@ -58,6 +58,17 @@ def _chmod(
 @calling_context
 @template_args
 def cd(path: TemplateStr) -> Return:
+    """
+    Change working directory to `path`.
+
+    Arguments:
+        - path: Directory to change into (templateable).
+
+    Examples:
+        fs.cd(path="/tmp")
+
+    #taskdoc
+    """
     os.chdir(path)
     return Return(changed=False)
 
@@ -65,6 +76,20 @@ def cd(path: TemplateStr) -> Return:
 @calling_context
 @template_args
 def mkfile(path: TemplateStr, mode: Optional[Union[TemplateStr, int]] = None) -> Return:
+    """
+    Create an empty file if it does not already exist.
+
+    Arguments:
+        - path: Name of file to create (templateable).
+        - mode: Permissions of file (optional, templatable string or int).
+
+    Examples:
+        fs.mkfile(path="/tmp/foo")
+        fs.mkfile(path="/tmp/bar", mode="a=rX,u+w")
+        fs.mkfile(path="/tmp/baz", mode=0o755)
+
+    #taskdoc
+    """
     new_mode = mode
     if not os.path.exists(path):
         new_mode = _mode_from_arg(new_mode)
@@ -79,23 +104,26 @@ def mkfile(path: TemplateStr, mode: Optional[Union[TemplateStr, int]] = None) ->
 
 @calling_context
 @template_args
-def mkdir(path: TemplateStr, mode: Optional[Union[TemplateStr, int]] = None) -> Return:
-    new_mode = mode
-    if not os.path.exists(path):
-        new_mode = _mode_from_arg(new_mode, is_directory=True)
-        mode_arg = {} if new_mode is None else {"mode": new_mode}
-        os.mkdir(path, **mode_arg)
-
-        return Return(changed=True)
-
-    return _chmod(path, new_mode, is_directory=True)
-
-
-@calling_context
-@template_args
-def makedirs(
-    path: TemplateStr, mode: Optional[Union[TemplateStr, int]] = None
+def mkdir(
+    path: TemplateStr,
+    mode: Optional[Union[TemplateStr, int]] = None,
+    parents: Optional[bool] = None,
 ) -> Return:
+    """
+    Create a directory.
+
+    Arguments:
+        - path: Name of file to create (templateable).
+        - mode: Permissions of directory (optional, templatable string or int).
+        - parents: Make parent directories if needed.
+
+    Examples:
+        fs.mkdir(path="/tmp/foo")
+        fs.mkdir(path="/tmp/bar", mode="a=rX,u+w")
+        fs.mkdir(path="/tmp/baz/qux", mode=0o755, parents=True)
+
+    #taskdoc
+    """
     new_mode = mode
     if not os.path.exists(path):
         new_mode = _mode_from_arg(new_mode, is_directory=True)
@@ -119,12 +147,28 @@ def _random_ext(i: int = 8) -> str:
 @calling_context
 @template_args
 def template(
-    src: TemplateStr,
     dst: TemplateStr,
+    src: Optional[TemplateStr] = None,
     encrypt_password: Optional[TemplateStr] = None,
     decrypt_password: Optional[TemplateStr] = None,
     mode: Optional[Union[TemplateStr, int]] = None,
 ) -> Return:
+    """
+    Jinja2 templating is used to fill in `src` file to write to `dst`.
+
+    Arguments:
+        - dst: Name of destination file. (templateable).
+        - src: Name of template to use as source (optional, templateable).
+               Defaults to the basename of `dst` + ".j2".
+        - mode: Permissions of file (optional, templatable string or int).
+
+    Examples:
+        fs.template("/tmp/foo")
+        fs.mkfile("/tmp/bar", 0o755)
+
+    #taskdoc
+    """
+
     if encrypt_password or decrypt_password:
         raise NotImplemented("Crypto not implemented yet")
 
@@ -137,7 +181,10 @@ def template(
             sha.update(fp_in.read())
             hash_before = sha.digest()
 
-    with open(src, "r") as fp_in:
+    new_src = src
+    if new_src is None:
+        new_src = os.path.basename(dst) + ".j2"
+    with open(new_src, "r") as fp_in:
         data = up_context.jinja_env.from_string(fp_in.read()).render(
             up_context.get_env()
         )
