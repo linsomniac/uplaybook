@@ -24,10 +24,12 @@ def debug(msg: Optional[TemplateStr] = None, var: Optional[object] = None) -> Re
     Print a message or pretty-print a variable.
 
     Arguments:
+
         - msg: Message to display. (optional, templateable).
         - var: Object to pretty-print (optional, templateable).
 
     Examples:
+
         core.debug(msg="Directory already exists, exiting")
         core.debug(var=ret_value)
 
@@ -58,12 +60,14 @@ def render(s: TemplateStr) -> str:
     Render a string as a jinja2 template and return the value
 
     Arguments:
+
         - s: Template to render. (templateable).
 
     Returns:
         Rendered template as a string.
 
     Examples:
+
         core.render(s="Value of foo: {{foo}}")
 
     #taskdoc
@@ -84,6 +88,7 @@ def run(
     and return code are stored in `extra` in return object.
 
     Arguments:
+
         - command: Command to run (templateable).
         - shell: If False, run `command` without a shell.  Safer.  Default is True:
                  allows shell processing of `command` for things like output
@@ -95,10 +100,12 @@ def run(
                  is treated as not changing the system.  (optional, bool)
 
     Extra:
+
         - stderr: Captured stderr output.
         - returncode: The return code of the command.
 
     Examples:
+
         core.run(command="systemctl restart sshd")
         core.run(command="rm *.foo", shell=False)   #  removes literal file "*.foo"
 

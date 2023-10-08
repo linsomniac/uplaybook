@@ -62,9 +62,11 @@ def cd(path: TemplateStr) -> Return:
     Change working directory to `path`.
 
     Arguments:
+
         - path: Directory to change into (templateable).
 
     Examples:
+
         fs.cd(path="/tmp")
 
     #taskdoc
@@ -80,10 +82,12 @@ def mkfile(path: TemplateStr, mode: Optional[Union[TemplateStr, int]] = None) ->
     Create an empty file if it does not already exist.
 
     Arguments:
+
         - path: Name of file to create (templateable).
         - mode: Permissions of file (optional, templatable string or int).
 
     Examples:
+
         fs.mkfile(path="/tmp/foo")
         fs.mkfile(path="/tmp/bar", mode="a=rX,u+w")
         fs.mkfile(path="/tmp/baz", mode=0o755)
@@ -113,11 +117,13 @@ def mkdir(
     Create a directory.
 
     Arguments:
+
         - path: Name of file to create (templateable).
         - mode: Permissions of directory (optional, templatable string or int).
         - parents: Make parent directories if needed.
 
     Examples:
+
         fs.mkdir(path="/tmp/foo")
         fs.mkdir(path="/tmp/bar", mode="a=rX,u+w")
         fs.mkdir(path="/tmp/baz/qux", mode=0o755, parents=True)
@@ -157,12 +163,14 @@ def template(
     Jinja2 templating is used to fill in `src` file to write to `dst`.
 
     Arguments:
+
         - dst: Name of destination file. (templateable).
         - src: Name of template to use as source (optional, templateable).
                Defaults to the basename of `dst` + ".j2".
         - mode: Permissions of file (optional, templatable string or int).
 
     Examples:
+
         fs.template("/tmp/foo")
         fs.mkfile("/tmp/bar", 0o755)
 
