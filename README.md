@@ -88,8 +88,8 @@ Print a message or pretty-print a variable.
 
 #### Arguments:
 
-- msg: Message to display. (optional, templateable).
-- var: Object to pretty-print (optional, templateable).
+- **msg**: Message to display. (optional, templateable).
+- **var**: Object to pretty-print (optional, templateable).
 
 #### Examples:
 
@@ -102,10 +102,11 @@ Render a string as a jinja2 template and return the value
 
 #### Arguments:
 
-- s: Template to render. (templateable).
+- **s**: Template to render. (templateable).
 
 #### Returns:
-    Rendered template as a string.
+
+- Rendered template as a string.
 
 #### Examples:
 
@@ -118,20 +119,20 @@ and return code are stored in `extra` in return object.
 
 #### Arguments:
 
-- command: Command to run (templateable).
-- shell: If False, run `command` without a shell.  Safer.  Default is True:
+- **command**: Command to run (templateable).
+- **shell**: If False, run `command` without a shell.  Safer.  Default is True:
          allows shell processing of `command` for things like output
          redirection, wildcard expansion, pipelines, etc. (optional, bool)
-- ignore_failures: If true, do not treat non-0 return code as a fatal failure.
+- **ignore_failures**: If true, do not treat non-0 return code as a fatal failure.
          This allows testing of return code within playbook.  (optional, bool)
-- change: By default, all shell commands are assumed to have caused a change
+- **change**: By default, all shell commands are assumed to have caused a change
          to the system and will trigger notifications.  If False, this `command`
          is treated as not changing the system.  (optional, bool)
 
 Extra:
 
-    - stderr: Captured stderr output.
-    - returncode: The return code of the command.
+- **stderr**: Captured stderr output.
+- **returncode**: The return code of the command.
 
 #### Examples:
 
@@ -151,7 +152,7 @@ Change working directory to `path`.
 
 #### Arguments:
 
-- path: Directory to change into (templateable).
+- **path**: Directory to change into (templateable).
 
 #### Examples:
 
@@ -163,9 +164,9 @@ Create a directory.
 
 #### Arguments:
 
-- path: Name of file to create (templateable).
-- mode: Permissions of directory (optional, templatable string or int).
-- parents: Make parent directories if needed.
+- **path**: Name of file to create (templateable).
+- **mode**: Permissions of directory (optional, templatable string or int).
+- **parents**: Make parent directories if needed.
 
 #### Examples:
 
@@ -179,8 +180,8 @@ Create an empty file if it does not already exist.
 
 #### Arguments:
 
-- path: Name of file to create (templateable).
-- mode: Permissions of file (optional, templatable string or int).
+- **path**: Name of file to create (templateable).
+- **mode**: Permissions of file (optional, templatable string or int).
 
 #### Examples:
 
@@ -194,10 +195,10 @@ Jinja2 templating is used to fill in `src` file to write to `dst`.
 
 #### Arguments:
 
-- dst: Name of destination file. (templateable).
-- src: Name of template to use as source (optional, templateable).
+- **dst**: Name of destination file. (templateable).
+- **src**: Name of template to use as source (optional, templateable).
        Defaults to the basename of `dst` + ".j2".
-- mode: Permissions of file (optional, templatable string or int).
+- **mode**: Permissions of file (optional, templatable string or int).
 
 #### Examples:
 
