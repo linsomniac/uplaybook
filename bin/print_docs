@@ -32,6 +32,8 @@ if __name__ == "__main__":
             if not is_taskdoc(doc):
                 continue
 
+            mod_name = module.__name__
+            mod_name = re.sub(r"^uplaybook2\.", "", mod_name).rstrip()
             doc = re.sub(r"#taskdoc\b", "", doc).rstrip()
             doc = re.sub(
                 r"^(Arguments|Examples|Returns):$", r"#### \1:", doc, flags=re.MULTILINE
