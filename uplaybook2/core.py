@@ -25,8 +25,8 @@ def debug(msg: Optional[TemplateStr] = None, var: Optional[object] = None) -> Re
 
     Arguments:
 
-        - msg: Message to display. (optional, templateable).
-        - var: Object to pretty-print (optional, templateable).
+    - msg: Message to display. (optional, templateable).
+    - var: Object to pretty-print (optional, templateable).
 
     Examples:
 
@@ -61,7 +61,7 @@ def render(s: TemplateStr) -> str:
 
     Arguments:
 
-        - s: Template to render. (templateable).
+    - s: Template to render. (templateable).
 
     Returns:
         Rendered template as a string.
@@ -89,15 +89,15 @@ def run(
 
     Arguments:
 
-        - command: Command to run (templateable).
-        - shell: If False, run `command` without a shell.  Safer.  Default is True:
-                 allows shell processing of `command` for things like output
-                 redirection, wildcard expansion, pipelines, etc. (optional, bool)
-        - ignore_failures: If true, do not treat non-0 return code as a fatal failure.
-                 This allows testing of return code within playbook.  (optional, bool)
-        - change: By default, all shell commands are assumed to have caused a change
-                 to the system and will trigger notifications.  If False, this `command`
-                 is treated as not changing the system.  (optional, bool)
+    - command: Command to run (templateable).
+    - shell: If False, run `command` without a shell.  Safer.  Default is True:
+             allows shell processing of `command` for things like output
+             redirection, wildcard expansion, pipelines, etc. (optional, bool)
+    - ignore_failures: If true, do not treat non-0 return code as a fatal failure.
+             This allows testing of return code within playbook.  (optional, bool)
+    - change: By default, all shell commands are assumed to have caused a change
+             to the system and will trigger notifications.  If False, this `command`
+             is treated as not changing the system.  (optional, bool)
 
     Extra:
 

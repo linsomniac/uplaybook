@@ -63,7 +63,7 @@ def cd(path: TemplateStr) -> Return:
 
     Arguments:
 
-        - path: Directory to change into (templateable).
+    - path: Directory to change into (templateable).
 
     Examples:
 
@@ -83,8 +83,8 @@ def mkfile(path: TemplateStr, mode: Optional[Union[TemplateStr, int]] = None) ->
 
     Arguments:
 
-        - path: Name of file to create (templateable).
-        - mode: Permissions of file (optional, templatable string or int).
+    - path: Name of file to create (templateable).
+    - mode: Permissions of file (optional, templatable string or int).
 
     Examples:
 
@@ -118,9 +118,9 @@ def mkdir(
 
     Arguments:
 
-        - path: Name of file to create (templateable).
-        - mode: Permissions of directory (optional, templatable string or int).
-        - parents: Make parent directories if needed.
+    - path: Name of file to create (templateable).
+    - mode: Permissions of directory (optional, templatable string or int).
+    - parents: Make parent directories if needed.
 
     Examples:
 
@@ -164,10 +164,10 @@ def template(
 
     Arguments:
 
-        - dst: Name of destination file. (templateable).
-        - src: Name of template to use as source (optional, templateable).
-               Defaults to the basename of `dst` + ".j2".
-        - mode: Permissions of file (optional, templatable string or int).
+    - dst: Name of destination file. (templateable).
+    - src: Name of template to use as source (optional, templateable).
+           Defaults to the basename of `dst` + ".j2".
+    - mode: Permissions of file (optional, templatable string or int).
 
     Examples:
 
