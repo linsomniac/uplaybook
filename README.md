@@ -80,7 +80,7 @@ Which produces the following output:
 
 ## Task Documentation
 
-### uplaybook2.core.debug:
+### core.debug:
 
 Display informational message.
 
@@ -96,7 +96,7 @@ Print a message or pretty-print a variable.
     core.debug(msg="Directory already exists, exiting")
     core.debug(var=ret_value)
 
-### uplaybook2.core.render:
+### core.render:
 
 Render a string as a jinja2 template and return the value
 
@@ -112,7 +112,7 @@ Render a string as a jinja2 template and return the value
 
     core.render(s="Value of foo: {{foo}}")
 
-### uplaybook2.core.run:
+### core.run:
 
 Run a command.  Stdout is returned as `output` in the return object.  Stderr
 and return code are stored in `extra` in return object.
@@ -146,7 +146,7 @@ Extra:
     if core.run(command="grep -q ^user: /etc/passwd", ignore_failures=True, change=False):
         print("User exists")
 
-### uplaybook2.fs.cd:
+### fs.cd:
 
 Change working directory to `path`.
 
@@ -158,7 +158,7 @@ Change working directory to `path`.
 
     fs.cd(path="/tmp")
 
-### uplaybook2.fs.mkdir:
+### fs.mkdir:
 
 Create a directory.
 
@@ -174,7 +174,7 @@ Create a directory.
     fs.mkdir(path="/tmp/bar", mode="a=rX,u+w")
     fs.mkdir(path="/tmp/baz/qux", mode=0o755, parents=True)
 
-### uplaybook2.fs.mkfile:
+### fs.mkfile:
 
 Create an empty file if it does not already exist.
 
@@ -189,7 +189,7 @@ Create an empty file if it does not already exist.
     fs.mkfile(path="/tmp/bar", mode="a=rX,u+w")
     fs.mkfile(path="/tmp/baz", mode=0o755)
 
-### uplaybook2.fs.template:
+### fs.template:
 
 Jinja2 templating is used to fill in `src` file to write to `dst`.
 

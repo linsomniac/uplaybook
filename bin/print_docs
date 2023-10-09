@@ -40,8 +40,8 @@ if __name__ == "__main__":
             )
             doc_list.append(
                 (
-                    f"{module.__name__}.{name}",
-                    f"### {module.__name__}.{name}:\n\n{doc}\n",
+                    f"{mod_name}.{name}",
+                    f"### {mod_name}.{name}:\n\n{doc}\n",
                 )
             )
 
