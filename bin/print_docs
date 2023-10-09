@@ -33,6 +33,9 @@ if __name__ == "__main__":
                 continue
 
             doc = re.sub(r"#taskdoc\b", "", doc).rstrip()
+            doc = re.sub(
+                r"^(Arguments|Examples|Returns):$", r"#### \1:", doc, flags=re.MULTILINE
+            )
             doc_list.append(
                 (
                     f"{module.__name__}.{name}",

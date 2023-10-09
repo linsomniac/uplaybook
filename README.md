@@ -86,12 +86,12 @@ Display informational message.
 
 Print a message or pretty-print a variable.
 
-Arguments:
+#### Arguments:
 
 - msg: Message to display. (optional, templateable).
 - var: Object to pretty-print (optional, templateable).
 
-Examples:
+#### Examples:
 
     core.debug(msg="Directory already exists, exiting")
     core.debug(var=ret_value)
@@ -100,14 +100,14 @@ Examples:
 
 Render a string as a jinja2 template and return the value
 
-Arguments:
+#### Arguments:
 
 - s: Template to render. (templateable).
 
-Returns:
+#### Returns:
     Rendered template as a string.
 
-Examples:
+#### Examples:
 
     core.render(s="Value of foo: {{foo}}")
 
@@ -116,7 +116,7 @@ Examples:
 Run a command.  Stdout is returned as `output` in the return object.  Stderr
 and return code are stored in `extra` in return object.
 
-Arguments:
+#### Arguments:
 
 - command: Command to run (templateable).
 - shell: If False, run `command` without a shell.  Safer.  Default is True:
@@ -133,7 +133,7 @@ Extra:
     - stderr: Captured stderr output.
     - returncode: The return code of the command.
 
-Examples:
+#### Examples:
 
     core.run(command="systemctl restart sshd")
     core.run(command="rm *.foo", shell=False)   #  removes literal file "*.foo"
@@ -149,11 +149,11 @@ Examples:
 
 Change working directory to `path`.
 
-Arguments:
+#### Arguments:
 
 - path: Directory to change into (templateable).
 
-Examples:
+#### Examples:
 
     fs.cd(path="/tmp")
 
@@ -161,13 +161,13 @@ Examples:
 
 Create a directory.
 
-Arguments:
+#### Arguments:
 
 - path: Name of file to create (templateable).
 - mode: Permissions of directory (optional, templatable string or int).
 - parents: Make parent directories if needed.
 
-Examples:
+#### Examples:
 
     fs.mkdir(path="/tmp/foo")
     fs.mkdir(path="/tmp/bar", mode="a=rX,u+w")
@@ -177,12 +177,12 @@ Examples:
 
 Create an empty file if it does not already exist.
 
-Arguments:
+#### Arguments:
 
 - path: Name of file to create (templateable).
 - mode: Permissions of file (optional, templatable string or int).
 
-Examples:
+#### Examples:
 
     fs.mkfile(path="/tmp/foo")
     fs.mkfile(path="/tmp/bar", mode="a=rX,u+w")
@@ -192,14 +192,14 @@ Examples:
 
 Jinja2 templating is used to fill in `src` file to write to `dst`.
 
-Arguments:
+#### Arguments:
 
 - dst: Name of destination file. (templateable).
 - src: Name of template to use as source (optional, templateable).
        Defaults to the basename of `dst` + ".j2".
 - mode: Permissions of file (optional, templatable string or int).
 
-Examples:
+#### Examples:
 
     fs.template("/tmp/foo")
     fs.mkfile("/tmp/bar", 0o755)
