@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from .internals import Return, TemplateStr, template_args, calling_context, up_context
-from typing import Union, Optional
+from typing import Union, Optional, Callable
 import symbolicmode
 import os
 import stat
@@ -111,7 +111,7 @@ def mkfile(path: TemplateStr, mode: Optional[Union[TemplateStr, int]] = None) ->
 def mkdir(
     path: TemplateStr,
     mode: Optional[Union[TemplateStr, int]] = None,
-    parents: Optional[bool] = None,
+    parents: Optional[bool] = True,
 ) -> Return:
     """
     Create a directory.
@@ -120,7 +120,7 @@ def mkdir(
 
     - **path**: Name of file to create (templateable).
     - **mode**: Permissions of directory (optional, templatable string or int).
-    - **parents**: Make parent directories if needed.
+    - **parents**: Make parent directories if needed.  (optional, default=True)
 
     Examples:
 
@@ -134,7 +134,10 @@ def mkdir(
     if not os.path.exists(path):
         new_mode = _mode_from_arg(new_mode, is_directory=True)
         mode_arg = {} if new_mode is None else {"mode": new_mode}
-        os.makedirs(path, **mode_arg)
+        if parents:
+            os.makedirs(path, **mode_arg)
+        else:
+            os.mkdir(path, **mode_arg)
 
         return Return(changed=True)
 
@@ -171,8 +174,8 @@ def template(
 
     Examples:
 
-        fs.template("/tmp/foo")
-        fs.mkfile("/tmp/bar", 0o755)
+        fs.template(dst="/tmp/foo")
+        fs.template(src="bar-{{ fqdn }}.j2", dst="/tmp/bar", mode="a=rX,u+w")
 
     #taskdoc
     """
@@ -212,3 +215,68 @@ def template(
     os.rename(dstTmp, dst)
 
     return Return(changed=True, secret_args={"decrypt_password", "encrypt_password"})
+
+
+@calling_context
+@template_args
+def builder(
+    path: TemplateStr,
+    src: Optional[TemplateStr] = None,
+    mode: Optional[Union[TemplateStr, int]] = None,
+    owner: Optional[TemplateStr] = None,
+    group: Optional[TemplateStr] = None,
+    state: Union[TemplateStr, str] = "template",
+    notify: Optional[Callable] = None,
+) -> Return:
+    """
+    All-in-one filesystem builder.
+
+    This is targeted for use with Items() loops, for easily populating or
+    modifying many filesystem objects in compact declarations.
+
+    Arguments:
+
+    - **path**: Name of destination filesystem object. (templateable).
+    - **src**: Name of template to use as source (optional, templateable).
+            Defaults to the basename of `path` + ".j2".
+    - **mode**: Permissions of file (optional, templatable string or int).
+    - **owner**: Ownership to set on `path`. (optional, templatable).
+    - **group**: Group to set on `path`. (optional, templatable).
+    - **state**: Type of `path` to build, can be: "directory", "template", "exists".
+            (optional, templatable, default="template")
+    - **notify**:  Handler to notify of changes.
+            (optional, Callable)
+
+    Examples:
+
+        fs.builder("/tmp/foo")
+        fs.builder("/tmp/bar", state="directory")
+        for _ in Items(
+                Item(path="/tmp/{{ modname }}", state="directory"),
+                Item(path="/tmp/{{ modname }}/__init__.py"),
+                defaults=Item(mode="a=rX,u+w")
+                ):
+            builder()
+
+    #taskdoc
+    """
+
+    if state == "template":
+        r = template(src=src, dst=path, mode=mode)
+        # @@@
+        # r = template(src=src, dst=path, mode=mode, owner=owner, group=group)
+    elif state == "directory":
+        r = mkdir(path=path, mode=mode)
+        # @@@
+        # r = mkdir(path=path, mode=mode, owner=owner, group=group)
+    elif state == "exists":
+        r = mkfile(path=path, mode=mode)
+        # @@@
+        # r = mkfile(path=path, mode=mode, owner=owner, group=group)
+    else:
+        raise ValueError(f"Unknown state: {state}")
+
+    if notify is not None:
+        r = r.notify(notify)
+
+    return r
