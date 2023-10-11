@@ -38,28 +38,56 @@ def _mode_from_arg(
 def _chmod(
     path: str,
     mode: Optional[Union[str, int]] = None,
-    owner: Optional[str] = None,
-    group: Optional[str] = None,
     is_directory: bool = False,
 ) -> Return:
+    if mode is None:
+        return Return(
+            changed=False, secret_args={"decrypt_password", "encrypt_password"}
+        )
+
+    path_stats = os.stat(path)
+    current_mode = stat.S_IMODE(path_stats.st_mode)
+    mode = _mode_from_arg(mode, initial_mode=current_mode, is_directory=is_directory)
+    if current_mode != mode:
+        assert type(mode) is int
+        os.chmod(path, mode)
+        return Return(
+            changed=True,
+            secret_args={"decrypt_password", "encrypt_password"},
+            extra_message=f"Changed permissions: {current_mode:o} -> {mode:o}",
+        )
+
+    return Return(changed=False, secret_args={"decrypt_password", "encrypt_password"})
+
+
+@calling_context
+@template_args
+def chown(
+    path: str,
+    owner: Optional[TemplateStr] = None,
+    group: Optional[TemplateStr] = None,
+) -> Return:
     """
+    Change ownership/group of path.
+
+    Arguments:
+
+    - **path**: Path to change (templateable).
     - **owner**: Ownership to set on `path`. (optional, templatable).
     - **group**: Group to set on `path`. (optional, templatable).
+
+    Examples:
+
+        fs.chown(path="/tmp", owner="root")
+        fs.chown(path="/tmp", group="wheel")
+        fs.chown(path="/tmp", owner="nobody", group="nobody")
+
+    #taskdoc
     """
     changed = False
     extra_messages = []
 
     path_stats = os.stat(path)
-    if mode is not None:
-        current_mode = stat.S_IMODE(path_stats.st_mode)
-        mode = _mode_from_arg(
-            mode, initial_mode=current_mode, is_directory=is_directory
-        )
-        if current_mode != mode:
-            assert type(mode) is int
-            os.chmod(path, mode)
-            changed = True
-            extra_messages.append("permissions")
 
     uid = -1
     gid = -1
@@ -112,8 +140,6 @@ def cd(path: TemplateStr) -> Return:
 def mkfile(
     path: TemplateStr,
     mode: Optional[Union[TemplateStr, int]] = None,
-    owner: Optional[TemplateStr] = None,
-    group: Optional[TemplateStr] = None,
 ) -> Return:
     """
     Create an empty file if it does not already exist.
@@ -122,8 +148,6 @@ def mkfile(
 
     - **path**: Name of file to create (templateable).
     - **mode**: Permissions of file (optional, templatable string or int).
-    - **owner**: Ownership to set on `path`. (optional, templatable).
-    - **group**: Group to set on `path`. (optional, templatable).
 
     Examples:
 
@@ -142,7 +166,7 @@ def mkfile(
 
         return Return(changed=True)
 
-    return _chmod(path, new_mode, owner, group)
+    return _chmod(path, new_mode)
 
 
 @calling_context
@@ -150,8 +174,6 @@ def mkfile(
 def mkdir(
     path: TemplateStr,
     mode: Optional[Union[TemplateStr, int]] = None,
-    owner: Optional[TemplateStr] = None,
-    group: Optional[TemplateStr] = None,
     parents: Optional[bool] = True,
 ) -> Return:
     """
@@ -161,8 +183,6 @@ def mkdir(
 
     - **path**: Name of file to create (templateable).
     - **mode**: Permissions of directory (optional, templatable string or int).
-    - **owner**: Ownership to set on `path`. (optional, templatable).
-    - **group**: Group to set on `path`. (optional, templatable).
     - **parents**: Make parent directories if needed.  (optional, default=True)
 
     Examples:
@@ -184,7 +204,7 @@ def mkdir(
 
         return Return(changed=True)
 
-    return _chmod(path, new_mode, owner, group, is_directory=True)
+    return _chmod(path, new_mode, is_directory=True)
 
 
 def _random_ext(i: int = 8) -> str:
@@ -204,8 +224,6 @@ def template(
     encrypt_password: Optional[TemplateStr] = None,
     decrypt_password: Optional[TemplateStr] = None,
     mode: Optional[Union[TemplateStr, int]] = None,
-    owner: Optional[TemplateStr] = None,
-    group: Optional[TemplateStr] = None,
 ) -> Return:
     """
     Jinja2 templating is used to fill in `src` file to write to `dst`.
@@ -216,8 +234,6 @@ def template(
     - **src**: Name of template to use as source (optional, templateable).
            Defaults to the basename of `dst` + ".j2".
     - **mode**: Permissions of file (optional, templatable string or int).
-    - **owner**: Ownership to set on `path`. (optional, templatable).
-    - **group**: Group to set on `path`. (optional, templatable).
 
     Examples:
 
@@ -252,7 +268,7 @@ def template(
     hash_after = sha.digest()
 
     if hash_before == hash_after:
-        return _chmod(dst, new_mode, owner, group, is_directory=False)
+        return _chmod(dst, new_mode, is_directory=False)
 
     dstTmp = dst + ".tmp." + _random_ext()
     with open(dstTmp, "w") as fp_out:
@@ -309,13 +325,18 @@ def builder(
     """
 
     if state == "template":
-        r = template(src=src, dst=path, mode=mode, owner=owner, group=group)
+        r = template(src=src, dst=path, mode=mode)
     elif state == "directory":
-        r = mkdir(path=path, mode=mode, owner=owner, group=group)
+        r = mkdir(path=path, mode=mode)
     elif state == "exists":
-        r = mkfile(path=path, mode=mode, owner=owner, group=group)
+        r = mkfile(path=path, mode=mode)
     else:
         raise ValueError(f"Unknown state: {state}")
+
+    if mode is not None:
+        raise NotImplementedError
+    if owner is not None or group is not None:
+        raise NotImplementedError
 
     if notify is not None:
         r = r.notify(notify)
