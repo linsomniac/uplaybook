@@ -215,6 +215,39 @@ Change working directory to `path`.
 
     fs.cd(path="/tmp")
 
+### fs.chmod:
+
+Change permissions of path.
+
+#### Arguments:
+
+- **path**: Path to change (templateable).
+- **mode**: Permissions of path (optional, templatable string or int).
+- **is_directory**: Treat path as a directory, impacts "X".  If not specified
+        `path` is examined to determine if it is a directory.
+        (optional, bool).
+
+#### Examples:
+
+    fs.chmod(path="/tmp/foo", mode="a=rX,u+w")
+    fs.chmod(path="/tmp/foo", mode=0o755)
+
+### fs.chown:
+
+Change ownership/group of path.
+
+#### Arguments:
+
+- **path**: Path to change (templateable).
+- **owner**: Ownership to set on `path`. (optional, templatable).
+- **group**: Group to set on `path`. (optional, templatable).
+
+#### Examples:
+
+    fs.chown(path="/tmp", owner="root")
+    fs.chown(path="/tmp", group="wheel")
+    fs.chown(path="/tmp", owner="nobody", group="nobody")
+
 ### fs.mkdir:
 
 Create a directory.
@@ -223,6 +256,7 @@ Create a directory.
 
 - **path**: Name of file to create (templateable).
 - **mode**: Permissions of directory (optional, templatable string or int).
+            Sets mode on creation.
 - **parents**: Make parent directories if needed.  (optional, default=True)
 
 #### Examples:
@@ -239,6 +273,7 @@ Create an empty file if it does not already exist.
 
 - **path**: Name of file to create (templateable).
 - **mode**: Permissions of file (optional, templatable string or int).
+   Atomically sets mode on creation.
 
 #### Examples:
 
@@ -252,12 +287,11 @@ Jinja2 templating is used to fill in `src` file to write to `dst`.
 
 #### Arguments:
 
-- **dst**: Name of destination file. (templateable).
+- **path**: Name of destination file. (templateable).
 - **src**: Name of template to use as source (optional, templateable).
        Defaults to the basename of `dst` + ".j2".
-- **mode**: Permissions of file (optional, templatable string or int).
 
 #### Examples:
 
-    fs.template(dst="/tmp/foo")
-    fs.template(src="bar-{{ fqdn }}.j2", dst="/tmp/bar", mode="a=rX,u+w")
+    fs.template(path="/tmp/foo")
+    fs.template(src="bar-{{ fqdn }}.j2", path="/tmp/bar")

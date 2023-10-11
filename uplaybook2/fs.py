@@ -250,6 +250,7 @@ def template(
     src: Optional[TemplateStr] = None,
     encrypt_password: Optional[TemplateStr] = None,
     decrypt_password: Optional[TemplateStr] = None,
+    # @@@ Maybe this should take `mode` at some point to be atomic?
 ) -> Return:
     """
     Jinja2 templating is used to fill in `src` file to write to `dst`.
@@ -348,7 +349,7 @@ def builder(
     """
 
     if state == "template":
-        r = template(src=src, dst=path, mode=mode)
+        r = template(src=src, dst=path)
     elif state == "directory":
         r = mkdir(path=path, mode=mode)
     elif state == "exists":
