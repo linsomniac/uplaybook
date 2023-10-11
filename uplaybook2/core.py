@@ -131,7 +131,7 @@ def run(
     r = Return(
         changed=change,
         failure=failure,
-        output=p.stdout,
+        output=p.stdout.rstrip(),
         extra=extra,
         ignore_failure=ignore_failures,
         failure_exc=Failure(f"Exit code {p.returncode}"),

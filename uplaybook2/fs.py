@@ -15,7 +15,7 @@ import grp
 def _mode_from_arg(
     mode: Optional[Union[str, int]] = None,
     initial_mode: Optional[int] = None,
-    is_directory: bool = False,
+    is_directory: Optional[bool] = None,
 ) -> Optional[int]:
     if type(mode) is int or mode is None:
         return mode
@@ -25,21 +25,41 @@ def _mode_from_arg(
     mode_is_sym_str = type(mode) is str and not set(mode).issubset("01234567")
     if mode_is_sym_str:
         extra_args = {}
+        if is_directory is not None:
+            extra_args["is_directory"] = is_directory
         if initial_mode:
             extra_args["initial_mode"] = initial_mode
 
-        return symbolicmode.symbolic_to_numeric_permissions(
-            mode, is_directory=is_directory, **extra_args
-        )
+        return symbolicmode.symbolic_to_numeric_permissions(mode, **extra_args)
 
     return int(mode, 8)
 
 
-def _chmod(
+@calling_context
+@template_args
+def chmod(
     path: str,
     mode: Optional[Union[str, int]] = None,
-    is_directory: bool = False,
+    is_directory: Optional[bool] = None,
 ) -> Return:
+    """
+    Change permissions of path.
+
+    Arguments:
+
+    - **path**: Path to change (templateable).
+    - **mode**: Permissions of path (optional, templatable string or int).
+    - **is_directory**: Treat path as a directory, impacts "X".  If not specified
+            `path` is examined to determine if it is a directory.
+            (optional, bool).
+
+    Examples:
+
+        fs.chmod(path="/tmp/foo", mode="a=rX,u+w")
+        fs.chmod(path="/tmp/foo", mode=0o755)
+
+    #taskdoc
+    """
     if mode is None:
         return Return(
             changed=False, secret_args={"decrypt_password", "encrypt_password"}
@@ -47,7 +67,10 @@ def _chmod(
 
     path_stats = os.stat(path)
     current_mode = stat.S_IMODE(path_stats.st_mode)
-    mode = _mode_from_arg(mode, initial_mode=current_mode, is_directory=is_directory)
+    extra_args = {}
+    if is_directory is not None:
+        extra_args["is_directory"] = is_directory
+    mode = _mode_from_arg(mode, initial_mode=current_mode, **extra_args)
     if current_mode != mode:
         assert type(mode) is int
         os.chmod(path, mode)
@@ -148,6 +171,7 @@ def mkfile(
 
     - **path**: Name of file to create (templateable).
     - **mode**: Permissions of file (optional, templatable string or int).
+       Atomically sets mode on creation.
 
     Examples:
 
@@ -166,7 +190,9 @@ def mkfile(
 
         return Return(changed=True)
 
-    return _chmod(path, new_mode)
+    if mode is not None:
+        chmod(path, new_mode)
+        return Return(changed=False)
 
 
 @calling_context
@@ -183,6 +209,7 @@ def mkdir(
 
     - **path**: Name of file to create (templateable).
     - **mode**: Permissions of directory (optional, templatable string or int).
+                Sets mode on creation.
     - **parents**: Make parent directories if needed.  (optional, default=True)
 
     Examples:
@@ -204,7 +231,7 @@ def mkdir(
 
         return Return(changed=True)
 
-    return _chmod(path, new_mode, is_directory=True)
+    return chmod(path, new_mode, is_directory=True)
 
 
 def _random_ext(i: int = 8) -> str:
@@ -219,26 +246,24 @@ def _random_ext(i: int = 8) -> str:
 @calling_context
 @template_args
 def template(
-    dst: TemplateStr,
+    path: TemplateStr,
     src: Optional[TemplateStr] = None,
     encrypt_password: Optional[TemplateStr] = None,
     decrypt_password: Optional[TemplateStr] = None,
-    mode: Optional[Union[TemplateStr, int]] = None,
 ) -> Return:
     """
     Jinja2 templating is used to fill in `src` file to write to `dst`.
 
     Arguments:
 
-    - **dst**: Name of destination file. (templateable).
+    - **path**: Name of destination file. (templateable).
     - **src**: Name of template to use as source (optional, templateable).
            Defaults to the basename of `dst` + ".j2".
-    - **mode**: Permissions of file (optional, templatable string or int).
 
     Examples:
 
-        fs.template(dst="/tmp/foo")
-        fs.template(src="bar-{{ fqdn }}.j2", dst="/tmp/bar", mode="a=rX,u+w")
+        fs.template(path="/tmp/foo")
+        fs.template(src="bar-{{ fqdn }}.j2", path="/tmp/bar")
 
     #taskdoc
     """
@@ -246,18 +271,16 @@ def template(
     if encrypt_password or decrypt_password:
         raise NotImplemented("Crypto not implemented yet")
 
-    new_mode = _mode_from_arg(mode, is_directory=False)
-
     hash_before = None
-    if os.path.exists(dst):
-        with open(dst, "rb") as fp_in:
+    if os.path.exists(path):
+        with open(path, "rb") as fp_in:
             sha = hashlib.sha256()
             sha.update(fp_in.read())
             hash_before = sha.digest()
 
     new_src = src
     if new_src is None:
-        new_src = os.path.basename(dst) + ".j2"
+        new_src = os.path.basename(path) + ".j2"
     with open(new_src, "r") as fp_in:
         data = up_context.jinja_env.from_string(fp_in.read()).render(
             up_context.get_env()
@@ -268,14 +291,14 @@ def template(
     hash_after = sha.digest()
 
     if hash_before == hash_after:
-        return _chmod(dst, new_mode, is_directory=False)
+        return Return(
+            changed=False, secret_args={"decrypt_password", "encrypt_password"}
+        )
 
-    dstTmp = dst + ".tmp." + _random_ext()
-    with open(dstTmp, "w") as fp_out:
+    pathTmp = path + ".tmp." + _random_ext()
+    with open(pathTmp, "w") as fp_out:
         fp_out.write(data)
-    if new_mode is not None:
-        os.chmod(dstTmp, new_mode)
-    os.rename(dstTmp, dst)
+    os.rename(pathTmp, path)
 
     return Return(changed=True, secret_args={"decrypt_password", "encrypt_password"})
 
@@ -334,9 +357,9 @@ def builder(
         raise ValueError(f"Unknown state: {state}")
 
     if mode is not None:
-        raise NotImplementedError
+        chmod(path, mode)
     if owner is not None or group is not None:
-        raise NotImplementedError
+        chown(path, owner, group)
 
     if notify is not None:
         r = r.notify(notify)
