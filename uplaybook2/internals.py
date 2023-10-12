@@ -88,6 +88,7 @@ class UpContext:
         self.total_count = 0
         self.ignore_failure_count = 0
         self.handler_list = []
+        self.call_depth = 0
 
         self.jinja_env = jinja2.Environment()
         self.jinja_env.filters["basename"] = os.path.basename
@@ -127,6 +128,18 @@ class UpContext:
 
 
 up_context = UpContext()
+
+
+class CallDepth:
+    """
+    A context manager to increment the call depth when one task calls another task.
+    """
+
+    def __enter__(self):
+        up_context.call_depth += 1
+
+    def __exit__(self, *args):
+        up_context.call_depth -= 1
 
 
 class TemplateStr(str):
@@ -281,7 +294,7 @@ class Return:
                 [
                     f"{arg}=" + ("***" if arg in self.secret_args else f"{values[arg]}")
                     for arg in args
-                    if arg != "self"
+                    if arg != "self" and values[arg] is not None
                 ]
             )
 
@@ -294,8 +307,11 @@ class Return:
         if self.failure:
             prefix = "=!"
             suffix = " (failure ignored)"
+        call_depth = "=" * up_context.call_depth
 
-        print(f"{prefix} {parent_function_name}({call_args}){add_msg}{suffix}")
+        print(
+            f"{call_depth}{prefix} {parent_function_name}({call_args}){add_msg}{suffix}"
+        )
         if self.output:
             print(self.output)
 

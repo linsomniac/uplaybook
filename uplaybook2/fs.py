@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 
-from .internals import Return, TemplateStr, template_args, calling_context, up_context
+from .internals import (
+    Return,
+    TemplateStr,
+    template_args,
+    calling_context,
+    up_context,
+    CallDepth,
+)
 from typing import Union, Optional, Callable
 import symbolicmode
 import os
@@ -191,7 +198,8 @@ def mkfile(
         return Return(changed=True)
 
     if mode is not None:
-        chmod(path, new_mode)
+        with CallDepth():
+            chmod(path, new_mode)
         return Return(changed=False)
 
 
@@ -231,7 +239,10 @@ def mkdir(
 
         return Return(changed=True)
 
-    return chmod(path, new_mode, is_directory=True)
+    with CallDepth():
+        chmod(path, new_mode, is_directory=True)
+
+    return Return(changed=False)
 
 
 def _random_ext(i: int = 8) -> str:
@@ -250,7 +261,6 @@ def template(
     src: Optional[TemplateStr] = None,
     encrypt_password: Optional[TemplateStr] = None,
     decrypt_password: Optional[TemplateStr] = None,
-    # @@@ Maybe this should take `mode` at some point to be atomic?
 ) -> Return:
     """
     Jinja2 templating is used to fill in `src` file to write to `dst`.
@@ -348,19 +358,20 @@ def builder(
     #taskdoc
     """
 
-    if state == "template":
-        r = template(src=src, dst=path)
-    elif state == "directory":
-        r = mkdir(path=path, mode=mode)
-    elif state == "exists":
-        r = mkfile(path=path, mode=mode)
-    else:
-        raise ValueError(f"Unknown state: {state}")
+    with CallDepth():
+        if state == "template":
+            r = template(src=src, dst=path)
+        elif state == "directory":
+            r = mkdir(path=path, mode=mode)
+        elif state == "exists":
+            r = mkfile(path=path, mode=mode)
+        else:
+            raise ValueError(f"Unknown state: {state}")
 
-    if mode is not None:
-        chmod(path, mode)
-    if owner is not None or group is not None:
-        chown(path, owner, group)
+        if mode is not None:
+            chmod(path, mode)
+        if owner is not None or group is not None:
+            chown(path, owner, group)
 
     if notify is not None:
         r = r.notify(notify)
