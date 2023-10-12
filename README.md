@@ -283,13 +283,13 @@ Create an empty file if it does not already exist.
 
 ### fs.template:
 
-Jinja2 templating is used to fill in `src` file to write to `dst`.
+Jinja2 templating is used to fill in `src` file to write to `path`.
 
 #### Arguments:
 
 - **path**: Name of destination file. (templateable).
 - **src**: Name of template to use as source (optional, templateable).
-       Defaults to the basename of `dst` + ".j2".
+       Defaults to the basename of `path` + ".j2".
 
 #### Examples:
 

@@ -200,7 +200,8 @@ def mkfile(
     if mode is not None:
         with CallDepth():
             chmod(path, new_mode)
-        return Return(changed=False)
+
+    return Return(changed=False)
 
 
 @calling_context
@@ -211,7 +212,7 @@ def mkdir(
     parents: Optional[bool] = True,
 ) -> Return:
     """
-    Create a directory.
+    Create a directory.  Defaults to creating necessary parent directories.
 
     Arguments:
 
@@ -263,13 +264,13 @@ def template(
     decrypt_password: Optional[TemplateStr] = None,
 ) -> Return:
     """
-    Jinja2 templating is used to fill in `src` file to write to `dst`.
+    Jinja2 templating is used to fill in `src` file to write to `path`.
 
     Arguments:
 
     - **path**: Name of destination file. (templateable).
     - **src**: Name of template to use as source (optional, templateable).
-           Defaults to the basename of `dst` + ".j2".
+           Defaults to the basename of `path` + ".j2".
 
     Examples:
 
@@ -360,7 +361,7 @@ def builder(
 
     with CallDepth():
         if state == "template":
-            r = template(src=src, dst=path)
+            r = template(src=src, path=path)
         elif state == "directory":
             r = mkdir(path=path, mode=mode)
         elif state == "exists":
