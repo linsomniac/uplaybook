@@ -62,6 +62,17 @@ template(src="49-haproxy.conf.j2", path="/etc/rsyslog.d/49-haproxy.conf", mode="
 chown(owner="root", group="root")  #  picks up `path` because of above line
 ```
 
+## Installation
+
+Currently, install "up2" by cloning this repo and running: `pip install -e up2`
+
+## Documentation
+
+Documentation, including task documentation, can now be accessed by running
+`up2 --up-doc <task-name>` (for example: `up2 --up-doc fs.mkfile`) and the
+module documentation including a list of tasks can be gotten from
+`up2 --up-doc <module>` (for example: `up2 --up-doc fs`)
+
 ## Features
 
 ### Uplifting of variables into templating
