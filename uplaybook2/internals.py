@@ -93,8 +93,8 @@ class UpContext:
         self.ignore_failure_count = 0
         self.handler_list = []
         self.call_depth = 0
-        self.remaining_args = None
-        self.parsed_args = None
+        self.remaining_args = []
+        self.parsed_args = argparse.Namespace()
 
         self.jinja_env = jinja2.Environment()
         self.jinja_env.filters["basename"] = os.path.basename
