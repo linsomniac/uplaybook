@@ -93,6 +93,8 @@ class UpContext:
         self.ignore_failure_count = 0
         self.handler_list = []
         self.call_depth = 0
+        self.remaining_args = None
+        self.parsed_args = None
 
         self.jinja_env = jinja2.Environment()
         self.jinja_env.filters["basename"] = os.path.basename
@@ -423,7 +425,17 @@ def import_script_as_module(module_name: str, paths_to_try: List[str]) -> Module
     return module
 
 
-def display_docs(name: str):
+def display_docs(name: str) -> None:
+    """
+    Display the documentation for the component specified by `name`.
+
+    This displays the docstring from the module or task referred to by `name`,
+    formatting it for nicer representation.
+
+    Args:
+        - name: Module name or module.task name.  If special value "__main__" it displays
+                the up2 documentation.
+    """
     if name == "__main__":
         from . import __doc__
 
@@ -455,7 +467,13 @@ def display_docs(name: str):
     pydoc.pager(re.sub(r"#\w+", "", docs).rstrip())
 
 
-def parse_args() -> SimpleNamespace:
+def parse_args() -> argparse.Namespace:
+    """
+    The main CLI argument parser.
+
+    Returns:
+        The parsed arguments.
+    """
     parser = argparse.ArgumentParser(
         prog="up",
         description="Run playbooks of actions, typically to set up some sort of environment.",
@@ -489,7 +507,10 @@ def parse_args() -> SimpleNamespace:
     if not args.playbook:
         list_playbooks()
 
-    return args, remaining_args
+    up_context.remaining_args = remaining_args
+    up_context.parsed_args = args
+
+    return args
 
     # @@@
     playbook_file = find_playbook(args.playbook)
@@ -509,7 +530,7 @@ def cli() -> None:
     """
     The main entry point for the CLI.
     """
-    args, remaining_args = parse_args()
+    args = parse_args()
 
     try:
         pb_name = args.playbook
