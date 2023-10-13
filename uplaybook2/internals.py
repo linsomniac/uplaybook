@@ -16,6 +16,8 @@ import traceback
 import ast
 import argparse
 import importlib
+import pydoc
+import re
 
 
 def platform_info() -> types.SimpleNamespace:
@@ -422,19 +424,35 @@ def import_script_as_module(module_name: str, paths_to_try: List[str]) -> Module
 
 
 def display_docs(name: str):
-    if name == '__main__':
+    if name == "__main__":
         from . import __doc__
+
         docs = __doc__
-    elif '.' in name:
+    elif "." in name:
         module_name, function_name = name.split(".", 1)
         module = importlib.import_module(f".{module_name}", package=__package__)
         function = getattr(module, function_name)
-        docs = function.__doc__
+        docs = f"# {name}\n\n" + function.__doc__.lstrip("\n")
     else:
         module = importlib.import_module(f".{name}", package=__package__)
-        docs = module.__doc__
+        docs = (module.__doc__ if module.__doc__ is not None else "").rstrip()
 
-    print(docs)
+        task_functions = []
+        for attr_name in dir(module):
+            attr = getattr(module, attr_name)
+            if (
+                callable(attr)
+                and getattr(attr, "__doc__", None)
+                and "#taskdoc" in attr.__doc__
+            ):
+                first_line = getattr(attr, "__doc__", "").lstrip().split("\n")[0]
+                task_functions.append(f"{attr_name} - {first_line}")
+
+        docs = (docs + "\n\n## Available Tasks:\n\n").lstrip("\n")
+        for task_name in task_functions:
+            docs += f"- {name}.{task_name}\n"
+
+    pydoc.pager(re.sub(r"#\w+", "", docs).rstrip())
 
 
 def parse_args() -> SimpleNamespace:
@@ -449,9 +467,18 @@ def parse_args() -> SimpleNamespace:
         action="store_true",
         help="Display additional debugging information during playbook run.",
     )
-    parser.add_argument("--up-docs", type=str, nargs='?', const='__main__', default=None, dest='docs_arg',
-            help="Display documentation, if an optional value is given the help for that component will be displayed.")
-    parser.add_argument("playbook", type=str, nargs='?', default=None, help="Name of the playbook.")
+    parser.add_argument(
+        "--up-docs",
+        type=str,
+        nargs="?",
+        const="__main__",
+        default=None,
+        dest="docs_arg",
+        help="Display documentation, if an optional value is given the help for that component will be displayed.",
+    )
+    parser.add_argument(
+        "playbook", type=str, nargs="?", default=None, help="Name of the playbook."
+    )
 
     args, remaining_args = parser.parse_known_args()
 
@@ -464,7 +491,7 @@ def parse_args() -> SimpleNamespace:
 
     return args, remaining_args
 
-    #@@@
+    # @@@
     playbook_file = find_playbook(args.playbook)
 
     data = ordered_load(open(playbook_file, "r"), yaml.SafeLoader)
@@ -475,7 +502,8 @@ def parse_args() -> SimpleNamespace:
     if args.up_debug:
         runner.set("up_debug", True)
     runner.run_tasks(data)
-    #@@@
+    # @@@
+
 
 def cli() -> None:
     """
