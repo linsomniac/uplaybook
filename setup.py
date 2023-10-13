@@ -6,6 +6,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "symbolicmode",
+        "jinja2",
     ],
     entry_points={
         "console_scripts": [

@@ -14,6 +14,8 @@ import socket
 from types import SimpleNamespace
 import traceback
 import ast
+import argparse
+import importlib
 
 
 def platform_info() -> types.SimpleNamespace:
@@ -419,12 +421,70 @@ def import_script_as_module(module_name: str, paths_to_try: List[str]) -> Module
     return module
 
 
+def display_docs(name: str):
+    if name == '__main__':
+        from . import __doc__
+        docs = __doc__
+    elif '.' in name:
+        module_name, function_name = name.split(".", 1)
+        module = importlib.import_module(f".{module_name}", package=__package__)
+        function = getattr(module, function_name)
+        docs = function.__doc__
+    else:
+        module = importlib.import_module(f".{name}", package=__package__)
+        docs = module.__doc__
+
+    print(docs)
+
+
+def parse_args() -> SimpleNamespace:
+    parser = argparse.ArgumentParser(
+        prog="up",
+        description="Run playbooks of actions, typically to set up some sort of environment.",
+        add_help=False,
+    )
+
+    parser.add_argument(
+        "--up-debug",
+        action="store_true",
+        help="Display additional debugging information during playbook run.",
+    )
+    parser.add_argument("--up-docs", type=str, nargs='?', const='__main__', default=None, dest='docs_arg',
+            help="Display documentation, if an optional value is given the help for that component will be displayed.")
+    parser.add_argument("playbook", type=str, nargs='?', default=None, help="Name of the playbook.")
+
+    args, remaining_args = parser.parse_known_args()
+
+    if args.docs_arg:
+        display_docs(args.docs_arg)
+        sys.exit(0)
+
+    if not args.playbook:
+        list_playbooks()
+
+    return args, remaining_args
+
+    #@@@
+    playbook_file = find_playbook(args.playbook)
+
+    data = ordered_load(open(playbook_file, "r"), yaml.SafeLoader)
+    data = unroll_loops(data)
+    runner = CommandProcessor(playbook_file.parent, playbook_file.name)
+    runner.set_remaining_args(remaining_args)
+    runner.set("up_ask", args.up_ask)
+    if args.up_debug:
+        runner.set("up_debug", True)
+    runner.run_tasks(data)
+    #@@@
+
 def cli() -> None:
     """
     The main entry point for the CLI.
     """
+    args, remaining_args = parse_args()
+
     try:
-        pb_name = sys.argv[1]
+        pb_name = args.playbook
         # docstr = extract_docstring_from_file(pb_name)
         # print(docstr)
         pb = import_script_as_module(pb_name, [pb_name, f"./{pb_name}"])

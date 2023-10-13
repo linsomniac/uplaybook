@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+'''
+The up2 docstring
+'''
+
 from . import internals
 from . import fs
 
