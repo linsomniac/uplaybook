@@ -377,4 +377,4 @@ def builder(
     if notify is not None:
         r = r.notify(notify)
 
-    return r
+    return Return(changed=r.changed)

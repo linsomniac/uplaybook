@@ -19,13 +19,7 @@ Use cases:
 - IT Automation.  Eventually I hope for it to add components for system state
   manipulation like: service/user/group management, package installation, etc.
 
-## State
-
-An experiment into a python-centric ansible/cookiecutter-like system.  Currently not usable except
-by the author.  Work began Oct 2023, and it is proceeding rapidly, but there is much work yet
-to do.
-
-## Example:
+## High-level Ideas
 
 Some core ideas of it:
 
@@ -35,6 +29,113 @@ Some core ideas of it:
     - Changed tasks can trigger a handler (if this file changes, restart a service).
     - Jinja2 templating of arguments and files delivered via fs.template()
     - Status output.
+
+## State
+
+Currently is not usable except to play with.  Work in October 2023 is proceeding
+rapidly, but there is much work left to do.
+
+## What Is uPlaybook2
+
+Ansible and uPlaybook1 both describe the desired state of the system via a YAML
+structure.  This is easy to build tooling around, but is kind of cumbersome, especially
+when you try to apply programming paradigms to it like loops, conditionals, and includes.
+
+For example, an Ansible block might look like:
+
+```yaml
+- name: haproxy syslog config
+  template:
+    src: 49-haproxy.conf.j2
+    dest: /etc/rsyslog.d/49-haproxy.conf
+    owner: root
+    group: root
+    mode: a=r,u+w
+  notify: Restart rsyslog
+```
+
+uPlaybook2 is, currently an experiment, into making a Python-based environment for expressing
+similar ideas:
+
+```python
+template(src="49-haproxy.conf.j2", path="/etc/rsyslog.d/49-haproxy.conf", mode="a=r,u+w").notify(restart_syslog)
+chown(owner="root", group="root")  #  picks up `path` because of above line
+```
+
+## Features
+
+### Uplifting of variables into templating
+
+```python
+version = "3.2"
+fs.mkdir(path="myprogram-{{version}}")  # Makes directory "myprogram-3.2"
+fs.template(path="foo", src="foo.j2")   # "foo.j2" can access "{{version}}"
+```
+
+### Jinja2 templating of most arguments
+
+```python
+path="/etc/rsyslog.d/49-haproxy.conf"
+fs.template(src="{{ path | basename }}.j2")  # src becomes "49-haproxy.conf.j2"
+```
+
+### Tasks only take effect if they change the system
+
+```python
+fs.mkfile(path="foo")   #  Only takes action if "foo" does not exist
+fs.mkfile(path="foo")   #  Never takes action because "foo" would be created above
+```
+
+## Taks can trigger handlers if they change something
+
+```python
+def restart_apache()
+    core.service(name="apache2", state="restarted")
+
+fs.template(path="/etc/apache2/sites-enabled/test.conf", src="test.conf.j2").notify(restart_apache)
+fs.template(path="/etc/apache2/sites-enabled/other_site.conf", src="other_site.conf.j2").notify(restart_apache)
+```
+
+The above will retart apache if either of the config files get created or updated.
+It will only restart apache once even if both files get updated.
+
+## Running a playbook displays status of tasks
+
+```python
+core.run("rm -rf testdir")
+fs.builder(state="directory", path="testdir", mode="a=rX,u+w")
+fs.cd("testdir")
+fs.builder(state="exists", path="testfile", mode="a=rX")
+fs.chown(path="testfile", group="docker")
+fs.builder(state="exists", path="testfile", mode="a=rX", group="sean")
+```
+
+Produces the following status output:
+
+```
+=> run(command=rm -rf testdir, shell=True, ignore_failures=False, change=True)
+==> mkdir(path=testdir, mode=a=rX,u+w, parents=True)
+==# chmod(path=testdir, mode=493)
+=> builder(path=testdir, mode=a=rX,u+w, state=directory)
+=# cd(path=testdir)
+==> mkfile(path=testfile, mode=a=rX)
+==# chmod(path=testfile, mode=292)
+=> builder(path=testfile, mode=a=rX, state=exists)
+=> chown(path=testfile, group=docker) (group)
+===# chmod(path=testfile, mode=292)
+==# mkfile(path=testfile, mode=a=rX)
+==# chmod(path=testfile, mode=292)
+==> chown(path=testfile, group=sean) (group)
+=# builder(path=testfile, mode=a=rX, group=sean, state=exists)
+
+*** RECAP:  total=14 changed=7 failure=0
+```
+
+Where ">" in the status means a change occurred, "#" means no change happened, and additional "="
+indentations indicate a task triggered by a parent task.  The parent task is the dedented task after
+the extra indents (the "builder") tasks above.
+
+## Example:
 
 Example showing what a playbook might look like, and the output of running it
 including detecting when no changes are made and updating permissions:
