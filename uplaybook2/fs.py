@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+"""
+Filesystem related tasks.
+"""
+
 from .internals import (
     Return,
     TemplateStr,

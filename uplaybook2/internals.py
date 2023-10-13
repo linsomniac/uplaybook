@@ -502,6 +502,9 @@ def parse_args() -> argparse.Namespace:
 
     if args.docs_arg:
         display_docs(args.docs_arg)
+        if args.docs_arg == "__main__":
+            print()
+            parser.print_help()
         sys.exit(0)
 
     if not args.playbook:
