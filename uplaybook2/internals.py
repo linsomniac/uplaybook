@@ -23,6 +23,9 @@ from collections import namedtuple
 import itertools
 
 
+PlaybookInfo = namedtuple("PlaybookInfo", ["name", "directory", "playbook_file"])
+
+
 def platform_info() -> types.SimpleNamespace:
     """
     Linux:
@@ -98,6 +101,7 @@ class UpContext:
         self.call_depth = 0
         self.remaining_args = []
         self.parsed_args = argparse.Namespace()
+        self.playbook_namespace = None
 
         self.jinja_env = jinja2.Environment()
         self.jinja_env.filters["basename"] = os.path.basename
@@ -422,6 +426,8 @@ def import_script_as_module(module_name: str, paths_to_try: List[str]) -> Module
     if spec is None:
         raise ImportError("Unable to spec_from_loader() the module, no error returned.")
     module = module_from_spec(spec)
+    module.__dict__.update(up_context.get_env())
+    up_context.playbook_namespace = module.__dict__
     spec.loader.exec_module(module)
     sys.modules["up"] = module
 
@@ -556,13 +562,9 @@ def parse_args() -> argparse.Namespace:
         sys.exit(1)
 
     up_context.remaining_args = remaining_args
-    print(f"remaining_args: {remaining_args}")
     up_context.parsed_args = args
 
     return args
-
-
-PlaybookInfo = namedtuple("PlaybookInfo", ["name", "directory", "playbook_file"])
 
 
 def get_playbook_search_paths() -> List[Path]:
