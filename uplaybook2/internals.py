@@ -2,7 +2,7 @@
 
 import sys
 import inspect
-from typing import Optional, Union, List, Callable, Any
+from typing import Optional, Union, List, Callable, Any, Iterator
 from types import ModuleType
 from functools import wraps
 import jinja2
@@ -18,6 +18,9 @@ import argparse
 import importlib
 import pydoc
 import re
+from pathlib import Path
+from collections import namedtuple
+import itertools
 
 
 def platform_info() -> types.SimpleNamespace:
@@ -467,6 +470,37 @@ def display_docs(name: str) -> None:
     pydoc.pager(re.sub(r"#\w+", "", docs).rstrip())
 
 
+class UpArgumentParser(argparse.ArgumentParser):
+    """Wrapper so that "up", when run with no arguments, lists available playbooks."""
+
+    def print_usage(self, file=None):
+        super().print_usage(file)
+        self.list_playbooks()
+
+    def print_help(self, file=None):
+        super().print_help(file)
+        self.list_playbooks()
+
+    def list_playbooks(self):
+        print()
+        print("Available playbooks:")
+        playbooks_seen = set()
+        for playbook in list_playbooks():
+            duplicate = (
+                " *HIDDEN BY PREVIOUS PLAYBOOK*"
+                if playbook.name in playbooks_seen
+                else ""
+            )
+            playbooks_seen.add(playbook.name)
+            print(f"  - {playbook.name} ({playbook.directory}{duplicate})")
+            docs = extract_docstring_from_file(playbook.playbook_file)
+            desc = (docs if docs else "").lstrip().split("\n", 1)[0]
+
+            if desc:
+                print(f"      {desc}")
+        print()
+
+
 def parse_args() -> argparse.Namespace:
     """
     The main CLI argument parser.
@@ -474,7 +508,7 @@ def parse_args() -> argparse.Namespace:
     Returns:
         The parsed arguments.
     """
-    parser = argparse.ArgumentParser(
+    parser = UpArgumentParser(
         prog="up",
         description="Run playbooks of actions, typically to set up some sort of environment.",
         add_help=False,
@@ -508,25 +542,91 @@ def parse_args() -> argparse.Namespace:
         sys.exit(0)
 
     if not args.playbook:
-        list_playbooks()
+        parser.print_usage()
+        sys.exit(1)
 
     up_context.remaining_args = remaining_args
     up_context.parsed_args = args
 
     return args
 
-    # @@@
-    playbook_file = find_playbook(args.playbook)
 
-    data = ordered_load(open(playbook_file, "r"), yaml.SafeLoader)
-    data = unroll_loops(data)
-    runner = CommandProcessor(playbook_file.parent, playbook_file.name)
-    runner.set_remaining_args(remaining_args)
-    runner.set("up_ask", args.up_ask)
-    if args.up_debug:
-        runner.set("up_debug", True)
-    runner.run_tasks(data)
-    # @@@
+PlaybookInfo = namedtuple("PlaybookInfo", ["name", "directory", "playbook_file"])
+
+
+def get_playbook_search_paths() -> List[Path]:
+    """
+    Get the playbook search path (either the default or from the environment)
+    and return an iterable of the path objects.
+
+    Returns:
+        List[Paths] for the list of locations to look for playbooks."""
+
+    search_path = os.environ.get(
+        "UP_PLAYBOOK_PATH",
+        ".:.uplaybooks:~/.config/uplaybook/books:~/.config/uplaybook",
+    )
+    return [Path(x).expanduser().joinpath(".") for x in search_path.split(":")]
+
+
+def list_playbooks() -> Iterator[PlaybookInfo]:
+    """
+    Walk the playbook path and return a list of available playbooks.
+    Playbook files take precedence over playbook/up.yml.  Sorted by
+    playbook name within each component of the search path.
+
+    Returns:
+
+    """
+    for playbook_path in get_playbook_search_paths():
+        possible_playbooks = sorted(
+            itertools.chain(
+                playbook_path.glob("*.pb"), playbook_path.glob("*/playbook")
+            ),
+            key=lambda x: x.name,
+        )
+        for playbook_file in possible_playbooks:
+            if playbook_file.exists():
+                directory = playbook_file.parent
+                if playbook_file.name == "up.yml" and directory.as_posix() != ".":
+                    name = directory.name
+                else:
+                    name = playbook_file.name
+                yield PlaybookInfo(name, directory, playbook_file)
+
+
+def find_playbook(playbookname: str) -> PlaybookInfo:
+    """
+    Finds and returns the path of a specified playbook file.
+
+    Search for the playbook in the UP_PLAYBOOK_PATH environment variable,
+    or a default if not specified.
+
+    Args:
+        playbookname (str): The name of the playbook file to search for.
+
+    Returns:
+        Path: The path of the found playbook file.
+
+    Raises:
+        FileNotFoundError: If the playbook file is not found in the search paths."""
+
+    for playbook in list_playbooks():
+        print(
+            f"playbook: {playbook}    playbookname: {playbookname}  playbook.name: {playbook.name}"
+        )
+        if playbook.name == playbookname or (
+            playbook.name.endswith(".pb")
+            and not playbookname.endswith(".pb")
+            and playbook.name == (playbookname + ".pb")
+        ):
+            return playbook
+
+    searchpath = get_playbook_search_paths()
+    raise FileNotFoundError(
+        f"Unable to locate a playbook by the name of {playbookname},"
+        f" searched in path {searchpath}."
+    )
 
 
 def cli() -> None:
@@ -537,9 +637,14 @@ def cli() -> None:
 
     try:
         pb_name = args.playbook
-        # docstr = extract_docstring_from_file(pb_name)
-        # print(docstr)
-        pb = import_script_as_module(pb_name, [pb_name, f"./{pb_name}"])
+        if os.path.exists(pb_name):
+            path = Path(pb_name)
+            playbook = PlaybookInfo(path.name, path.parent, path.name)
+        else:
+            playbook = find_playbook(pb_name)
+        pb = import_script_as_module(
+            pb_name, [playbook.playbook_file, playbook.playbook_file]
+        )
     except Exception:
         print(traceback.format_exc())
 
