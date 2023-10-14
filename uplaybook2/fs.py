@@ -38,7 +38,7 @@ def _mode_from_arg(
         extra_args = {}
         if is_directory is not None:
             extra_args["is_directory"] = is_directory
-        if initial_mode:
+        if initial_mode is not None:
             extra_args["initial_mode"] = initial_mode
 
         return symbolicmode.symbolic_to_numeric_permissions(mode, **extra_args)
@@ -285,7 +285,7 @@ def template(
     """
 
     if encrypt_password or decrypt_password:
-        raise NotImplemented("Crypto not implemented yet")
+        raise NotImplementedError("Crypto not implemented yet")
 
     hash_before = None
     if os.path.exists(path):
@@ -294,9 +294,10 @@ def template(
             sha.update(fp_in.read())
             hash_before = sha.digest()
 
-    new_src = src
-    if new_src is None:
+    if src is None:
         new_src = os.path.basename(path) + ".j2"
+    else:
+        new_src = src
     with open(new_src, "r") as fp_in:
         data = up_context.jinja_env.from_string(fp_in.read()).render(
             up_context.get_env()
