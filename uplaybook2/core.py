@@ -142,13 +142,20 @@ def run(
 
 
 class Argument:
-    def __init__(self, name, label, description: Optional[str]=None, type: str="str", default: Optional[object]=None):
+    def __init__(
+        self,
+        name,
+        label,
+        description: Optional[str] = None,
+        type: str = "str",
+        default: Optional[object] = None,
+    ):
         self.name = name
         self.label = label
         self.description = description
         self.type = type
         self.default = default
-    
+
 
 @calling_context
 @template_args
@@ -191,5 +198,9 @@ def playbook_args(
 
     args_vars = vars(args)
     for arg in options:
-        setattr(up_context.context["playbook_args"], arg.name, args_vars[name_mapping[arg.name]])
+        setattr(
+            up_context.context["playbook_args"],
+            arg.name,
+            args_vars[name_mapping[arg.name]],
+        )
         up_context.context[arg.name] = args_vars[name_mapping[arg.name]]
