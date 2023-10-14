@@ -28,6 +28,18 @@ def _mode_from_arg(
     initial_mode: Optional[int] = None,
     is_directory: Optional[bool] = None,
 ) -> Optional[int]:
+    """
+    Helper function to convert a task `mode` argument into an int, if necessary.
+
+    If `mode` is a string, it is converted using the symbolicmode module.
+    If `mode` is None, it is kept as None (meaning no mode change to be done).
+    If `mode` is an int, it is kept.
+
+    Arguments:
+        - **mode**: Mode to convert, if it is a string.
+        - **initial_mode**: The existing mode of the file (used for +/-/X).
+        - **is_directory**: If the path to set the mode on is a directory (used for X).
+    """
     if type(mode) is int or mode is None:
         return mode
 

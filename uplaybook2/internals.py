@@ -515,6 +515,11 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "--help",
+        action="store_true",
+        help="Display help about usage.",
+    )
+    parser.add_argument(
         "--up-debug",
         action="store_true",
         help="Display additional debugging information during playbook run.",
@@ -534,6 +539,11 @@ def parse_args() -> argparse.Namespace:
 
     args, remaining_args = parser.parse_known_args()
 
+    if args.help:
+        if args.playbook is None:
+            parser.print_help()
+            sys.exit(0)
+        remaining_args.insert(0, "--help")
     if args.docs_arg:
         display_docs(args.docs_arg)
         if args.docs_arg == "__main__":
@@ -546,6 +556,7 @@ def parse_args() -> argparse.Namespace:
         sys.exit(1)
 
     up_context.remaining_args = remaining_args
+    print(f"remaining_args: {remaining_args}")
     up_context.parsed_args = args
 
     return args
@@ -612,9 +623,6 @@ def find_playbook(playbookname: str) -> PlaybookInfo:
         FileNotFoundError: If the playbook file is not found in the search paths."""
 
     for playbook in list_playbooks():
-        print(
-            f"playbook: {playbook}    playbookname: {playbookname}  playbook.name: {playbook.name}"
-        )
         if playbook.name == playbookname or (
             playbook.name.endswith(".pb")
             and not playbookname.endswith(".pb")
