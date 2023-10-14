@@ -91,7 +91,7 @@ class UpContext:
 
     def __init__(self):
         self.globals = {"environ": os.environ, "platform": platform_info()}
-        self.context = {}
+        self.context = {"playbook_args":SimpleNamespace()}
         self.calling_context = {}
         self.changed_count = 0
         self.failure_count = 0
@@ -647,6 +647,7 @@ def cli() -> None:
 
     try:
         pb_name = args.playbook
+        up_context.playbook_name = pb_name
         if os.path.exists(pb_name):
             path = Path(pb_name)
             playbook = PlaybookInfo(path.name, path.parent, path.name)

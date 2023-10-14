@@ -8,11 +8,12 @@ from .internals import (
     up_context,
     Failure,
 )
-from typing import Optional
+from typing import Optional, List
 import pprint
 import subprocess
 import sys
 from types import SimpleNamespace
+import argparse
 
 
 @calling_context
@@ -138,3 +139,57 @@ def run(
     )
 
     return r
+
+
+class Argument:
+    def __init__(self, name, label, description: Optional[str]=None, type: str="str", default: Optional[object]=None):
+        self.name = name
+        self.label = label
+        self.description = description
+        self.type = type
+        self.default = default
+    
+
+@calling_context
+@template_args
+def playbook_args(
+    *options: List[Argument],
+) -> None:
+    """
+    Set up arguments for playbook
+    """
+    parser = argparse.ArgumentParser(prog=f"up:{up_context.playbook_name}")
+
+    name_mapping: dict[str, str] = {}
+    for arg in options:
+        kw_args: dict[str, object] = {
+            "type": arg.type,
+        }
+        # orig_arg_name = arg.name
+        arg_name = arg.name.replace("_", "-")
+        name_mapping[arg.name] = arg.name
+        if arg.default is not None:
+            kw_args["dest"] = arg.name
+            arg_name = "--" + arg_name
+            kw_args["default"] = arg.default
+        else:
+            name_mapping[arg.name] = arg_name
+        if arg.description is not None:
+            kw_args["help"] = arg.description
+        kw_args["type"] = {
+            "bool": bool,
+            "str": str,
+            "int": int,
+            "password": str,
+        }[arg.type]
+        if kw_args["type"] is bool:
+            kw_args["action"] = argparse.BooleanOptionalAction
+
+        parser.add_argument(arg_name, **kw_args)
+    args, remaining = parser.parse_known_args(up_context.remaining_args)
+    up_context.remaining_args = remaining
+
+    args_vars = vars(args)
+    for arg in options:
+        setattr(up_context.context["playbook_args"], arg.name, args_vars[name_mapping[arg.name]])
+        up_context.context[arg.name] = args_vars[name_mapping[arg.name]]
