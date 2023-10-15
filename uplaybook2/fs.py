@@ -273,25 +273,28 @@ def _random_ext(i: int = 8) -> str:
 
 @calling_context
 @template_args
-def template(
+def copy(
     path: TemplateStr,
     src: Optional[TemplateStr] = None,
     encrypt_password: Optional[TemplateStr] = None,
     decrypt_password: Optional[TemplateStr] = None,
+    template: bool = True,
 ) -> Return:
     """
-    Jinja2 templating is used to fill in `src` file to write to `path`.
+    Copy the `src` file to `path`, optionally templating the contents in `src`.
 
     Arguments:
 
     - **path**: Name of destination file. (templateable).
     - **src**: Name of template to use as source (optional, templateable).
            Defaults to the basename of `path` + ".j2".
+    - **template**: If True, apply Jinja2 templating to the contents of `src`,
+           otherwise copy verbatim.  (default: True)
 
     Examples:
 
-        fs.template(path="/tmp/foo")
-        fs.template(src="bar-{{ fqdn }}.j2", path="/tmp/bar")
+        fs.copy(path="/tmp/foo")
+        fs.copy(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
 
     #taskdoc
     """
@@ -311,9 +314,9 @@ def template(
     else:
         new_src = src
     with open(new_src, "r") as fp_in:
-        data = up_context.jinja_env.from_string(fp_in.read()).render(
-            up_context.get_env()
-        )
+        data = fp_in.read()
+        if template:
+            data = up_context.jinja_env.from_string(data).render(up_context.get_env())
 
     sha = hashlib.sha256()
     sha.update(data.encode("latin-1"))

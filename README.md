@@ -360,9 +360,26 @@ Change ownership/group of path.
     fs.chown(path="/tmp", group="wheel")
     fs.chown(path="/tmp", owner="nobody", group="nobody")
 
+### fs.copy:
+
+Copy the `src` file to `path`, optionally templating the contents in `src`.
+
+#### Arguments:
+
+- **path**: Name of destination file. (templateable).
+- **src**: Name of template to use as source (optional, templateable).
+       Defaults to the basename of `path` + ".j2".
+- **template**: If True, apply Jinja2 templating to the contents of `src`,
+       otherwise copy verbatim.  (default: True)
+
+#### Examples:
+
+    fs.copy(path="/tmp/foo")
+    fs.copy(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
+
 ### fs.mkdir:
 
-Create a directory.
+Create a directory.  Defaults to creating necessary parent directories.
 
 #### Arguments:
 
@@ -392,18 +409,3 @@ Create an empty file if it does not already exist.
     fs.mkfile(path="/tmp/foo")
     fs.mkfile(path="/tmp/bar", mode="a=rX,u+w")
     fs.mkfile(path="/tmp/baz", mode=0o755)
-
-### fs.template:
-
-Jinja2 templating is used to fill in `src` file to write to `path`.
-
-#### Arguments:
-
-- **path**: Name of destination file. (templateable).
-- **src**: Name of template to use as source (optional, templateable).
-       Defaults to the basename of `path` + ".j2".
-
-#### Examples:
-
-    fs.template(path="/tmp/foo")
-    fs.template(src="bar-{{ fqdn }}.j2", path="/tmp/bar")
