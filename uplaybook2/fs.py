@@ -12,6 +12,7 @@ from .internals import (
     up_context,
     CallDepth,
 )
+from . import internals
 from typing import Union, Optional, Callable
 import symbolicmode
 import os
@@ -313,7 +314,7 @@ def copy(
         new_src = os.path.basename(path) + ".j2"
     else:
         new_src = src
-    with open(new_src, "r") as fp_in:
+    with open(internals.find_file(new_src), "r") as fp_in:
         data = fp_in.read()
         if template:
             data = up_context.jinja_env.from_string(data).render(up_context.get_env())

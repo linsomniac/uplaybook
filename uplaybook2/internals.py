@@ -101,7 +101,9 @@ class UpContext:
         self.call_depth = 0
         self.remaining_args = []
         self.parsed_args = argparse.Namespace()
-        self.playbook_namespace = None
+        self.playbook_namespace = None  #  Namespace of the playbook module
+        self.playbook_name = ""  #  Name of the playbook being run
+        self.playbook_directory = "."  #  Directory playbook is in
 
         self.jinja_env = jinja2.Environment()
         self.jinja_env.filters["basename"] = os.path.basename
@@ -585,7 +587,7 @@ def get_playbook_search_paths() -> List[Path]:
 def list_playbooks() -> Iterator[PlaybookInfo]:
     """
     Walk the playbook path and return a list of available playbooks.
-    Playbook files take precedence over playbook/up.yml.  Sorted by
+    Playbook files take precedence over "playbook/playbook".  Sorted by
     playbook name within each component of the search path.
 
     Returns:
@@ -601,7 +603,7 @@ def list_playbooks() -> Iterator[PlaybookInfo]:
         for playbook_file in possible_playbooks:
             if playbook_file.exists():
                 directory = playbook_file.parent
-                if playbook_file.name == "up.yml" and directory.as_posix() != ".":
+                if playbook_file.name == "playbook" and directory.as_posix() != ".":
                     name = directory.name
                 else:
                     name = playbook_file.name
@@ -639,6 +641,48 @@ def find_playbook(playbookname: str) -> PlaybookInfo:
     )
 
 
+def find_file(filename: str) -> Path:
+    """
+    Finds and returns the path of a template/file.
+
+    This function uses a colon-separated search path, either gotten from the
+    UP_FILES_PATH environment variable or the default.  "..." specified in
+    the search path is relative to the directory the playbook is found in.
+
+    Returns:
+    Path: The path of the found template file.
+
+    Raises:
+    FileNotFoundError: If the template file is not found in the search paths.
+    """
+    search_path = os.environ.get("UP_FILES_PATH", "...:.../files:.")
+
+    if Path(filename).is_absolute():
+        return Path(filename)
+
+    playbook_directory = Path(up_context.playbook_directory)
+
+    for directory in search_path.split(":"):
+        if directory == "...":
+            p = playbook_directory.joinpath(filename)
+            if p.exists():
+                return p
+            continue
+        if directory.startswith(".../"):
+            p = playbook_directory.joinpath(directory[4:]).joinpath(filename)
+            if p.exists():
+                return p
+            continue
+
+        p = Path(directory).joinpath(filename)
+        if p.exists():
+            return p
+
+    raise FileNotFoundError(
+        f"Could not find file {filename}, searched in {search_path}"
+    )
+
+
 def cli() -> None:
     """
     The main entry point for the CLI.
@@ -653,6 +697,7 @@ def cli() -> None:
             playbook = PlaybookInfo(path.name, path.parent, path.name)
         else:
             playbook = find_playbook(pb_name)
+        up_context.playbook_directory = playbook.directory.absolute()
         pb = import_script_as_module(
             pb_name, [playbook.playbook_file, playbook.playbook_file]
         )

@@ -32,8 +32,12 @@ Some core ideas of it:
 
 ## State
 
-Currently is not usable except to play with.  Work in October 2023 is proceeding
-rapidly, but there is much work left to do.
+Currently (Oct 2023) this is experimental: the core functionality is implemented
+and it is usable with a limited number of tasks(), to start trying it in real use.
+As real use is made of it, things may evolve, so playbooks created may need to adapt
+as new things are tried.
+
+If you look at it, your feedback would be appreciated.
 
 ## What Is uPlaybook2
 
