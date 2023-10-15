@@ -343,7 +343,7 @@ def builder(
     mode: Optional[Union[TemplateStr, int]] = None,
     owner: Optional[TemplateStr] = None,
     group: Optional[TemplateStr] = None,
-    state: Union[TemplateStr, str] = "template",
+    action: Union[TemplateStr, str] = "template",
     notify: Optional[Callable] = None,
 ) -> Return:
     """
@@ -360,7 +360,7 @@ def builder(
     - **mode**: Permissions of file (optional, templatable string or int).
     - **owner**: Ownership to set on `path`. (optional, templatable).
     - **group**: Group to set on `path`. (optional, templatable).
-    - **state**: Type of `path` to build, can be: "directory", "template", "exists".
+    - **action**: Type of `path` to build, can be: "directory", "template", "exists", "copy".
             (optional, templatable, default="template")
     - **notify**:  Handler to notify of changes.
             (optional, Callable)
@@ -368,9 +368,9 @@ def builder(
     Examples:
 
         fs.builder("/tmp/foo")
-        fs.builder("/tmp/bar", state="directory")
+        fs.builder("/tmp/bar", action="directory")
         for _ in Items(
-                Item(path="/tmp/{{ modname }}", state="directory"),
+                Item(path="/tmp/{{ modname }}", action="directory"),
                 Item(path="/tmp/{{ modname }}/__init__.py"),
                 defaults=Item(mode="a=rX,u+w")
                 ):
@@ -380,14 +380,16 @@ def builder(
     """
 
     with CallDepth():
-        if state == "template":
-            r = template(src=src, path=path)
-        elif state == "directory":
+        if action == "template":
+            r = copy(src=src, path=path)
+        elif action == "copy":
+            r = copy(src=src, path=path, template=False)
+        elif action == "directory":
             r = mkdir(path=path, mode=mode)
-        elif state == "exists":
+        elif action == "exists":
             r = mkfile(path=path, mode=mode)
         else:
-            raise ValueError(f"Unknown state: {state}")
+            raise ValueError(f"Unknown action: {action}")
 
         if mode is not None:
             chmod(path, mode)

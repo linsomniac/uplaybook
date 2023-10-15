@@ -299,7 +299,7 @@ modifying many filesystem objects in compact declarations.
 - **mode**: Permissions of file (optional, templatable string or int).
 - **owner**: Ownership to set on `path`. (optional, templatable).
 - **group**: Group to set on `path`. (optional, templatable).
-- **state**: Type of `path` to build, can be: "directory", "template", "exists".
+- **action**: Type of `path` to build, can be: "directory", "template", "exists", "copy".
         (optional, templatable, default="template")
 - **notify**:  Handler to notify of changes.
         (optional, Callable)
@@ -307,9 +307,9 @@ modifying many filesystem objects in compact declarations.
 #### Examples:
 
     fs.builder("/tmp/foo")
-    fs.builder("/tmp/bar", state="directory")
+    fs.builder("/tmp/bar", action="directory")
     for _ in Items(
-            Item(path="/tmp/{{ modname }}", state="directory"),
+            Item(path="/tmp/{{ modname }}", action="directory"),
             Item(path="/tmp/{{ modname }}/__init__.py"),
             defaults=Item(mode="a=rX,u+w")
             ):
