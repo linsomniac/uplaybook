@@ -277,6 +277,7 @@ def _random_ext(i: int = 8) -> str:
 def copy(
     path: TemplateStr,
     src: Optional[TemplateStr] = None,
+    mode: Optional[Union[TemplateStr, int]] = None,
     encrypt_password: Optional[TemplateStr] = None,
     decrypt_password: Optional[TemplateStr] = None,
     template: bool = True,
@@ -288,7 +289,9 @@ def copy(
 
     - **path**: Name of destination file. (templateable).
     - **src**: Name of template to use as source (optional, templateable).
-           Defaults to the basename of `path` + ".j2".
+            Defaults to the basename of `path` + ".j2".
+    - **mode**: Permissions of directory (optional, templatable string or int).
+            Sets mode on creation.
     - **template**: If True, apply Jinja2 templating to the contents of `src`,
            otherwise copy verbatim.  (default: True)
 
@@ -300,20 +303,25 @@ def copy(
     #taskdoc
     """
 
-    if encrypt_password or decrypt_password:
-        raise NotImplementedError("Crypto not implemented yet")
-
-    hash_before = None
-    if os.path.exists(path):
-        with open(path, "rb") as fp_in:
-            sha = hashlib.sha256()
-            sha.update(fp_in.read())
-            hash_before = sha.digest()
-
     if src is None:
         new_src = os.path.basename(path) + ".j2"
     else:
         new_src = src
+
+    if encrypt_password or decrypt_password:
+        raise NotImplementedError("Crypto not implemented yet")
+
+    new_mode = mode
+    old_mode = None
+
+    hash_before = None
+    if os.path.exists(path):
+        old_mode = stat.S_IMODE(os.stat(path).st_mode)
+        with open(path, "rb") as fp_in:
+            sha = hashlib.sha256()
+            sha.update(fp_in.read())
+            hash_before = sha.hexdigest()
+
     with open(internals.find_file(new_src), "r") as fp_in:
         data = fp_in.read()
         if template:
@@ -321,15 +329,26 @@ def copy(
 
     sha = hashlib.sha256()
     sha.update(data.encode("latin-1"))
-    hash_after = sha.digest()
+    hash_after = sha.hexdigest()
 
-    if hash_before == hash_after:
+    if new_mode is not None:
+        new_mode = _mode_from_arg(new_mode, initial_mode=old_mode)
+
+    if hash_before == hash_after and (new_mode is None or new_mode == old_mode):
         return Return(
             changed=False, secret_args={"decrypt_password", "encrypt_password"}
         )
+    if hash_before == hash_after and (new_mode is not None or new_mode != old_mode):
+        return Return(
+            changed=True,
+            secret_args={"decrypt_password", "encrypt_password"},
+            extra_message="Permissions",
+        )
 
     pathTmp = path + ".tmp." + _random_ext()
-    with open(pathTmp, "w") as fp_out:
+    mode_arg = {} if new_mode is None else {"mode": new_mode}
+    fd = os.open(pathTmp, os.O_WRONLY | os.O_CREAT, **mode_arg)
+    with os.fdopen(fd, "w") as fp_out:
         fp_out.write(data)
     os.rename(pathTmp, path)
 
