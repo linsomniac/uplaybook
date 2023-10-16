@@ -101,7 +101,7 @@ class UpContext:
         self.call_depth = 0
         self.remaining_args = []
         self.parsed_args = argparse.Namespace()
-        self.playbook_namespace = None  #  Namespace of the playbook module
+        self.playbook_namespace = {}  #  Namespace of the playbook module
         self.playbook_name = ""  #  Name of the playbook being run
         self.playbook_directory = "."  #  Directory playbook is in
 
@@ -114,6 +114,7 @@ class UpContext:
         """Returns the jinja template environment"""
         env = self.globals.copy()
         env.update(self.context)
+        env.update(self.playbook_namespace)
         env.update(self.calling_context)
         if env_in:
             env.update(env_in)
@@ -240,7 +241,7 @@ def calling_context(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     def wrapper(*args, **kwargs):
         current_frame = inspect.currentframe()
-        env = current_frame.f_back.f_back.f_locals.copy()
+        env = current_frame.f_back.f_locals.copy()
         up_context.calling_context = env
 
         ret = func(*args, **kwargs)

@@ -16,6 +16,38 @@ from types import SimpleNamespace
 import argparse
 
 
+class Item:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+
+    def __enter__(self):
+        up_context.set_namespace(self.kwargs)
+
+    def __exit__(self, *_):
+        up_context.set_namespace({})
+
+
+class ItemLoop:
+    def __init__(self, *args):
+        self.items = args
+        self.current_item = 0
+        self.last_item = None
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.last_item is not None:
+            self.last_item.__exit__()
+        if self.current_item >= len(self.items):
+            raise StopIteration
+        else:
+            self.current_item += 1
+            item = self.items[self.current_item - 1]
+            item.__enter__()
+            return item
+
+
 @calling_context
 @template_args
 def debug(msg: Optional[TemplateStr] = None, var: Optional[object] = None) -> Return:
