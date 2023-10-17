@@ -21,10 +21,10 @@ class Item:
         self.kwargs = kwargs
 
     def __enter__(self):
-        up_context.set_namespace(self.kwargs)
+        up_context.item_context.insert(0, self.kwargs)
 
     def __exit__(self, *_):
-        up_context.set_namespace({})
+        up_context.item_context.pop(0)
 
 
 class ItemLoop:

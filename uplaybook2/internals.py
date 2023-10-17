@@ -93,6 +93,7 @@ class UpContext:
         self.globals = {"environ": os.environ, "platform": platform_info()}
         self.context = {"playbook_args": SimpleNamespace()}
         self.calling_context = {}
+        self.item_context = []
         self.changed_count = 0
         self.failure_count = 0
         self.total_count = 0
@@ -116,6 +117,8 @@ class UpContext:
         env.update(self.context)
         env.update(self.playbook_namespace)
         env.update(self.calling_context)
+        for ctx in self.item_context[::-1]:
+            env.update(ctx)
         if env_in:
             env.update(env_in)
         return env
