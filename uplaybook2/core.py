@@ -16,7 +16,7 @@ from types import SimpleNamespace
 import argparse
 
 
-class Item(SimpleNamespace):
+class Item(dict):
     """
     An (ansible-like) item for processing in a playbook (a file, directory, user...)
 
@@ -24,6 +24,10 @@ class Item(SimpleNamespace):
     up, or setting up many filesystem objects in a playbook.  Additionally, if used
     in a "with:" statement, it will place the attributes into the current Jinja2
     namespace.
+
+    This can act as a dictionary (x['attr'] access), SimpleNamespace (x.attr), and also
+    is a context manager.  In the context manager case, it forklifts the attributes
+    up into the Jinja2 context.
 
     Examples:
 
@@ -35,18 +39,43 @@ class Item(SimpleNamespace):
             fs.builder(path="{{item.path}}")
 
         for item in [
-                Item(path="foo"),
-                Item(path="bar"),
-                Item(path="baz"),
+                Item(path="foo", action="directory", owner="nobody"),
+                Item(path="bar", action="exists"),
+                Item(path="/etc/apache2/sites-enabled/foo", notify=restart_apache),
                 ]:
+            fs.builder(**item)
+
+        with Item(path="foo", action="directory", owner="nobody") as item:
+            #  Can access as "path" as well as "item.path"
+            fs.exists(path="{{path}}")
+            fs.chown(path="{{path}}", owner="{{owner}}")
+
+        with Item(path="foo", action="directory", owner="nobody"):
+            fs.exists(path="{{path}}")
 
     """
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(
+                f"'{type(self).__name__}' object has no attribute '{key}'"
+            )
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
+    def __delattr__(self, key):
+        if key in self:
+            del self[key]
+        else:
+            raise AttributeError(
+                f"'{type(self).__name__}' object has no attribute '{key}'"
+            )
 
     def __enter__(self):
-        up_context.item_context.insert(0, vars(self))
+        up_context.item_context.insert(0, self)
         return self
 
     def __exit__(self, *_):
