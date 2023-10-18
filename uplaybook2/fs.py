@@ -14,6 +14,7 @@ from .internals import (
 )
 from . import internals
 from typing import Union, Optional, Callable
+from types import SimpleNamespace
 import symbolicmode
 import os
 import stat
@@ -168,6 +169,10 @@ def cd(path: TemplateStr) -> Return:
     """
     Change working directory to `path`.
 
+    Sets "extra.old_dir" on the return object to the directory before the `cd`
+    is done.  Can also be used as a context manager and when the context is
+    exited you are returned to the previous directory.
+
     Arguments:
 
     - **path**: Directory to change into (templateable).
@@ -176,10 +181,22 @@ def cd(path: TemplateStr) -> Return:
 
         fs.cd(path="/tmp")
 
+        #  As context manager:
+        with fs.cd(path="/tmp"):
+            #  creates /tmp/tempfile
+            fs.mkfile("tempfile")
+        #  now are back in previous directory
+
     #taskdoc
     """
+    old_dir = os.getcwd()
     os.chdir(path)
-    return Return(changed=False)
+
+    return Return(
+        changed=False,
+        extra=SimpleNamespace(old_dir=old_dir),
+        context=lambda: cd(old_dir),
+    )
 
 
 @calling_context

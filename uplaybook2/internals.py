@@ -259,6 +259,8 @@ def calling_context(func: Callable[..., Any]) -> Callable[..., Any]:
 class Return:
     """
     A return type from tasks to track success/failure, display status, etc...
+
+    #@@@
     """
 
     def __init__(
@@ -272,6 +274,7 @@ class Return:
         extra: Optional[SimpleNamespace] = None,
         ignore_failure: Optional[bool] = None,
         failure_exc: Optional[Exception] = None,
+        context: Optional[Callable] = None,
     ) -> None:
         self.changed = changed
         self.extra_message = extra_message
@@ -281,6 +284,7 @@ class Return:
         self.failure = failure
         self.secret_args = secret_args
         self.failure_exc = failure_exc
+        self.context = context
 
         self.print_status()
 
@@ -294,6 +298,15 @@ class Return:
             raise self.failure_exc if self.failure_exc is not None else Failure(
                 "Unspecified failure in task"
             )
+
+    def __enter__(self):
+        if not self.context:
+            raise AttributeError("This instance is not a valid context manager.")
+        return self
+
+    def __exit__(self, *_):
+        assert self.context is not None
+        self.context()
 
     def print_status(self) -> None:
         """
