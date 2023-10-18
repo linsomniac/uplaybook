@@ -285,6 +285,8 @@ and return code are stored in `extra` in return object.
 - **change**: By default, all shell commands are assumed to have caused a change
          to the system and will trigger notifications.  If False, this `command`
          is treated as not changing the system.  (optional, bool)
+- **creates**: If specified, if the path it specifies exists, consider the command
+        to have already been run and skip future runes.
 
 Extra:
 

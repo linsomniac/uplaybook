@@ -14,6 +14,7 @@ import subprocess
 import sys
 from types import SimpleNamespace
 import argparse
+import os
 
 
 class Item(dict):
@@ -160,6 +161,7 @@ def run(
     shell: bool = True,
     ignore_failures: bool = False,
     change: bool = True,
+    creates: Optional[TemplateStr] = None,
 ) -> object:
     """
     Run a command.  Stdout is returned as `output` in the return object.  Stderr
@@ -176,6 +178,8 @@ def run(
     - **change**: By default, all shell commands are assumed to have caused a change
              to the system and will trigger notifications.  If False, this `command`
              is treated as not changing the system.  (optional, bool)
+    - **creates**: If specified, if the path it specifies exists, consider the command
+            to have already been run and skip future runes.
 
     Extra:
 
@@ -196,6 +200,9 @@ def run(
 
     #taskdoc
     """
+    if creates is not None and os.path.exists(creates):
+        return Return(changed=False)
+
     sys.stdout.flush()
     sys.stderr.flush()
 
@@ -205,7 +212,8 @@ def run(
     extra.stderr = p.stderr
     extra.returncode = p.returncode
     failure = p.returncode != 0
-    r = Return(
+
+    return Return(
         changed=change,
         failure=failure,
         output=p.stdout.rstrip(),
@@ -213,8 +221,6 @@ def run(
         ignore_failure=ignore_failures,
         failure_exc=Failure(f"Exit code {p.returncode}"),
     )
-
-    return r
 
 
 class Argument:
