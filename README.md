@@ -34,8 +34,8 @@ Some core ideas of it:
 
 Currently (Oct 2023) this is experimental: the core functionality is implemented
 and it is usable with a limited number of tasks(), to start trying it in real use.
-As real use is made of it, things may evolve, so playbooks created may need to adapt
-as new things are tried.
+More tasks will need to be added as I start making use of it and testing it in
+real world situations.
 
 If you look at it, your feedback would be appreciated.
 
@@ -62,8 +62,9 @@ uPlaybook2 is, currently an experiment, into making a Python-based environment f
 similar ideas:
 
 ```python
-template(src="49-haproxy.conf.j2", path="/etc/rsyslog.d/49-haproxy.conf", mode="a=r,u+w").notify(restart_syslog)
-chown(owner="root", group="root")  #  picks up `path` because of above line
+with core.Item(path="/etc/rsyslog.d/49-haproxy.conf"):
+    core.template(src="49-haproxy.conf.j2", path="{{path}}", mode="a=r,u+w").notify(restart_syslog)
+    core.chown(path="{{path}}", owner="root", group="root")
 ```
 
 ## Installation
