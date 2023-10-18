@@ -238,6 +238,21 @@ Print a message or pretty-print a variable.
     core.debug(msg="Directory already exists, exiting")
     core.debug(var=ret_value)
 
+### core.playbook_args:
+
+Specify arguments for a playbook.
+
+Optionally, a playbook may specify that it needs arguments.  If defined,
+this will create an argument parser and command-line arguemnts and
+options.
+
+Example:
+    core.playbook_args(
+            core.Argument(name="user"),
+            core.Argument(name="hostname")
+            )
+    core.debug(msg="Arguments: user={{playbook_args.user}}  hostname={{playbook_args.hostname}}")
+
 ### core.render:
 
 Render a string as a jinja2 template and return the value
@@ -372,7 +387,9 @@ Copy the `src` file to `path`, optionally templating the contents in `src`.
 
 - **path**: Name of destination file. (templateable).
 - **src**: Name of template to use as source (optional, templateable).
-       Defaults to the basename of `path` + ".j2".
+        Defaults to the basename of `path` + ".j2".
+- **mode**: Permissions of directory (optional, templatable string or int).
+        Sets mode on creation.
 - **template**: If True, apply Jinja2 templating to the contents of `src`,
        otherwise copy verbatim.  (default: True)
 

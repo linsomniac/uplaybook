@@ -117,6 +117,16 @@ def debug(msg: Optional[TemplateStr] = None, var: Optional[object] = None) -> Re
 @calling_context
 @template_args
 def lookup(var: str) -> object:
+    """
+    Looks up `var` in the "up context" and returns the value.
+
+    This would typically be similar to Jinja2 rendering "{{var}}", but
+    it does not go through "." traversing, so `var` must be a top
+    level name.
+
+    Example:
+        print(core.lookup('name'))
+    """
     return up_context.get_env()[var]
 
 
@@ -208,10 +218,38 @@ def run(
 
 
 class Argument:
+    """
+    An argument for a playbook.
+
+    List arguments if a playbook needs additional information from the user.
+    This is used in combination with the `core.playbook_args()` task.
+
+    Arguments:
+
+    - **name**: The name of the argument, this will determine the "--name" of the command-line
+        flag and the variable the value is stored in (str).
+    - **label**: A label used when prompting the user for input (For future use, optional)
+    - **description**: Detailed information on the argument for use in "--help" output.
+        (str, optional)
+    - **type**: The type of the argument: str, bool, int, password (default=str)
+    - **default**: A default value for the argument.  Arguments without a default
+        must be specified in the command-line, if a default is given an option with
+        "--name" will be available.
+
+    Example:
+        core.playbook_args(
+                core.Argument(name="user"),
+                core.Argument(name="hostname", default=None)
+                )
+        core.debug(msg="Arguments: user={{playbook_args.user}}  hostname={{playbook_args.hostname}}")
+
+        #  Run with "up2 playbookname --hostname=localhost username
+    """
+
     def __init__(
         self,
-        name,
-        label,
+        name: str,
+        label: Optional[str] = None,
         description: Optional[str] = None,
         type: str = "str",
         default: Optional[object] = None,
@@ -229,7 +267,20 @@ def playbook_args(
     *options: List[Argument],
 ) -> None:
     """
-    Set up arguments for playbook
+    Specify arguments for a playbook.
+
+    Optionally, a playbook may specify that it needs arguments.  If defined,
+    this will create an argument parser and command-line arguemnts and
+    options.
+
+    Example:
+        core.playbook_args(
+                core.Argument(name="user"),
+                core.Argument(name="hostname")
+                )
+        core.debug(msg="Arguments: user={{playbook_args.user}}  hostname={{playbook_args.hostname}}")
+
+    #taskdoc
     """
     parser = argparse.ArgumentParser(prog=f"up:{up_context.playbook_name}")
 
