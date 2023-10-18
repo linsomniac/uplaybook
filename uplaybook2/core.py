@@ -16,36 +16,41 @@ from types import SimpleNamespace
 import argparse
 
 
-class Item:
+class Item(SimpleNamespace):
+    """
+    An (ansible-like) item for processing in a playbook (a file, directory, user...)
+
+    A typical use case of an Item is for looping over many files and setting them
+    up, or setting up many filesystem objects in a playbook.  Additionally, if used
+    in a "with:" statement, it will place the attributes into the current Jinja2
+    namespace.
+
+    Examples:
+
+        for item in [
+                Item(path="foo"),
+                Item(path="bar"),
+                Item(path="baz"),
+                ]:
+            fs.builder(path="{{item.path}}")
+
+        for item in [
+                Item(path="foo"),
+                Item(path="bar"),
+                Item(path="baz"),
+                ]:
+
+    """
+
     def __init__(self, **kwargs):
-        self.kwargs = kwargs
+        super().__init__(**kwargs)
 
     def __enter__(self):
-        up_context.item_context.insert(0, self.kwargs)
+        up_context.item_context.insert(0, vars(self))
+        return self
 
     def __exit__(self, *_):
         up_context.item_context.pop(0)
-
-
-class ItemLoop:
-    def __init__(self, *args):
-        self.items = args
-        self.current_item = 0
-        self.last_item = None
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        if self.last_item is not None:
-            self.last_item.__exit__()
-        if self.current_item >= len(self.items):
-            raise StopIteration
-        else:
-            self.current_item += 1
-            item = self.items[self.current_item - 1]
-            item.__enter__()
-            return item
 
 
 @calling_context
