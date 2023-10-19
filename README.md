@@ -223,6 +223,24 @@ Which produces the following output:
 
 <!-- (@@@ Put documentation here) -->
 
+### core.become:
+
+Switch to running as another user in a playbook.
+
+If used as a context manager, you are switched back to the original user after the context.
+
+#### Arguments:
+
+- **user**: User name or UID of user to switch to.
+
+Example:
+    core.become(user="nobody")
+
+    with core.become(user="backup"):
+        #  to tasks as backup user
+        fs.mkfile(path="/tmp/backupfile")
+    #  now you are back to the previous user
+
 ### core.debug:
 
 Display informational message.
@@ -341,6 +359,10 @@ modifying many filesystem objects in compact declarations.
 
 Change working directory to `path`.
 
+Sets "extra.old_dir" on the return object to the directory before the `cd`
+is done.  Can also be used as a context manager and when the context is
+exited you are returned to the previous directory.
+
 #### Arguments:
 
 - **path**: Directory to change into (templateable).
@@ -348,6 +370,12 @@ Change working directory to `path`.
 #### Examples:
 
     fs.cd(path="/tmp")
+
+    #  As context manager:
+    with fs.cd(path="/tmp"):
+        #  creates /tmp/tempfile
+        fs.mkfile("tempfile")
+    #  now are back in previous directory
 
 ### fs.chmod:
 

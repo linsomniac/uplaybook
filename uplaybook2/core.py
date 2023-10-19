@@ -8,13 +8,14 @@ from .internals import (
     up_context,
     Failure,
 )
-from typing import Optional, List
+from typing import Optional, List, Union
 import pprint
 import subprocess
 import sys
 from types import SimpleNamespace
 import argparse
 import os
+import pwd
 
 
 class Item(dict):
@@ -327,3 +328,36 @@ def playbook_args(
             args_vars[name_mapping[arg.name]],
         )
         up_context.context[arg.name] = args_vars[name_mapping[arg.name]]
+
+
+@calling_context
+@template_args
+def become(user: Union[int, TemplateStr]) -> Return:
+    """
+    Switch to running as another user in a playbook.
+
+    If used as a context manager, you are switched back to the original user after the context.
+
+    Arguments:
+
+    - **user**: User name or UID of user to switch to.
+
+    Example:
+        core.become(user="nobody")
+
+        with core.become(user="backup"):
+            #  to tasks as backup user
+            fs.mkfile(path="/tmp/backupfile")
+        #  now you are back to the previous user
+
+    #taskdoc
+    """
+    new_user = user
+    if type(new_user) == str:
+        new_user = pwd.getpwnam(new_user).pw_uid
+
+    assert type(new_user) == int
+    old_uid = os.getuid()
+    os.seteuid(new_user)
+
+    return Return(changed=False, context_manager=lambda: os.seteuid(old_uid))
