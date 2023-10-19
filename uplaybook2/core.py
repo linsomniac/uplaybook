@@ -361,3 +361,37 @@ def become(user: Union[int, TemplateStr]) -> Return:
     os.seteuid(new_user)
 
     return Return(changed=False, context_manager=lambda: os.seteuid(old_uid))
+
+
+@calling_context
+@template_args
+def require(user: Union[int, TemplateStr]) -> Return:
+    """
+    Verify we are running as the specified user.
+
+    Arguments:
+
+    - **user**: User name or UID of user to verify.
+
+    Example:
+        core.require(user="nobody")
+
+    #taskdoc
+    """
+    new_user = user
+    if type(new_user) == str:
+        new_user = pwd.getpwnam(new_user).pw_uid
+
+    assert type(new_user) == int
+    current_uid = os.getuid()
+
+    if current_uid != new_user:
+        Return(
+            changed=False,
+            failure=True,
+            failure_exc=Failure(
+                f"Expected to run as user {user}, got uid={current_uid}"
+            ),
+        )
+
+    return Return(changed=False)

@@ -288,6 +288,17 @@ Render a string as a jinja2 template and return the value
 
     core.render(s="Value of foo: {{foo}}")
 
+### core.require:
+
+Verify we are running as the specified user.
+
+#### Arguments:
+
+- **user**: User name or UID of user to verify.
+
+Example:
+    core.require(user="nobody")
+
 ### core.run:
 
 Run a command.  Stdout is returned as `output` in the return object.  Stderr
