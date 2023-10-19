@@ -260,21 +260,53 @@ class Return:
     """
     A return type from tasks to track success/failure, display status, etc...
 
-    #@@@
+    This can be used as a context manager if a `context_manager` function is provided.
+    See `fs.cd()` for an example.
+
+    It can also be used as a boolean, to check success/failure (needs `ignore_failure`, or failure
+    will raise exception).  See `core.run()` for an exaple.
+
+    Arguments:
+
+    - **changed**: If True, mark the task as having changed system state. (bool)
+    - **failure**: If True, mark the task as having failed. (optional, bool)
+    - **ignore_failure**: If True, failure is not considered fatal, execution can continue on.
+            (bool, default False)
+    - **extra_message**: An extra message to display in the status line in parens (optional, str)
+    - **output**: Output of the task to display, for example stdout of a run command.  (optional, str)
+    - **hide_args**: If true, do not display any arguments names/values.  Useful for `debug()`
+            which doesn't need to show the message in the status line as well as the output.
+            (bool, default=False)
+    - **secret_args**: Arguments that have secrets in them, so obscure the value.  (optional, set)
+    - **extra**: Extra data to be returned to the caller, as a `types.SimpleNamespace()`, for
+            example `run()` will return exit code and stderr as extra.  (optional, types.SimpleNamespace())
+    - **failure_exc**: The exception to return in the case of a failure, by default it raises `Failiure()`,
+            but you can specify something more specific.  (optional, Exception())
+    - **context_manager**: This type can optionally behave as a Context Manager, and if so this function
+            will be called with no parameters at the end of the context.  Use a closure if you want to
+            associate data with the function call ("lambda: function(args)").  (optional, Callable).
+
+    Examples:
+
+        Return(changed=True)
+        Return(changed=False)
+        Return(changed=True, extra_message="Permissions")
+        Return(changed=True, extra=SimpleNamespace(stderr=s))
+        Return(changed=True, context_manager=lambda: f(arg))
     """
 
     def __init__(
         self,
         changed: bool,
         failure: bool = False,
+        ignore_failure: bool = False,
         extra_message: Optional[str] = None,
         output: Optional[str] = None,
         hide_args: bool = False,
         secret_args: set = set(),
         extra: Optional[SimpleNamespace] = None,
-        ignore_failure: Optional[bool] = None,
         failure_exc: Optional[Exception] = None,
-        context: Optional[Callable] = None,
+        context_manager: Optional[Callable] = None,
     ) -> None:
         self.changed = changed
         self.extra_message = extra_message
@@ -284,11 +316,11 @@ class Return:
         self.failure = failure
         self.secret_args = secret_args
         self.failure_exc = failure_exc
-        self.context = context
+        self.context_manager = context_manager
 
         self.print_status()
 
-        failure_ok = ignore_failure is True or up_context.ignore_failures is True
+        failure_ok = ignore_failure or up_context.ignore_failures is True
 
         up_context.total_count += 1
         if changed:
@@ -299,14 +331,28 @@ class Return:
                 "Unspecified failure in task"
             )
 
-    def __enter__(self):
-        if not self.context:
+    def __enter__(self) -> "Return":
+        """
+        Begin a context if used as a context manager.
+
+        Raises:
+            AttributeError() if no `context_manager` was specified.
+
+        Returns:
+            The Return() object, so it can be used as "with fn() as return_obj:"
+        """
+        if not self.context_manager:
             raise AttributeError("This instance is not a valid context manager.")
         return self
 
-    def __exit__(self, *_):
-        assert self.context is not None
-        self.context()
+    def __exit__(self, *_) -> None:
+        """
+        End the context if used as a context manager.
+
+        This will call the `context_manager` function if it is given.
+        """
+        assert self.context_manager is not None
+        self.context_manager()
 
     def print_status(self) -> None:
         """
@@ -348,6 +394,9 @@ class Return:
             print(self.output)
 
     def __repr__(self) -> str:
+        """
+        Format this object for display.
+        """
         values = [f"changed={self.changed}"]
         if self.extra_message is not None:
             values.append(f"extra_message={repr(self.extra_message)}")
@@ -363,15 +412,25 @@ class Return:
                 formatted_output = ',\noutput="""\n' + self.output + '"""'
         return f"Return({', '.join(values)}{formatted_output})"
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
+        """
+        If checked for truthfulness, return True if not `failure`.
+        """
         return not self.failure
 
     def notify(self, fn: Callable) -> None:
+        """
+        Register a handler function to call if changed.
+        """
         if self.changed:
             up_context.add_handler(fn)
 
 
 class Failure(Exception):
+    """
+    The default exception raised if a task fails.
+    """
+
     pass
 
 
