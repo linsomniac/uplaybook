@@ -371,7 +371,7 @@ def require(user: Union[int, TemplateStr]) -> Return:
 
     Arguments:
 
-    - **user**: User name or UID of user to verify.
+    - **user**: User name or UID of user to verify.  (int or str, templateable)
 
     Example:
         core.require(user="nobody")
@@ -395,3 +395,21 @@ def require(user: Union[int, TemplateStr]) -> Return:
         )
 
     return Return(changed=False)
+
+
+@calling_context
+@template_args
+def fail(msg: TemplateStr) -> Return:
+    """
+    Abort a playbook run.
+
+    Arguments:
+
+    - **msg**: Message to display with failure (str, templateable).
+
+    Example:
+        core.fail(msg="Unable to download file")
+
+    #taskdoc
+    """
+    return Return(changed=False, failure=True, failure_exc=Failure(msg))

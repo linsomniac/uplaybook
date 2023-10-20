@@ -257,6 +257,17 @@ Print a message or pretty-print a variable.
     core.debug(msg="Directory already exists, exiting")
     core.debug(var=ret_value)
 
+### core.fail:
+
+Abort a playbook run.
+
+#### Arguments:
+
+- **msg**: Message to display with failure (str, templateable).
+
+Example:
+    core.fail(msg="Unable to download file")
+
 ### core.playbook_args:
 
 Specify arguments for a playbook.
@@ -294,7 +305,7 @@ Verify we are running as the specified user.
 
 #### Arguments:
 
-- **user**: User name or UID of user to verify.
+- **user**: User name or UID of user to verify.  (int or str, templateable)
 
 Example:
     core.require(user="nobody")
