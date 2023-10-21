@@ -423,7 +423,7 @@ Change ownership/group of path.
 #### Arguments:
 
 - **path**: Path to change (templateable).
-- **owner**: Ownership to set on `path`. (optional, templatable).
+- **user**: User to set on `path`. (optional, templatable).
 - **group**: Group to set on `path`. (optional, templatable).
 
 #### Examples:
@@ -483,3 +483,18 @@ Create an empty file if it does not already exist.
     fs.mkfile(path="/tmp/foo")
     fs.mkfile(path="/tmp/bar", mode="a=rX,u+w")
     fs.mkfile(path="/tmp/baz", mode=0o755)
+
+### fs.rm:
+
+Remove a file or recursively remove a directory.
+
+#### Arguments:
+
+- **path**: Name of file/directory to remove. (templateable).
+- **recursive**: If True, recursively remove directory and all contents of `path`.
+       Otherwise only remove if `path` is a file.  (default: False)
+
+#### Examples:
+
+    fs.rm(path="/tmp/foo")
+    fs.rm(path="/tmp/foo-dir", recursive=True)

@@ -6,6 +6,7 @@ Filesystem related tasks.
 
 from .internals import (
     Return,
+    Failure,
     TemplateStr,
     template_args,
     calling_context,
@@ -23,6 +24,7 @@ import string
 import hashlib
 import pwd
 import grp
+import shutil
 
 
 def _mode_from_arg(
@@ -112,7 +114,7 @@ def chmod(
 @template_args
 def chown(
     path: str,
-    owner: Optional[TemplateStr] = None,
+    user: Optional[TemplateStr] = None,
     group: Optional[TemplateStr] = None,
 ) -> Return:
     """
@@ -121,7 +123,7 @@ def chown(
     Arguments:
 
     - **path**: Path to change (templateable).
-    - **owner**: Ownership to set on `path`. (optional, templatable).
+    - **user**: User to set on `path`. (optional, templatable).
     - **group**: Group to set on `path`. (optional, templatable).
 
     Examples:
@@ -135,30 +137,19 @@ def chown(
     changed = False
     extra_messages = []
 
-    path_stats = os.stat(path)
+    before_stats = os.stat(path)
+    shutil.chown(path, user=user, group=group)
+    after_stats = os.stat(path)
 
-    uid = -1
-    gid = -1
-    if owner:
-        new_uid = pwd.getpwnam(owner).pw_uid
-        if new_uid != path_stats.st_uid:
-            uid = new_uid
-            changed = True
-            extra_messages.append("owner")
-
-    if group:
-        new_gid = grp.getgrnam(group).gr_gid
-        if new_gid != path_stats.st_gid:
-            gid = new_gid
-            changed = True
-            extra_messages.append("group")
-
-    if uid != -1 or gid != -1:
-        os.chown(path, uid, gid)
+    extra_messages = []
+    if before_stats.st_uid != after_stats.st_uid:
+        extra_messages.append(f"User changed from {before_stats.st_uid}")
+    if before_stats.st_gid != after_stats.st_gid:
+        extra_messages.append(f"Group changed from {before_stats.st_gid}")
+    changed = len(extra_messages) != 0
 
     return Return(
         changed=changed,
-        secret_args={"decrypt_password", "encrypt_password"},
         extra_message=", ".join(extra_messages) if extra_messages else None,
     )
 
@@ -287,6 +278,45 @@ def _random_ext(i: int = 8) -> str:
             string.ascii_lowercase + string.ascii_uppercase + string.digits, k=i
         )
     )
+
+
+@calling_context
+@template_args
+def rm(
+    path: TemplateStr,
+    recursive: bool = False,
+) -> Return:
+    """
+    Remove a file or recursively remove a directory.
+
+    Arguments:
+
+    - **path**: Name of file/directory to remove. (templateable).
+    - **recursive**: If True, recursively remove directory and all contents of `path`.
+           Otherwise only remove if `path` is a file.  (default: False)
+
+    Examples:
+
+        fs.rm(path="/tmp/foo")
+        fs.rm(path="/tmp/foo-dir", recursive=True)
+
+    #taskdoc
+    """
+
+    if not os.path.exists(path):
+        return Return(changed=False)
+
+    if not recursive:
+        try:
+            os.remove(path)
+        except OSError as e:
+            raise Failure(
+                f"Path {path} is a directory, will not remove without `recursive` option"
+            )
+    else:
+        shutil.rmtree(path)
+
+    return Return(changed=True)
 
 
 @calling_context
