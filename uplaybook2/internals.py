@@ -105,6 +105,7 @@ class UpContext:
         self.playbook_namespace = {}  #  Namespace of the playbook module
         self.playbook_name = ""  #  Name of the playbook being run
         self.playbook_directory = "."  #  Directory playbook is in
+        self.playbook_files_seen = set()
 
         self.jinja_env = jinja2.Environment()
         self.jinja_env.filters["basename"] = os.path.basename
@@ -764,6 +765,27 @@ def find_file(filename: str) -> Path:
     )
 
 
+def show_playbook_traceback() -> None:
+    """
+    Display the current traceback, but only the parts that reference the playbook(s).
+    Traceback is printed to stdout.
+    """
+    tb_lines = traceback.format_exc().splitlines()
+    print(tb_lines[0])
+    print_next_line = False
+    for line in tb_lines[1:-1]:
+        if print_next_line:
+            print(line)
+            print_next_line = False
+            continue
+        if line.startswith("  File "):
+            filename = line.split()[1].strip('",')
+            if filename in up_context.playbook_files_seen:
+                print(line)
+                print_next_line = True
+    print(tb_lines[-1])
+
+
 def cli() -> None:
     """
     The main entry point for the CLI.
@@ -781,6 +803,7 @@ def cli() -> None:
             playbook = find_playbook(pb_name)
         up_context.playbook_directory = playbook.directory.absolute()
         full_playbook_path = playbook.directory.absolute() / playbook.playbook_file
+        up_context.playbook_files_seen.add(full_playbook_path.as_posix())
         pb = import_script_as_module(
             pb_name, [playbook.playbook_file, playbook.playbook_file]
         )
@@ -788,20 +811,7 @@ def cli() -> None:
         if args.up_full_traceback or not full_playbook_path:
             print(traceback.format_exc())
         else:
-            tb_lines = traceback.format_exc().splitlines()
-            print(tb_lines[0])
-            print_next_line = False
-            for line in tb_lines[1:-1]:
-                if print_next_line:
-                    print(line)
-                    print_next_line = False
-                    continue
-                if line.startswith("  File "):
-                    filename = line.split()[1].strip('",')
-                    if filename == full_playbook_path.as_posix():
-                        print(line)
-                        print_next_line = True
-            print(tb_lines[-1])
+            show_playbook_traceback()
 
     up_context.flush_handlers()
 
