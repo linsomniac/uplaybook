@@ -221,8 +221,6 @@ Which produces the following output:
 
 ## Task Documentation
 
-<!-- (@@@ Put documentation here) -->
-
 ### core.become:
 
 Switch to running as another user in a playbook.
@@ -361,8 +359,8 @@ modifying many filesystem objects in compact declarations.
 - **mode**: Permissions of file (optional, templatable string or int).
 - **owner**: Ownership to set on `path`. (optional, templatable).
 - **group**: Group to set on `path`. (optional, templatable).
-- **action**: Type of `path` to build, can be: "directory", "template", "exists", "copy".
-        (optional, templatable, default="template")
+- **action**: Type of `path` to build, can be: "directory", "template", "exists",
+        "copy", "absent". (optional, templatable, default="template")
 - **notify**:  Handler to notify of changes.
         (optional, Callable)
 
@@ -450,6 +448,21 @@ Copy the `src` file to `path`, optionally templating the contents in `src`.
 
     fs.copy(path="/tmp/foo")
     fs.copy(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
+
+### fs.ln:
+
+Create a link from `src` to `path`.
+
+#### Arguments:
+
+- **path**: Name of destination of link. (templateable).
+- **src**: Name of location of source to create link from. (templateable).
+- **symbolic**: If True, makes a symbolic link. (bool, default: False)
+
+#### Examples:
+
+    fs.ln(path="/tmp/foo", src="/tmp/bar")
+    fs.ln(path="/tmp/foo", src="/tmp/bar", symbolic=True)
 
 ### fs.mkdir:
 

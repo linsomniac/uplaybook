@@ -321,6 +321,54 @@ def rm(
 
 @calling_context
 @template_args
+def ln(
+    path: TemplateStr,
+    src: TemplateStr,
+    symbolic: bool = False,
+) -> Return:
+    """
+    Create a link from `src` to `path`.
+
+    Arguments:
+
+    - **path**: Name of destination of link. (templateable).
+    - **src**: Name of location of source to create link from. (templateable).
+    - **symbolic**: If True, makes a symbolic link. (bool, default: False)
+
+    Examples:
+
+        fs.ln(path="/tmp/foo", src="/tmp/bar")
+        fs.ln(path="/tmp/foo", src="/tmp/bar", symbolic=True)
+
+    #taskdoc
+    """
+
+    if symbolic:
+        if os.path.islink(path) and os.readlink(path) == src:
+            return Return(changed=False)
+        if os.path.exists(path):
+            os.remove(path)
+        os.symlink(src, path)
+    else:
+        if os.path.exists(path):
+            src_stat = os.stat(src)
+            path_stat = os.stat(path)
+
+            if (
+                src_stat.st_dev == path_stat.st_dev
+                and src_stat.st_ino == path_stat.st_ino
+            ):
+                return Return(changed=False)
+
+            os.remove(path)
+
+        os.link(src=src, dst=path)
+
+    return Return(changed=True)
+
+
+@calling_context
+@template_args
 def copy(
     path: TemplateStr,
     src: Optional[TemplateStr] = None,
@@ -427,8 +475,8 @@ def builder(
     - **mode**: Permissions of file (optional, templatable string or int).
     - **owner**: Ownership to set on `path`. (optional, templatable).
     - **group**: Group to set on `path`. (optional, templatable).
-    - **action**: Type of `path` to build, can be: "directory", "template", "exists", "copy".
-            (optional, templatable, default="template")
+    - **action**: Type of `path` to build, can be: "directory", "template", "exists",
+            "copy", "absent". (optional, templatable, default="template")
     - **notify**:  Handler to notify of changes.
             (optional, Callable)
 
@@ -455,6 +503,8 @@ def builder(
             r = mkdir(path=path, mode=mode)
         elif action == "exists":
             r = mkfile(path=path, mode=mode)
+        elif action == "absent":
+            r = rm(path=path)
         else:
             raise ValueError(f"Unknown action: {action}")
 
