@@ -604,6 +604,11 @@ def parse_args() -> argparse.Namespace:
         help="Display help about usage.",
     )
     parser.add_argument(
+        "--up-full-traceback",
+        action="store_true",
+        help="Display a full traceback rather than the default abbreviated version.",
+    )
+    parser.add_argument(
         "--up-debug",
         action="store_true",
         help="Display additional debugging information during playbook run.",
@@ -765,6 +770,7 @@ def cli() -> None:
     """
     args = parse_args()
 
+    full_playbook_path = None
     try:
         pb_name = args.playbook
         up_context.playbook_name = pb_name
@@ -774,11 +780,28 @@ def cli() -> None:
         else:
             playbook = find_playbook(pb_name)
         up_context.playbook_directory = playbook.directory.absolute()
+        full_playbook_path = playbook.directory.absolute() / playbook.playbook_file
         pb = import_script_as_module(
             pb_name, [playbook.playbook_file, playbook.playbook_file]
         )
     except Exception:
-        print(traceback.format_exc())
+        if args.up_full_traceback or not full_playbook_path:
+            print(traceback.format_exc())
+        else:
+            tb_lines = traceback.format_exc().splitlines()
+            print(tb_lines[0])
+            print_next_line = False
+            for line in tb_lines[1:-1]:
+                if print_next_line:
+                    print(line)
+                    print_next_line = False
+                    continue
+                if line.startswith("  File "):
+                    filename = line.split()[1].strip('",')
+                    if filename == full_playbook_path.as_posix():
+                        print(line)
+                        print_next_line = True
+            print(tb_lines[-1])
 
     up_context.flush_handlers()
 
