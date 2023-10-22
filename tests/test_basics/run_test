@@ -1,0 +1,6 @@
+#!/bin/bash -eu
+#
+#  Test the basics
+
+eval "$UP2 basics.pb"
+exit $?

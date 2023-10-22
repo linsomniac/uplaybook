@@ -184,7 +184,7 @@ def cd(path: TemplateStr) -> Return:
     return Return(
         changed=False,
         extra=SimpleNamespace(old_dir=old_dir),
-        context=lambda: cd(old_dir),
+        context_manager=lambda: cd(old_dir),
     )
 
 
@@ -535,19 +535,29 @@ def cp(
 
         return "Contents"
 
-    if src is None:
-        new_src = os.path.basename(path) + ".j2"
-    else:
-        new_src = src
+    new_src = src if src is not None else os.path.basename(path) + ".j2"
+    new_src = internals.find_file(new_src)
 
     if encrypt_password or decrypt_password:
         raise NotImplementedError("Crypto not implemented yet")
 
     changes_made = set()
+    src_is_dir = stat_module.S_ISDIR(os.stat(new_src).st_mode)
+    if recursive and src_is_dir:
+        for dirpath, dirnames, filenames in os.walk(new_src):
+            dst_dir = os.path.join(dst, os.path.relpath(dirpath, new_src))
 
-    change = _copy_file(new_src, path, mode)
-    if change:
-        changes_made.add(change)
+            if not os.path.exists(dst_dir):
+                os.makedirs(dst_dir)
+
+            for filename in filenames:
+                src_file = os.path.join(dirpath, filename)
+                dst_file = os.path.join(dst_dir, filename)
+            shutil.copy2(src_file, dst_file)
+    else:
+        change = _copy_file(new_src, path, mode)
+        if change:
+            changes_made.add(change)
 
     if not changes_made:
         return Return(

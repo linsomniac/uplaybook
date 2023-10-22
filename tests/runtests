@@ -1,0 +1,32 @@
+#!/bin/bash -eu
+#
+#  Tests for uPlaybook2
+
+if [ -d .git ]; then
+  PYTHONPATH=$(pwd)
+  UP2='python3 -c "from uplaybook2.internals import cli; cli()" --up-full-traceback'
+  TESTDIR=$(pwd)/tests
+else
+  PYTHONPATH=$(pwd)/..
+  UP2='python3 -c "from uplaybook2.internals import cli; cli()" --up-full-traceback'
+  TESTDIR=$(pwd)
+fi
+export UP2
+export PYTHONPATH
+export TESTDIR
+
+cd "$TESTDIR"
+for TEST in test_*; do
+  cd "$TESTDIR"
+  [ ! -f "$TEST"/run_test ] && continue
+  cd "$TESTDIR"/"$TEST"
+  echo "*** $TEST ***"
+  if ! ./run_test; then
+    echo "!!! TEST FAILED"
+    exit 1
+  fi
+done
+
+cd "$TESTDIR"
+python3 -m pytest
+exit "$?"
