@@ -370,7 +370,7 @@ def stat(
     s = os.stat(path, follow_symlinks=follow_symlinks)
 
     ret = SimpleNamespace(
-        perms=s.st_mode & 0o777,
+        perms=stat.s_IMODE(s.st_mode),
         st_mode=s.st_mode,
         st_ino=s.st_ino,
         st_dev=s.st_dev,
@@ -446,13 +446,15 @@ def ln(
 
 @calling_context
 @template_args
-def copy(
+def cp(
     path: TemplateStr,
     src: Optional[TemplateStr] = None,
     mode: Optional[Union[TemplateStr, int]] = None,
     encrypt_password: Optional[TemplateStr] = None,
     decrypt_password: Optional[TemplateStr] = None,
     template: bool = True,
+    template_filenames: bool = True,
+    recursive: bool = True,
 ) -> Return:
     """
     Copy the `src` file to `path`, optionally templating the contents in `src`.
@@ -465,15 +467,73 @@ def copy(
     - **mode**: Permissions of directory (optional, templatable string or int).
             Sets mode on creation.
     - **template**: If True, apply Jinja2 templating to the contents of `src`,
-           otherwise copy verbatim.  (default: True)
+            otherwise copy verbatim.  (default: True)
+    - **template_filenames**: If True, filenames found during recursive copy are
+            jinja2 template expanded. (default: True)
+    - **recursive**: If True and `src` is a directory, recursively copy it and
+            everything below it to the `path`.  If `path` ends in a "/",
+            the last component of `src` is created under `path`, otherwise
+            the contents of `src` are written into `path`. (default: True)
 
     Examples:
 
-        fs.copy(path="/tmp/foo")
-        fs.copy(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
+        fs.cp(path="/tmp/foo")
+        fs.cp(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
 
     #taskdoc
     """
+
+    def _copy_file(
+        src: str,
+        dst: str,
+        mode: Optional[Union[str, int]] = None,
+        decrypt_password: Union[str, None] = None,
+        encrypt_password: Union[str, None] = None,
+    ) -> Optional[str]:
+        """
+        The workhorse of the copy function, copy one file.
+
+        Returns:
+            A string describing the change made, or None if no change made.
+        """
+        new_mode = mode
+        old_mode = None
+
+        hash_before = None
+        if os.path.exists(dst):
+            old_mode = stat.S_IMODE(os.stat(dst).st_mode)
+            with open(dst, "rb") as fp_in:
+                sha = hashlib.sha256()
+                sha.update(fp_in.read())
+                hash_before = sha.hexdigest()
+
+        with open(src, "r") as fp_in:
+            data = fp_in.read()
+            if template:
+                data = up_context.jinja_env.from_string(data).render(
+                    up_context.get_env()
+                )
+
+        sha = hashlib.sha256()
+        sha.update(data.encode("latin-1"))
+        hash_after = sha.hexdigest()
+
+        if new_mode is not None:
+            new_mode = _mode_from_arg(new_mode, initial_mode=old_mode)
+
+        if hash_before == hash_after and (new_mode is None or new_mode == old_mode):
+            return None
+        if hash_before == hash_after and (new_mode is not None or new_mode != old_mode):
+            return "Permissions"
+
+        dstTmp = dst + ".tmp." + _random_ext()
+        mode_arg = {} if new_mode is None else {"mode": new_mode}
+        fd = os.open(dstTmp, os.O_WRONLY | os.O_CREAT, **mode_arg)
+        with os.fdopen(fd, "w") as fp_out:
+            fp_out.write(data)
+        os.rename(dstTmp, dst)
+
+        return "Contents"
 
     if src is None:
         new_src = os.path.basename(path) + ".j2"
@@ -483,48 +543,21 @@ def copy(
     if encrypt_password or decrypt_password:
         raise NotImplementedError("Crypto not implemented yet")
 
-    new_mode = mode
-    old_mode = None
+    changes_made = set()
 
-    hash_before = None
-    if os.path.exists(path):
-        old_mode = stat.S_IMODE(os.stat(path).st_mode)
-        with open(path, "rb") as fp_in:
-            sha = hashlib.sha256()
-            sha.update(fp_in.read())
-            hash_before = sha.hexdigest()
+    change = _copy_file(new_src, path, mode)
+    if change:
+        changes_made.add(change)
 
-    with open(internals.find_file(new_src), "r") as fp_in:
-        data = fp_in.read()
-        if template:
-            data = up_context.jinja_env.from_string(data).render(up_context.get_env())
-
-    sha = hashlib.sha256()
-    sha.update(data.encode("latin-1"))
-    hash_after = sha.hexdigest()
-
-    if new_mode is not None:
-        new_mode = _mode_from_arg(new_mode, initial_mode=old_mode)
-
-    if hash_before == hash_after and (new_mode is None or new_mode == old_mode):
+    if not changes_made:
         return Return(
             changed=False, secret_args={"decrypt_password", "encrypt_password"}
         )
-    if hash_before == hash_after and (new_mode is not None or new_mode != old_mode):
-        return Return(
-            changed=True,
-            secret_args={"decrypt_password", "encrypt_password"},
-            extra_message="Permissions",
-        )
-
-    pathTmp = path + ".tmp." + _random_ext()
-    mode_arg = {} if new_mode is None else {"mode": new_mode}
-    fd = os.open(pathTmp, os.O_WRONLY | os.O_CREAT, **mode_arg)
-    with os.fdopen(fd, "w") as fp_out:
-        fp_out.write(data)
-    os.rename(pathTmp, path)
-
-    return Return(changed=True, secret_args={"decrypt_password", "encrypt_password"})
+    return Return(
+        changed=True,
+        extra_message=", ".join(changes_made),
+        secret_args={"decrypt_password", "encrypt_password"},
+    )
 
 
 @calling_context
@@ -553,7 +586,7 @@ def builder(
     - **owner**: Ownership to set on `path`. (optional, templatable).
     - **group**: Group to set on `path`. (optional, templatable).
     - **action**: Type of `path` to build, can be: "directory", "template", "exists",
-            "copy", "absent". (optional, templatable, default="template")
+            "copy", "absent", "link", "symlink". (optional, templatable, default="template")
     - **notify**:  Handler to notify of changes.
             (optional, Callable)
 
@@ -561,11 +594,10 @@ def builder(
 
         fs.builder("/tmp/foo")
         fs.builder("/tmp/bar", action="directory")
-        for _ in Items(
+        for _ in [
                 Item(path="/tmp/{{ modname }}", action="directory"),
                 Item(path="/tmp/{{ modname }}/__init__.py"),
-                defaults=Item(mode="a=rX,u+w")
-                ):
+                ]:
             builder()
 
     #taskdoc
@@ -573,13 +605,17 @@ def builder(
 
     with CallDepth():
         if action == "template":
-            r = copy(src=src, path=path)
+            r = cp(src=src, path=path)
         elif action == "copy":
-            r = copy(src=src, path=path, template=False)
+            r = cp(src=src, path=path, template=False)
         elif action == "directory":
             r = mkdir(path=path, mode=mode)
         elif action == "exists":
             r = mkfile(path=path, mode=mode)
+        elif action == "link":
+            r = ln(src=src, path=path)
+        elif action == "symlink":
+            r = ln(src=src, path=path, symbolic=True)
         elif action == "absent":
             r = rm(path=path)
         else:
