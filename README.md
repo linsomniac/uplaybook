@@ -221,6 +221,8 @@ Which produces the following output:
 
 ## Task Documentation
 
+-<!-- (@@@ Put documentation here) -->
+
 ### core.become:
 
 Switch to running as another user in a playbook.
@@ -254,6 +256,20 @@ Print a message or pretty-print a variable.
 
     core.debug(msg="Directory already exists, exiting")
     core.debug(var=ret_value)
+
+### core.exit:
+
+End a playbook run.
+
+#### Arguments:
+
+- **returncode**: Exit code for process, 0 is success, 1-255 are failure (int, default=0).
+- **msg**: Message to display (str, templatable, default "").
+
+Example:
+    core.exit()
+    core.exit(returncode=1)
+    core.exit(msg="Unable to download file", returncode=1)
 
 ### core.fail:
 
@@ -360,7 +376,7 @@ modifying many filesystem objects in compact declarations.
 - **owner**: Ownership to set on `path`. (optional, templatable).
 - **group**: Group to set on `path`. (optional, templatable).
 - **action**: Type of `path` to build, can be: "directory", "template", "exists",
-        "copy", "absent". (optional, templatable, default="template")
+        "copy", "absent", "link", "symlink". (optional, templatable, default="template")
 - **notify**:  Handler to notify of changes.
         (optional, Callable)
 
@@ -368,11 +384,10 @@ modifying many filesystem objects in compact declarations.
 
     fs.builder("/tmp/foo")
     fs.builder("/tmp/bar", action="directory")
-    for _ in Items(
+    for _ in [
             Item(path="/tmp/{{ modname }}", action="directory"),
             Item(path="/tmp/{{ modname }}/__init__.py"),
-            defaults=Item(mode="a=rX,u+w")
-            ):
+            ]:
         builder()
 
 ### fs.cd:
@@ -430,7 +445,7 @@ Change ownership/group of path.
     fs.chown(path="/tmp", group="wheel")
     fs.chown(path="/tmp", owner="nobody", group="nobody")
 
-### fs.copy:
+### fs.cp:
 
 Copy the `src` file to `path`, optionally templating the contents in `src`.
 
@@ -442,12 +457,18 @@ Copy the `src` file to `path`, optionally templating the contents in `src`.
 - **mode**: Permissions of directory (optional, templatable string or int).
         Sets mode on creation.
 - **template**: If True, apply Jinja2 templating to the contents of `src`,
-       otherwise copy verbatim.  (default: True)
+        otherwise copy verbatim.  (default: True)
+- **template_filenames**: If True, filenames found during recursive copy are
+        jinja2 template expanded. (default: True)
+- **recursive**: If True and `src` is a directory, recursively copy it and
+        everything below it to the `path`.  If `path` ends in a "/",
+        the last component of `src` is created under `path`, otherwise
+        the contents of `src` are written into `path`. (default: True)
 
 #### Examples:
 
-    fs.copy(path="/tmp/foo")
-    fs.copy(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
+    fs.cp(path="/tmp/foo")
+    fs.cp(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
 
 ### fs.ln:
 
@@ -511,3 +532,45 @@ Remove a file or recursively remove a directory.
 
     fs.rm(path="/tmp/foo")
     fs.rm(path="/tmp/foo-dir", recursive=True)
+
+### fs.stat:
+
+Get information about `path`.
+
+#### Arguments:
+
+- **path**: Path to stat.  (templateable).
+- **follow_symlinks**: If True (default), the result will be on the destination of
+        a symlink, if False the result will be about the symlink itself.
+        (bool, default: True)
+
+Extra:
+
+- **perms**: The permissions of `path` (st_mode & 0o777).
+- **st_mode**: Full mode of `path` (permissions, object type).  You probably want the
+        "perms" field if you just want the permissions of `path`.
+- **st_ino**: Inode number.
+- **st_dev**: ID of the device containing `path`.
+- **st_nlink**: Number of hard links.
+- **st_uid**: User ID of owner.
+- **st_gid**: Group ID of owner.
+- **st_size**: Total size in bytes.
+- **st_atime**: The time of the last access of file data.
+- **st_mtime**: The time of last modification of file data.
+- **st_ctime**: The time of the last change of status/inode.
+- **S_ISBLK**: Is `path` a block special device file?
+- **S_ISCHR**: Is `path` a character special device file?
+- **S_ISDIR**: Is `path` a directory?
+- **S_ISDOOR**: Is `path` a door?
+- **S_ISFIFO**: Is `path` a named pipe?
+- **S_ISLNK**: Is `path` a symbolic link?
+- **S_ISPORT**: Is `path` an event port?
+- **S_ISREG**: Is `path` a regular file?
+- **S_ISSOCK**: Is `path` a socket?
+- **S_ISWHT**: Is `path` a whiteout?
+
+#### Examples:
+
+    stat = fs.stat(path="/tmp/foo")
+    print(f"UID: {stat.extra.st_uid}")
+    fs.stat(path="/tmp/foo", follow_symlinks=False)
