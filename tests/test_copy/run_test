@@ -1,10 +1,10 @@
 #!/bin/bash -eu
 #
-#  Test the basics
+#  Test copy()
 
 RETCODE=0
 
-eval "$UP2 basics.pb" || RETCODE=$?
+eval "$UP2 recursive.pb" || RETCODE=$?
 
 [ "${UP_TEST_CLEANUP:-yes}" = "yes" ] && rm -rf testdir && echo REMOVED TESTDIR
 exit $RETCODE

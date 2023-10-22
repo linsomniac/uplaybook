@@ -544,16 +544,20 @@ def cp(
     changes_made = set()
     src_is_dir = stat_module.S_ISDIR(os.stat(new_src).st_mode)
     if recursive and src_is_dir:
-        for dirpath, dirnames, filenames in os.walk(new_src):
-            dst_dir = os.path.join(dst, os.path.relpath(dirpath, new_src))
+        with CallDepth():
+            for dirpath, dirnames, filenames in os.walk(new_src):
+                dst_dir = os.path.join(path, os.path.relpath(dirpath, new_src))
 
-            if not os.path.exists(dst_dir):
-                os.makedirs(dst_dir)
+                r = mkdir(path=dst_dir, mode=mode)
+                if r.changed:
+                    changes_made.add("Subdir")
 
-            for filename in filenames:
-                src_file = os.path.join(dirpath, filename)
-                dst_file = os.path.join(dst_dir, filename)
-            shutil.copy2(src_file, dst_file)
+                for filename in filenames:
+                    src_file = os.path.join(dirpath, filename)
+                    dst_file = os.path.join(dst_dir, filename)
+                    r = cp(src=src_file, path=dst_file)
+                    if r.changed:
+                        changes_made.add("Subfile")
     else:
         change = _copy_file(new_src, path, mode)
         if change:
