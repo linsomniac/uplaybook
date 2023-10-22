@@ -281,8 +281,8 @@ class Return:
     - **secret_args**: Arguments that have secrets in them, so obscure the value.  (optional, set)
     - **extra**: Extra data to be returned to the caller, as a `types.SimpleNamespace()`, for
             example `run()` will return exit code and stderr as extra.  (optional, types.SimpleNamespace())
-    - **failure_exc**: The exception to return in the case of a failure, by default it raises `Failiure()`,
-            but you can specify something more specific.  (optional, Exception())
+    - **raise_exc**: Raise this exception after handling the return.  If failure=True, this exception will be
+            raised, if not specified a Failure() exception will be raised. (optional, Exception())
     - **context_manager**: This type can optionally behave as a Context Manager, and if so this function
             will be called with no parameters at the end of the context.  Use a closure if you want to
             associate data with the function call ("lambda: function(args)").  (optional, Callable).
@@ -306,7 +306,7 @@ class Return:
         hide_args: bool = False,
         secret_args: set = set(),
         extra: Optional[SimpleNamespace] = None,
-        failure_exc: Optional[Exception] = None,
+        raise_exc: Optional[Exception] = None,
         context_manager: Optional[Callable] = None,
     ) -> None:
         self.changed = changed
@@ -316,7 +316,7 @@ class Return:
         self.extra = extra
         self.failure = failure
         self.secret_args = secret_args
-        self.failure_exc = failure_exc
+        self.raise_exc = raise_exc
         self.context_manager = context_manager
 
         self.print_status()
@@ -328,9 +328,11 @@ class Return:
             up_context.changed_count += 1
         if failure and not failure_ok:
             up_context.failure_count += 1
-            raise self.failure_exc if self.failure_exc is not None else Failure(
+            raise self.raise_exc if self.raise_exc is not None else Failure(
                 "Unspecified failure in task"
             )
+        if self.raise_exc:
+            raise self.raise_exc
 
     def __enter__(self) -> "Return":
         """
@@ -440,7 +442,9 @@ class Exit(Exception):
     The exception raised to exit a playbook early.
     """
 
-    pass
+    def __init__(self, msg: str, return_code: int) -> None:
+        super().__init__(msg)
+        self.return_code = return_code
 
 
 def extract_docstring_from_file(filename: str) -> Union[str, None]:
@@ -801,6 +805,7 @@ def cli() -> None:
     args = parse_args()
 
     full_playbook_path = None
+    return_code = 0
     try:
         pb_name = args.playbook
         up_context.playbook_name = pb_name
@@ -815,6 +820,9 @@ def cli() -> None:
         pb = import_script_as_module(
             pb_name, [playbook.playbook_file, playbook.playbook_file]
         )
+    except Exit as e:
+        return_code = e.return_code
+        pass
     except Exception:
         if args.up_full_traceback or not full_playbook_path:
             print(traceback.format_exc())
@@ -827,3 +835,5 @@ def cli() -> None:
     print(
         f"*** RECAP:  total={up_context.total_count} changed={up_context.changed_count} failure={up_context.failure_count}"
     )
+
+    sys.exit(return_code)

@@ -221,7 +221,7 @@ def run(
         output=p.stdout.rstrip(),
         extra=extra,
         ignore_failure=ignore_failures,
-        failure_exc=Failure(f"Exit code {p.returncode}"),
+        raise_exc=Failure(f"Exit code {p.returncode}"),
     )
 
 
@@ -390,9 +390,7 @@ def require(user: Union[int, TemplateStr]) -> Return:
         Return(
             changed=False,
             failure=True,
-            failure_exc=Failure(
-                f"Expected to run as user {user}, got uid={current_uid}"
-            ),
+            raise_exc=Failure(f"Expected to run as user {user}, got uid={current_uid}"),
         )
 
     return Return(changed=False)
@@ -413,23 +411,28 @@ def fail(msg: TemplateStr) -> Return:
 
     #taskdoc
     """
-    return Return(changed=False, failure=True, failure_exc=Failure(msg))
+    return Return(changed=False, failure=True, raise_exc=Failure(msg))
 
 
 @calling_context
 @template_args
-def exit(msg: TemplateStr, returncode: int = 0) -> Return:
+def exit(returncode: int = 0, msg: Union[TemplateStr, str] = "") -> Return:
     """
     End a playbook run.
 
     Arguments:
 
-    - **msg**: Message to display.
-    - **returncode**: Exit code for process.
+    - **returncode**: Exit code for process, 0 is success, 1-255 are failure (int, default=0).
+    - **msg**: Message to display (str, templatable, default "").
 
     Example:
+        core.exit()
+        core.exit(returncode=1)
         core.exit(msg="Unable to download file", returncode=1)
 
     #taskdoc
     """
-    return Return(changed=False, failure=returncode != 0, failure_exc=Exit(msg))
+    print("EXIT")
+    return Return(
+        changed=False, failure=returncode != 0, raise_exc=Exit(msg, returncode)
+    )
