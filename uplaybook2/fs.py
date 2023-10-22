@@ -18,12 +18,10 @@ from typing import Union, Optional, Callable
 from types import SimpleNamespace
 import symbolicmode
 import os
-import stat
+import stat as stat_module
 import random
 import string
 import hashlib
-import pwd
-import grp
 import shutil
 
 
@@ -93,7 +91,7 @@ def chmod(
         )
 
     path_stats = os.stat(path)
-    current_mode = stat.S_IMODE(path_stats.st_mode)
+    current_mode = stat_module.S_IMODE(path_stats.st_mode)
     extra_args = {}
     if is_directory is not None:
         extra_args["is_directory"] = is_directory
@@ -317,6 +315,85 @@ def rm(
         shutil.rmtree(path)
 
     return Return(changed=True)
+
+
+@calling_context
+@template_args
+def stat(
+    path: TemplateStr,
+    follow_symlinks: bool = True,
+) -> Return:
+    """
+    Get information about `path`.
+
+    Arguments:
+
+    - **path**: Path to stat.  (templateable).
+    - **follow_symlinks**: If True (default), the result will be on the destination of
+            a symlink, if False the result will be about the symlink itself.
+            (bool, default: True)
+
+    Extra:
+
+    - **perms**: The permissions of `path` (st_mode & 0o777).
+    - **st_mode**: Full mode of `path` (permissions, object type).  You probably want the
+            "perms" field if you just want the permissions of `path`.
+    - **st_ino**: Inode number.
+    - **st_dev**: ID of the device containing `path`.
+    - **st_nlink**: Number of hard links.
+    - **st_uid**: User ID of owner.
+    - **st_gid**: Group ID of owner.
+    - **st_size**: Total size in bytes.
+    - **st_atime**: The time of the last access of file data.
+    - **st_mtime**: The time of last modification of file data.
+    - **st_ctime**: The time of the last change of status/inode.
+    - **S_ISBLK**: Is `path` a block special device file?
+    - **S_ISCHR**: Is `path` a character special device file?
+    - **S_ISDIR**: Is `path` a directory?
+    - **S_ISDOOR**: Is `path` a door?
+    - **S_ISFIFO**: Is `path` a named pipe?
+    - **S_ISLNK**: Is `path` a symbolic link?
+    - **S_ISPORT**: Is `path` an event port?
+    - **S_ISREG**: Is `path` a regular file?
+    - **S_ISSOCK**: Is `path` a socket?
+    - **S_ISWHT**: Is `path` a whiteout?
+
+    Examples:
+
+        stat = fs.stat(path="/tmp/foo")
+        print(f"UID: {stat.extra.st_uid}")
+        fs.stat(path="/tmp/foo", follow_symlinks=False)
+
+    #taskdoc
+    """
+
+    s = os.stat(path, follow_symlinks=follow_symlinks)
+
+    ret = SimpleNamespace(
+        perms=s.st_mode & 0o777,
+        st_mode=s.st_mode,
+        st_ino=s.st_ino,
+        st_dev=s.st_dev,
+        st_nlink=s.st_nlink,
+        st_uid=s.st_uid,
+        st_gid=s.st_gid,
+        st_size=s.st_size,
+        st_atime=s.st_atime,
+        st_mtime=s.st_mtime,
+        st_ctime=s.st_ctime,
+        S_ISBLK=stat_module.S_ISBLK(s.st_mode),
+        S_ISCHR=stat_module.S_ISCHR(s.st_mode),
+        S_ISDIR=stat_module.S_ISDIR(s.st_mode),
+        S_ISDOOR=stat_module.S_ISDOOR(s.st_mode),
+        S_ISFIFO=stat_module.S_ISFIFO(s.st_mode),
+        S_ISLNK=stat_module.S_ISLNK(s.st_mode),
+        S_ISPORT=stat_module.S_ISPORT(s.st_mode),
+        S_ISREG=stat_module.S_ISREG(s.st_mode),
+        S_ISSOCK=stat_module.S_ISSOCK(s.st_mode),
+        S_ISWHT=stat_module.S_ISWHT(s.st_mode),
+    )
+
+    return Return(changed=False, extra=ret)
 
 
 @calling_context

@@ -2,6 +2,7 @@
 
 from .internals import (
     Return,
+    Exit,
     TemplateStr,
     template_args,
     calling_context,
@@ -413,3 +414,22 @@ def fail(msg: TemplateStr) -> Return:
     #taskdoc
     """
     return Return(changed=False, failure=True, failure_exc=Failure(msg))
+
+
+@calling_context
+@template_args
+def exit(msg: TemplateStr, returncode: int = 0) -> Return:
+    """
+    End a playbook run.
+
+    Arguments:
+
+    - **msg**: Message to display.
+    - **returncode**: Exit code for process.
+
+    Example:
+        core.exit(msg="Unable to download file", returncode=1)
+
+    #taskdoc
+    """
+    return Return(changed=False, failure=returncode != 0, failure_exc=Exit(msg))

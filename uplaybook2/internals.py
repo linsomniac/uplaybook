@@ -435,6 +435,14 @@ class Failure(Exception):
     pass
 
 
+class Exit(Exception):
+    """
+    The exception raised to exit a playbook early.
+    """
+
+    pass
+
+
 def extract_docstring_from_file(filename: str) -> Union[str, None]:
     """Open the specified file and retrieve the docstring from it.
 
