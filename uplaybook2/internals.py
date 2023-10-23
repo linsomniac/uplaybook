@@ -170,6 +170,14 @@ class TemplateStr(str):
     pass
 
 
+class RawStr(str):
+    """
+    A subclass of str which is not to have Jinja2 template expansion.
+    """
+
+    pass
+
+
 def template_args(func: Callable[..., Any]) -> Callable[..., Any]:
     """
     Decorator to pre-processes arguments to the function of type TemplateStr through Jinja.
@@ -198,6 +206,8 @@ def template_args(func: Callable[..., Any]) -> Callable[..., Any]:
         NOTE: This is hardcoded to be run from inside this decorator
         Is likely to be fragile.
         """
+        if type(s) == RawStr:
+            return s
         return up_context.jinja_env.from_string(s).render(up_context.get_env())
 
     @wraps(func)

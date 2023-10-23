@@ -8,6 +8,7 @@ from .internals import (
     Return,
     Failure,
     TemplateStr,
+    RawStr,
     template_args,
     calling_context,
     up_context,
@@ -553,7 +554,7 @@ def cp(
                     changes_made.add("Subdir")
 
                 for filename in filenames:
-                    src_file = os.path.join(dirpath, filename)
+                    src_file = RawStr(os.path.join(dirpath, filename))
                     dst_file = os.path.join(dst_dir, filename)
                     r = cp(src=src_file, path=dst_file)
                     if r.changed:

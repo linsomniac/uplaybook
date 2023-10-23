@@ -2,6 +2,8 @@
 
 from uplaybook2 import fs, core, up_context
 
+secret = "xyzzy"
+
 fs.rm(path="testdir", recursive=True)
 fs.mkdir(path="testdir")
 with fs.cd(path="testdir"):
