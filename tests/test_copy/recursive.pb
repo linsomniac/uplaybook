@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from uplaybook2 import fs, core, up_context
+from uplaybook import fs, core, up_context
 
 secret = "xyzzy"
 

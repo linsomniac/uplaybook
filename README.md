@@ -1,10 +1,10 @@
-# uPlaybook2
+# uPlaybook
 
 A Python-like declarative IT automation tool.
 
 **Note**: This is an early work in progress.  See "State" below.
 
-uPlaybook2 takes ideas from Ansible and Cookiecutter and gives it a Python syntax
+uPlaybook takes ideas from Ansible and Cookiecutter and gives it a Python syntax
 rather than YAML.  The desired state of the system is specified via this "playbook"
 and associated templates and data.  You can then run this playbook, providing
 additional arguments for this run.
@@ -39,7 +39,7 @@ real world situations.
 
 If you look at it, your feedback would be appreciated.
 
-## What Is uPlaybook2
+## What Is uPlaybook
 
 Ansible and uPlaybook1 both describe the desired state of the system via a YAML
 structure.  This is easy to build tooling around, but is kind of cumbersome, especially
@@ -58,7 +58,7 @@ For example, an Ansible block might look like:
   notify: Restart rsyslog
 ```
 
-uPlaybook2 is, currently an experiment, into making a Python-based environment for expressing
+uPlaybook is, currently an experiment, into making a Python-based environment for expressing
 similar ideas:
 
 ```python
@@ -158,7 +158,7 @@ including detecting when no changes are made and updating permissions:
 
     #!/usr/bin/env python3
 
-    from uplaybook2 import fs, core, up_context
+    from uplaybook import fs, core, up_context
 
     def test_handler2():
         fs.mkfile('qux')

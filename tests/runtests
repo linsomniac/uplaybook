@@ -1,14 +1,14 @@
 #!/bin/bash -eu
 #
-#  Tests for uPlaybook2
+#  Tests for uPlaybook
 
 if [ -d .git ]; then
   PYTHONPATH=$(pwd)
-  UP2='python3 -c "from uplaybook2.internals import cli; cli()" --up-full-traceback'
+  UP2='python3 -c "from uplaybook.internals import cli; cli()" --up-full-traceback'
   TESTDIR=$(pwd)/tests
 else
   PYTHONPATH=$(pwd)/..
-  UP2='python3 -c "from uplaybook2.internals import cli; cli()" --up-full-traceback'
+  UP2='python3 -c "from uplaybook.internals import cli; cli()" --up-full-traceback'
   TESTDIR=$(pwd)
 fi
 export UP2
