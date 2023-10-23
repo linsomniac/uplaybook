@@ -2,7 +2,7 @@
 
 A Python-like declarative IT automation tool.
 
-**Note**: This is an early work in progress.  See "State" below.
+**Note**: This is a work in progress.  See "State" below.
 
 uPlaybook takes ideas from Ansible and Cookiecutter and gives it a Python syntax
 rather than YAML.  The desired state of the system is specified via this "playbook"
@@ -223,7 +223,7 @@ Which produces the following output:
 
 -<!-- (@@@ Put documentation here) -->
 
-### core.become:
+### uplaybook.core.become:
 
 Switch to running as another user in a playbook.
 
@@ -241,7 +241,7 @@ Example:
         fs.mkfile(path="/tmp/backupfile")
     #  now you are back to the previous user
 
-### core.debug:
+### uplaybook.core.debug:
 
 Display informational message.
 
@@ -257,7 +257,7 @@ Print a message or pretty-print a variable.
     core.debug(msg="Directory already exists, exiting")
     core.debug(var=ret_value)
 
-### core.exit:
+### uplaybook.core.exit:
 
 End a playbook run.
 
@@ -271,7 +271,7 @@ Example:
     core.exit(returncode=1)
     core.exit(msg="Unable to download file", returncode=1)
 
-### core.fail:
+### uplaybook.core.fail:
 
 Abort a playbook run.
 
@@ -282,7 +282,7 @@ Abort a playbook run.
 Example:
     core.fail(msg="Unable to download file")
 
-### core.playbook_args:
+### uplaybook.core.playbook_args:
 
 Specify arguments for a playbook.
 
@@ -297,7 +297,7 @@ Example:
             )
     core.debug(msg="Arguments: user={{playbook_args.user}}  hostname={{playbook_args.hostname}}")
 
-### core.render:
+### uplaybook.core.render:
 
 Render a string as a jinja2 template and return the value
 
@@ -313,7 +313,7 @@ Render a string as a jinja2 template and return the value
 
     core.render(s="Value of foo: {{foo}}")
 
-### core.require:
+### uplaybook.core.require:
 
 Verify we are running as the specified user.
 
@@ -324,7 +324,7 @@ Verify we are running as the specified user.
 Example:
     core.require(user="nobody")
 
-### core.run:
+### uplaybook.core.run:
 
 Run a command.  Stdout is returned as `output` in the return object.  Stderr
 and return code are stored in `extra` in return object.
@@ -360,7 +360,7 @@ Extra:
     if core.run(command="grep -q ^user: /etc/passwd", ignore_failures=True, change=False):
         print("User exists")
 
-### fs.builder:
+### uplaybook.fs.builder:
 
 All-in-one filesystem builder.
 
@@ -390,7 +390,7 @@ modifying many filesystem objects in compact declarations.
             ]:
         builder()
 
-### fs.cd:
+### uplaybook.fs.cd:
 
 Change working directory to `path`.
 
@@ -412,7 +412,7 @@ exited you are returned to the previous directory.
         fs.mkfile("tempfile")
     #  now are back in previous directory
 
-### fs.chmod:
+### uplaybook.fs.chmod:
 
 Change permissions of path.
 
@@ -429,7 +429,7 @@ Change permissions of path.
     fs.chmod(path="/tmp/foo", mode="a=rX,u+w")
     fs.chmod(path="/tmp/foo", mode=0o755)
 
-### fs.chown:
+### uplaybook.fs.chown:
 
 Change ownership/group of path.
 
@@ -445,7 +445,7 @@ Change ownership/group of path.
     fs.chown(path="/tmp", group="wheel")
     fs.chown(path="/tmp", owner="nobody", group="nobody")
 
-### fs.cp:
+### uplaybook.fs.cp:
 
 Copy the `src` file to `path`, optionally templating the contents in `src`.
 
@@ -470,7 +470,7 @@ Copy the `src` file to `path`, optionally templating the contents in `src`.
     fs.cp(path="/tmp/foo")
     fs.cp(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
 
-### fs.ln:
+### uplaybook.fs.ln:
 
 Create a link from `src` to `path`.
 
@@ -485,7 +485,7 @@ Create a link from `src` to `path`.
     fs.ln(path="/tmp/foo", src="/tmp/bar")
     fs.ln(path="/tmp/foo", src="/tmp/bar", symbolic=True)
 
-### fs.mkdir:
+### uplaybook.fs.mkdir:
 
 Create a directory.  Defaults to creating necessary parent directories.
 
@@ -502,7 +502,7 @@ Create a directory.  Defaults to creating necessary parent directories.
     fs.mkdir(path="/tmp/bar", mode="a=rX,u+w")
     fs.mkdir(path="/tmp/baz/qux", mode=0o755, parents=True)
 
-### fs.mkfile:
+### uplaybook.fs.mkfile:
 
 Create an empty file if it does not already exist.
 
@@ -518,7 +518,7 @@ Create an empty file if it does not already exist.
     fs.mkfile(path="/tmp/bar", mode="a=rX,u+w")
     fs.mkfile(path="/tmp/baz", mode=0o755)
 
-### fs.rm:
+### uplaybook.fs.rm:
 
 Remove a file or recursively remove a directory.
 
@@ -533,7 +533,7 @@ Remove a file or recursively remove a directory.
     fs.rm(path="/tmp/foo")
     fs.rm(path="/tmp/foo-dir", recursive=True)
 
-### fs.stat:
+### uplaybook.fs.stat:
 
 Get information about `path`.
 

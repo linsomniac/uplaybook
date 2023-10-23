@@ -22,7 +22,7 @@ def is_taskdoc(doc):
 
 
 if __name__ == "__main__":
-    from uplaybook2 import fs, core, internals
+    from uplaybook import fs, core, internals
 
     doc_list = []
 
