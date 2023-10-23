@@ -6,5 +6,5 @@ RETCODE=0
 
 eval "$UP2 recursive.pb" || RETCODE=$?
 
-[ "${UP_TEST_CLEANUP:-yes}" = "yes" ] && rm -rf testdir && echo REMOVED TESTDIR
+[ "${UP_TEST_CLEANUP:-yes}" = "yes" ] && rm -rf testdir
 exit $RETCODE

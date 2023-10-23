@@ -335,7 +335,7 @@ and return code are stored in `extra` in return object.
 - **shell**: If False, run `command` without a shell.  Safer.  Default is True:
          allows shell processing of `command` for things like output
          redirection, wildcard expansion, pipelines, etc. (optional, bool)
-- **ignore_failures**: If true, do not treat non-0 return code as a fatal failure.
+- **ignore_failures**: If True, do not treat non-0 return code as a fatal failure.
          This allows testing of return code within playbook.  (optional, bool)
 - **change**: By default, all shell commands are assumed to have caused a change
          to the system and will trigger notifications.  If False, this `command`
@@ -469,6 +469,23 @@ Copy the `src` file to `path`, optionally templating the contents in `src`.
 
     fs.cp(path="/tmp/foo")
     fs.cp(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
+
+### uplaybook.fs.exists:
+
+Run a command.  Stdout is returned as `output` in the return object.  Stderr
+and return code are stored in `extra` in return object.
+
+#### Arguments:
+
+- **path**: File location to see if it exists. (templateable).
+- **ignore_failures**: If True, do not treat file absence as a fatal failure.
+         (optional, bool, default=True)
+
+#### Examples:
+
+    fs.exists(path="/tmp/foo")
+    if fs.exists(path="/tmp/foo"):
+        #  code for when file exists
 
 ### uplaybook.fs.ln:
 

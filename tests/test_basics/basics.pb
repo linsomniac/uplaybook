@@ -6,3 +6,4 @@ fs.rm(path="testdir", recursive=True)
 fs.mkdir(path="testdir")
 with fs.cd(path="testdir"):
     fs.cp(path="testfile")
+    fs.exists("testfile", ignore_failures=False)

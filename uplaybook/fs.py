@@ -645,3 +645,40 @@ def builder(
         r = r.notify(notify)
 
     return Return(changed=r.changed)
+
+
+@calling_context
+@template_args
+def exists(
+    path: TemplateStr,
+    ignore_failures: bool = True,
+) -> object:
+    """
+    Run a command.  Stdout is returned as `output` in the return object.  Stderr
+    and return code are stored in `extra` in return object.
+
+    Arguments:
+
+    - **path**: File location to see if it exists. (templateable).
+    - **ignore_failures**: If True, do not treat file absence as a fatal failure.
+             (optional, bool, default=True)
+
+    Examples:
+
+        fs.exists(path="/tmp/foo")
+        if fs.exists(path="/tmp/foo"):
+            #  code for when file exists
+
+    #taskdoc
+    """
+    if os.path.exists(path):
+        return Return(changed=False)
+
+    return Return(
+        changed=False,
+        failure=True,
+        ignore_failure=ignore_failures,
+        raise_exc=Failure(f"File does not exist: {path}")
+        if not ignore_failures
+        else None,
+    )

@@ -175,7 +175,7 @@ def run(
     - **shell**: If False, run `command` without a shell.  Safer.  Default is True:
              allows shell processing of `command` for things like output
              redirection, wildcard expansion, pipelines, etc. (optional, bool)
-    - **ignore_failures**: If true, do not treat non-0 return code as a fatal failure.
+    - **ignore_failures**: If True, do not treat non-0 return code as a fatal failure.
              This allows testing of return code within playbook.  (optional, bool)
     - **change**: By default, all shell commands are assumed to have caused a change
              to the system and will trigger notifications.  If False, this `command`

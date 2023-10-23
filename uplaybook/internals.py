@@ -838,6 +838,7 @@ def cli() -> None:
             print(traceback.format_exc())
         else:
             show_playbook_traceback()
+        return_code = 1
 
     up_context.flush_handlers()
 
