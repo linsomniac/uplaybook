@@ -11,14 +11,20 @@ repos:
     stages:
     - commit
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0  # Use the ref you want to point at
+    rev: v4.5.0  # Use the ref you want to point at
     hooks:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
     -   id: check-yaml
     -   id: check-added-large-files
+    -   id: check-ast
+    -   id: check-merge-conflict
+    -   id: check-shebang-scripts-are-executable
+    -   id: detect-aws-credentials
+    -   id: detect-private-key
+    -   id: requirements-txt-fixer
 - repo: https://github.com/psf/black
-  rev: 23.9.1  # Use the specific version of Black you want to run
+  rev: 23.10.1  # Use the specific version of Black you want to run
   hooks:
   - id: black
     language: python
