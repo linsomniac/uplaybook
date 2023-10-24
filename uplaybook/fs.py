@@ -362,7 +362,7 @@ def stat(
     Examples:
 
         stat = fs.stat(path="/tmp/foo")
-        print(f"UID: {stat.extra.st_uid}")
+        print(f"UID: {{stat.extra.st_uid}}")
         fs.stat(path="/tmp/foo", follow_symlinks=False)
 
     #taskdoc

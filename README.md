@@ -282,6 +282,25 @@ Abort a playbook run.
 Example:
     core.fail(msg="Unable to download file")
 
+### uplaybook.core.flush_handlers:
+
+Run any registred handlers.
+
+Example:
+    core.flush_handlers()
+
+### uplaybook.core.notify:
+
+Add a notify handler to be called later.
+
+#### Arguments:
+
+- **function**: A function that takes no arguments, which is called at a later time.
+
+Example:
+    core.notify(lambda: core.run(command="systemctl restart apache2"))
+    core.notify(lambda: fs.remove("tmpdir", recursive=True))
+
 ### uplaybook.core.playbook_args:
 
 Specify arguments for a playbook.
@@ -354,8 +373,8 @@ Extra:
     core.run(command="rm *.foo", shell=False)   #  removes literal file "*.foo"
 
     r = core.run(command="date", change=False)
-    print(f"Current date/time: {r.output}")
-    print(f"Return code: {r.extra.returncode}")
+    print(f"Current date/time: {{r.output}}")
+    print(f"Return code: {{r.extra.returncode}}")
 
     if core.run(command="grep -q ^user: /etc/passwd", ignore_failures=True, change=False):
         print("User exists")
@@ -589,5 +608,5 @@ Extra:
 #### Examples:
 
     stat = fs.stat(path="/tmp/foo")
-    print(f"UID: {stat.extra.st_uid}")
+    print(f"UID: {{stat.extra.st_uid}}")
     fs.stat(path="/tmp/foo", follow_symlinks=False)

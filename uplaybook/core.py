@@ -9,7 +9,7 @@ from .internals import (
     up_context,
     Failure,
 )
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Callable
 import pprint
 import subprocess
 import sys
@@ -194,8 +194,8 @@ def run(
         core.run(command="rm *.foo", shell=False)   #  removes literal file "*.foo"
 
         r = core.run(command="date", change=False)
-        print(f"Current date/time: {r.output}")
-        print(f"Return code: {r.extra.returncode}")
+        print(f"Current date/time: {{r.output}}")
+        print(f"Return code: {{r.extra.returncode}}")
 
         if core.run(command="grep -q ^user: /etc/passwd", ignore_failures=True, change=False):
             print("User exists")
@@ -432,7 +432,43 @@ def exit(returncode: int = 0, msg: Union[TemplateStr, str] = "") -> Return:
 
     #taskdoc
     """
-    print("EXIT")
     return Return(
         changed=False, failure=returncode != 0, raise_exc=Exit(msg, returncode)
     )
+
+
+@calling_context
+@template_args
+def notify(function: Callable) -> Return:
+    """
+    Add a notify handler to be called later.
+
+    Arguments:
+
+    - **function**: A function that takes no arguments, which is called at a later time.
+
+    Example:
+        core.notify(lambda: core.run(command="systemctl restart apache2"))
+        core.notify(lambda: fs.remove("tmpdir", recursive=True))
+
+    #taskdoc
+    """
+    up_context.add_handler(function)
+
+    return Return(changed=False)
+
+
+@calling_context
+@template_args
+def flush_handlers() -> Return:
+    """
+    Run any registred handlers.
+
+    Example:
+        core.flush_handlers()
+
+    #taskdoc
+    """
+    up_context.flush_handlers()
+
+    return Return(changed=False)
