@@ -39,7 +39,7 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install sphinx
+        pip install sphinx m2r2
         # If you use any sphinx extensions or themes, install them here as well
 
     - name: Build Docs
