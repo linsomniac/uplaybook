@@ -33,7 +33,7 @@ jobs:
       uses: actions/upload-pages-artifact@v2
       with:
         # Upload entire repository
-        path: 'docs/build/html'
+        path: 'docs/build'
 
     - name: Deploy to GitHub Pages
       id: deployment
@@ -44,4 +44,4 @@ jobs:
 #      if: github.ref == 'refs/heads/main'
 #      with:
 #        github_token: ${{ secrets.GITHUB_TOKEN }}
-#        publish_dir: ./docs/build/html
+#        publish_dir: ./docs/build
