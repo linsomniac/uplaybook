@@ -289,6 +289,23 @@ Run any registred handlers.
 Example:
     core.flush_handlers()
 
+### uplaybook.core.grep:
+
+Look for `search` in the file `path`
+
+#### Arguments:
+
+- **path**: File location to look for a match in. (templateable)
+- **search**: The string (or regex) to look for. (templateable)
+- **regex**: Do a regex search, if False do a simple string search. (bool, default=True)
+- **ignore_failures**: If True, do not treat file absence as a fatal failure.
+         (optional, bool, default=True)
+
+#### Examples:
+
+    if core.grep(path="/tmp/foo", search="secret=xyzzy"):
+        #  code for when the string is found.
+
 ### uplaybook.core.notify:
 
 Add a notify handler to be called later.
@@ -491,8 +508,7 @@ Copy the `src` file to `path`, optionally templating the contents in `src`.
 
 ### uplaybook.fs.exists:
 
-Run a command.  Stdout is returned as `output` in the return object.  Stderr
-and return code are stored in `extra` in return object.
+Does `path` exist?
 
 #### Arguments:
 

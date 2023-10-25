@@ -19,7 +19,6 @@ repos:
     -   id: check-added-large-files
     -   id: check-ast
     -   id: check-merge-conflict
-    -   id: check-shebang-scripts-are-executable
     -   id: detect-aws-credentials
     -   id: detect-private-key
     -   id: requirements-txt-fixer

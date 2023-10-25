@@ -654,8 +654,7 @@ def exists(
     ignore_failures: bool = True,
 ) -> object:
     """
-    Run a command.  Stdout is returned as `output` in the return object.  Stderr
-    and return code are stored in `extra` in return object.
+    Does `path` exist?
 
     Arguments:
 

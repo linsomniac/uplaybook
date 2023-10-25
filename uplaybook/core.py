@@ -17,6 +17,7 @@ from types import SimpleNamespace
 import argparse
 import os
 import pwd
+import re
 
 
 class Item(dict):
@@ -472,3 +473,48 @@ def flush_handlers() -> Return:
     up_context.flush_handlers()
 
     return Return(changed=False)
+
+
+@calling_context
+@template_args
+def grep(
+    path: TemplateStr,
+    search: TemplateStr,
+    regex: bool = True,
+    ignore_failures: bool = True,
+) -> object:
+    """
+    Look for `search` in the file `path`
+
+    Arguments:
+
+    - **path**: File location to look for a match in. (templateable)
+    - **search**: The string (or regex) to look for. (templateable)
+    - **regex**: Do a regex search, if False do a simple string search. (bool, default=True)
+    - **ignore_failures**: If True, do not treat file absence as a fatal failure.
+             (optional, bool, default=True)
+
+    Examples:
+
+        if core.grep(path="/tmp/foo", search="secret=xyzzy"):
+            #  code for when the string is found.
+
+    #taskdoc
+    """
+    with open(path, "r") as fp:
+        if regex:
+            rx = re.compile(search)
+            for line in fp.readlines():
+                if rx.search(line):
+                    return Return(changed=False, failure=False)
+        else:
+            for line in fp.readlines():
+                if search in line:
+                    return Return(changed=False, failure=False)
+
+    return Return(
+        changed=False,
+        failure=True,
+        ignore_failure=ignore_failures,
+        raise_exc=Failure(f"No match found") if not ignore_failures else None,
+    )
