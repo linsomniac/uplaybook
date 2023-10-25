@@ -827,7 +827,7 @@ def cli() -> None:
         up_context.playbook_directory = playbook.directory.absolute()
         full_playbook_path = playbook.directory.absolute() / playbook.playbook_file
         up_context.playbook_files_seen.add(full_playbook_path.as_posix())
-        pb = import_script_as_module(
+        import_script_as_module(
             pb_name, [playbook.playbook_file, playbook.playbook_file]
         )
     except Exit as e:

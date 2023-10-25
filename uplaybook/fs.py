@@ -308,7 +308,7 @@ def rm(
     if not recursive:
         try:
             os.remove(path)
-        except OSError as e:
+        except OSError:
             raise Failure(
                 f"Path {path} is a directory, will not remove without `recursive` option"
             )

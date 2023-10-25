@@ -516,5 +516,5 @@ def grep(
         changed=False,
         failure=True,
         ignore_failure=ignore_failures,
-        raise_exc=Failure(f"No match found") if not ignore_failures else None,
+        raise_exc=Failure("No match found") if not ignore_failures else None,
     )
