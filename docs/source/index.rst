@@ -1,3 +1,8 @@
+.. toctree::
+   :maxdepth: 2
+
+   fs
+
 .. contents:: Table of Contents
    :depth: 3
 

@@ -1,6 +1,7 @@
 html_theme = "alabaster"  # or another theme of your choice
 extensions = [
     "m2r2",
+    # "myst_parser",
     "sphinx.ext.autodoc",
 ]
 source_suffix = {

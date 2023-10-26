@@ -1,0 +1,2 @@
+.. automodule:: uplaybook.fs
+    :members:
