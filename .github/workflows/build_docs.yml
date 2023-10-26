@@ -42,6 +42,9 @@ jobs:
         pip install sphinx m2r2
         # If you use any sphinx extensions or themes, install them here as well
 
+    - name: Import Python
+      run: PYTHONPATH=. python -c "from uplaybook import fs"
+
     - name: Build Docs
       run: PYTHONPATH=. sphinx-build docs/source docs/build
 
