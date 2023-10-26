@@ -43,7 +43,7 @@ jobs:
         # If you use any sphinx extensions or themes, install them here as well
 
     - name: Build Docs
-      run: sphinx-build docs/source docs/build
+      run: PYTHONPATH=. sphinx-build docs/source docs/build
 
     - name: Setup Pages
       uses: actions/configure-pages@v3
