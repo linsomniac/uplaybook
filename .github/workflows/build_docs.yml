@@ -40,6 +40,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install sphinx m2r2
+        pip install .
         # If you use any sphinx extensions or themes, install them here as well
 
     - name: Import Python
