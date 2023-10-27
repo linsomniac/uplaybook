@@ -20,7 +20,7 @@ exclude_patterns = []
 
 def remove_taskdoc_tag(app, what, name, obj, options, lines):
     # Filter out lines that contain #taskdoc
-    lines[:] = [line.replace("#taskdoc", "").strip() for line in lines]
+    lines[:] = [line for line in lines if "#taskdoc" not in line]
 
 
 def skip(app, what, name, obj, would_skip, options):
