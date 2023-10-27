@@ -101,10 +101,8 @@ def debug(msg: Optional[TemplateStr] = None, var: Optional[object] = None) -> Re
 
     Print a message or pretty-print a variable.
 
-    Arguments:
-
-    - **msg**: Message to display. (optional, templateable).
-    - **var**: Object to pretty-print (optional, templateable).
+    :param msg: Message to display. (optional, templateable).
+    :param var: Object to pretty-print (optional, templateable).
 
     Examples:
 
@@ -147,9 +145,7 @@ def render(s: TemplateStr) -> str:
     """
     Render a string as a jinja2 template and return the value
 
-    Arguments:
-
-    - **s**: Template to render. (templateable).
+    :param s: Template to render. (templateable).
 
     Returns:
 
@@ -177,18 +173,16 @@ def run(
     Run a command.  Stdout is returned as `output` in the return object.  Stderr
     and return code are stored in `extra` in return object.
 
-    Arguments:
-
-    - **command**: Command to run (templateable).
-    - **shell**: If False, run `command` without a shell.  Safer.  Default is True:
+    :param command: Command to run (templateable).
+    :param shell: If False, run `command` without a shell.  Safer.  Default is True:
              allows shell processing of `command` for things like output
              redirection, wildcard expansion, pipelines, etc. (optional, bool)
-    - **ignore_failures**: If True, do not treat non-0 return code as a fatal failure.
+    :param ignore_failures: If True, do not treat non-0 return code as a fatal failure.
              This allows testing of return code within playbook.  (optional, bool)
-    - **change**: By default, all shell commands are assumed to have caused a change
+    :param change: By default, all shell commands are assumed to have caused a change
              to the system and will trigger notifications.  If False, this `command`
              is treated as not changing the system.  (optional, bool)
-    - **creates**: If specified, if the path it specifies exists, consider the command
+    :param creates: If specified, if the path it specifies exists, consider the command
             to have already been run and skip future runes.
 
     Extra:
@@ -240,15 +234,13 @@ class Argument:
     List arguments if a playbook needs additional information from the user.
     This is used in combination with the `core.playbook_args()` task.
 
-    Arguments:
-
-    - **name**: The name of the argument, this will determine the "--name" of the command-line
+    :param name: The name of the argument, this will determine the "--name" of the command-line
         flag and the variable the value is stored in (str).
-    - **label**: A label used when prompting the user for input (For future use, optional)
-    - **description**: Detailed information on the argument for use in "--help" output.
+    :param label: A label used when prompting the user for input (For future use, optional)
+    :param description: Detailed information on the argument for use in "--help" output.
         (str, optional)
-    - **type**: The type of the argument: str, bool, int, password (default=str)
-    - **default**: A default value for the argument.  Arguments without a default
+    :param type: The type of the argument: str, bool, int, password (default=str)
+    :param default: A default value for the argument.  Arguments without a default
         must be specified in the command-line, if a default is given an option with
         "--name" will be available.
 
@@ -347,9 +339,7 @@ def become(user: Union[int, TemplateStr]) -> Return:
 
     If used as a context manager, you are switched back to the original user after the context.
 
-    Arguments:
-
-    - **user**: User name or UID of user to switch to.
+    :param user: User name or UID of user to switch to.
 
     Example:
         core.become(user="nobody")
@@ -378,9 +368,7 @@ def require(user: Union[int, TemplateStr]) -> Return:
     """
     Verify we are running as the specified user.
 
-    Arguments:
-
-    - **user**: User name or UID of user to verify.  (int or str, templateable)
+    :param user: User name or UID of user to verify.  (int or str, templateable)
 
     Example:
         core.require(user="nobody")
@@ -410,9 +398,7 @@ def fail(msg: TemplateStr) -> Return:
     """
     Abort a playbook run.
 
-    Arguments:
-
-    - **msg**: Message to display with failure (str, templateable).
+    :param msg: Message to display with failure (str, templateable).
 
     Example:
         core.fail(msg="Unable to download file")
@@ -428,10 +414,8 @@ def exit(returncode: int = 0, msg: Union[TemplateStr, str] = "") -> Return:
     """
     End a playbook run.
 
-    Arguments:
-
-    - **returncode**: Exit code for process, 0 is success, 1-255 are failure (int, default=0).
-    - **msg**: Message to display (str, templatable, default "").
+    :param returncode: Exit code for process, 0 is success, 1-255 are failure (int, default=0).
+    :param msg: Message to display (str, templatable, default "").
 
     Example:
         core.exit()
@@ -451,9 +435,7 @@ def notify(function: Callable) -> Return:
     """
     Add a notify handler to be called later.
 
-    Arguments:
-
-    - **function**: A function that takes no arguments, which is called at a later time.
+    :param function: A function that takes no arguments, which is called at a later time.
 
     Example:
         core.notify(lambda: core.run(command="systemctl restart apache2"))
@@ -493,12 +475,10 @@ def grep(
     """
     Look for `search` in the file `path`
 
-    Arguments:
-
-    - **path**: File location to look for a match in. (templateable)
-    - **search**: The string (or regex) to look for. (templateable)
-    - **regex**: Do a regex search, if False do a simple string search. (bool, default=True)
-    - **ignore_failures**: If True, do not treat file absence as a fatal failure.
+    :param path: File location to look for a match in. (templateable)
+    :param search: The string (or regex) to look for. (templateable)
+    :param regex: Do a regex search, if False do a simple string search. (bool, default=True)
+    :param ignore_failures: If True, do not treat file absence as a fatal failure.
              (optional, bool, default=True)
 
     Examples:

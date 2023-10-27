@@ -6,12 +6,12 @@
 Welcome to uPlaybook's documentation!
 =====================================
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-   fs
-   core
+#.. toctree::
+#   :maxdepth: 2
+#   :caption: Contents:
+#
+#   fs
+#   core
 
 
 Indices and tables
