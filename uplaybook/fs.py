@@ -42,7 +42,6 @@ def _mode_from_arg(
     If `mode` is None, it is kept as None (meaning no mode change to be done).
     If `mode` is an int, it is kept.
 
-    Arguments:
     :param mode: Mode to convert, if it is a string.
     :param initial_mode: The existing mode of the file (used for +/-/X).
     :param is_directory: If the path to set the mode on is a directory (used for X).
@@ -75,8 +74,6 @@ def chmod(
     """
     Change permissions of path.
 
-    Arguments:
-
     :param path: Path to change (templateable).
     :param mode: Permissions of path (optional, templatable string or int).
     :param is_directory: Treat path as a directory, impacts "X".  If not specified
@@ -86,6 +83,7 @@ def chmod(
     Examples:
 
     .. code-block:: python
+
         fs.chmod(path="/tmp/foo", mode="a=rX,u+w")
         fs.chmod(path="/tmp/foo", mode=0o755)
 
@@ -133,6 +131,7 @@ def chown(
     Examples:
 
     .. code-block:: python
+
         fs.chown(path="/tmp", owner="root")
         fs.chown(path="/tmp", group="wheel")
         fs.chown(path="/tmp", owner="nobody", group="nobody")
@@ -176,6 +175,7 @@ def cd(path: TemplateStr) -> Return:
     Examples:
 
     .. code-block:: python
+
         fs.cd(path="/tmp")
 
         #  As context manager:
@@ -214,6 +214,7 @@ def mkfile(
     Examples:
 
     .. code-block:: python
+
         fs.mkfile(path="/tmp/foo")
         fs.mkfile(path="/tmp/bar", mode="a=rX,u+w")
         fs.mkfile(path="/tmp/baz", mode=0o755)
@@ -256,6 +257,7 @@ def mkdir(
     Examples:
 
     .. code-block:: python
+
         fs.mkdir(path="/tmp/foo")
         fs.mkdir(path="/tmp/bar", mode="a=rX,u+w")
         fs.mkdir(path="/tmp/baz/qux", mode=0o755, parents=True)
@@ -306,6 +308,7 @@ def rm(
     Examples:
 
     .. code-block:: python
+
         fs.rm(path="/tmp/foo")
         fs.rm(path="/tmp/foo-dir", recursive=True)
 
@@ -372,6 +375,7 @@ def stat(
     Examples:
 
     .. code-block:: python
+
         stat = fs.stat(path="/tmp/foo")
         print(f"UID: {{stat.extra.st_uid}}")
         fs.stat(path="/tmp/foo", follow_symlinks=False)
@@ -427,6 +431,7 @@ def ln(
     Examples:
 
     .. code-block:: python
+
         fs.ln(path="/tmp/foo", src="/tmp/bar")
         fs.ln(path="/tmp/foo", src="/tmp/bar", symbolic=True)
 
@@ -491,6 +496,7 @@ def cp(
     Examples:
 
     .. code-block:: python
+
         fs.cp(path="/tmp/foo")
         fs.cp(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
 
@@ -621,6 +627,7 @@ def builder(
     Examples:
 
     .. code-block:: python
+
         fs.builder("/tmp/foo")
         fs.builder("/tmp/bar", action="directory")
         for _ in [
@@ -679,6 +686,7 @@ def exists(
     Examples:
 
     .. code-block:: python
+
         fs.exists(path="/tmp/foo")
         if fs.exists(path="/tmp/foo"):
             #  code for when file exists
