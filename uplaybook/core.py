@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
 """
-# Core Tasks
+Core Tasks
+**********
 
 Tasks that are a core part of uPlaybook.
 
+Task List
+=========
 """
 
 from .internals import (

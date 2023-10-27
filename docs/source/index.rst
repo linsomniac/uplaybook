@@ -6,20 +6,13 @@
 Welcome to uPlaybook's documentation!
 =====================================
 
-#.. toctree::
-#   :maxdepth: 2
-#   :caption: Contents:
-#
-#   fs
-#   core
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
 
+   fs
+   core
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 ============
 Introduction
@@ -59,3 +52,10 @@ Here is an example playbook:
 
    uplaybook.fs.template(path="/etc/nginx/nginx.conf",
                          src="nginx.conf.j2").notify(restart_service)
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
