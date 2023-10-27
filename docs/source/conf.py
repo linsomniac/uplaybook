@@ -18,6 +18,11 @@ html_static_path = ["_static"]
 exclude_patterns = []
 
 
+def remove_taskdoc_tag(app, what, name, obj, options, lines):
+    # Filter out lines that contain #taskdoc
+    lines[:] = [line.replace("#taskdoc", "").strip() for line in lines]
+
+
 def skip(app, what, name, obj, would_skip, options):
     if "#taskdoc" not in obj.__doc__:
         return True
@@ -25,4 +30,5 @@ def skip(app, what, name, obj, would_skip, options):
 
 
 def setup(app):
-    app.connect("autodoc-skip-member", skip)
+    # app.connect("autodoc-skip-member", skip)
+    app.connect("autodoc-process-docstring", remove_taskdoc_tag)
