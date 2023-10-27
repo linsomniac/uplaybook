@@ -11,6 +11,7 @@ Welcome to uPlaybook's documentation!
    :caption: Contents:
 
    fs
+   core
 
 
 Indices and tables

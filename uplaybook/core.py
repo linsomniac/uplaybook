@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+"""
+# Core Tasks
+
+Tasks that are a core part of uPlaybook.
+
+"""
+
 from .internals import (
     Return,
     Exit,
