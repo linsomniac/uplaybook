@@ -1,15 +1,22 @@
 # uPlaybook
 
-A Python-like declarative IT automation tool.
+A Python-syntax declarative IT automation tool.
 
 **Note**: This is a work in progress.  See "State" below.
 
 uPlaybook takes ideas from Ansible and Cookiecutter and gives it a Python syntax
-rather than YAML.  The desired state of the system is specified via this "playbook"
+rather than YAML.  Playbooks are like shell scripts, oriented specifically towards
+setting up systems or environments.  Playbooks include CLI argument handling, which
+traditionally has been tricky to do well in shell scripts.
+
+Despite its simplicity, uPlaybook doesn't compromise on functionality.  The core
+tasks can be augmented by arbitrary Python code for ultimate power.
+
+The desired state of the system is specified via a "playbook"
 and associated templates and data.  You can then run this playbook, providing
 additional arguments for this run.
 
-Use cases:
+## Use cases:
 
 - Shell scripts, but declarative rather than command-based.  Built in arg parsing,
   templating, "handlers" called when changes are made, and encryption of secrets.
@@ -23,21 +30,43 @@ Use cases:
 
 Some core ideas of it:
 
-    - Python-like syntax
+    - Python syntax
+    - First-class CLI argument handling.
     - Declare the state you want to end up at.
     - Tasks communicate whether they have changed something.
     - Changed tasks can trigger a handler (if this file changes, restart a service).
-    - Jinja2 templating of arguments and files delivered via fs.template()
+    - Jinja2 templating of arguments and files delivered via fs.copy()
     - Status output.
 
 ## State
 
 Currently (Oct 2023) this is experimental: the core functionality is implemented
-and it is usable with a limited number of tasks(), to start trying it in real use.
-More tasks will need to be added as I start making use of it and testing it in
-real world situations.
+and it is usable with a limited number of tasks().  My next steps are to improve the
+documentation, and start using it in real world applications to allow me to prove out
+or adjust the design.
 
 If you look at it, your feedback would be appreciated.
+
+## Compared to...
+
+### Ansible
+
+The primary benefits uPlaybook has is using a Python syntax and ease of running against
+the local system.  Ansible has a much richer task ecosystem, and the ability to run
+plays on many remote systems at once.
+
+### Cookiecutter
+
+uPlaybook has a richer configuration syntax and more flexibility since it is based on the
+Python language.  Cookiecutter has more available cookiecutters, and the limited syntax
+does provide more safety against what third-party cookiecutters can do when you run them.
+
+### Shell
+
+uPlaybook has first class CLI argument handling, is declarative and the ability (not yet
+implemented) to ask what changes the playbook will make, and tries to bring some shell
+first class actions into Python.  Shell is better at blindly running commands and
+pipelines.
 
 ## What Is uPlaybook
 
