@@ -265,7 +265,7 @@ Example:
 
     with core.become(user="backup"):
         #  to tasks as backup user
-        fs.mkfile(path="/tmp/backupfile")
+        fs.mkfile(dst="/tmp/backupfile")
     #  now you are back to the previous user
 
 ### uplaybook.core.debug:
@@ -414,13 +414,13 @@ All-in-one filesystem builder.
 This is targeted for use with Items() loops, for easily populating or
 modifying many filesystem objects in compact declarations.
 
-:param path: Name of destination filesystem object. (templateable).
+:param dst: Name of destination filesystem object. (templateable).
 :param src: Name of template to use as source (optional, templateable).
-        Defaults to the basename of `path` + ".j2".
+        Defaults to the basename of `dst` + ".j2".
 :param mode: Permissions of file (optional, templatable string or int).
-:param owner: Ownership to set on `path`. (optional, templatable).
-:param group: Group to set on `path`. (optional, templatable).
-:param action: Type of `path` to build, can be: "directory", "template", "exists",
+:param owner: Ownership to set on `dst`. (optional, templatable).
+:param group: Group to set on `dst`. (optional, templatable).
+:param action: Type of `dst` to build, can be: "directory", "template", "exists",
         "copy", "absent", "link", "symlink". (optional, templatable, default="template")
 :param notify:  Handler to notify of changes.
         (optional, Callable)
@@ -432,73 +432,73 @@ modifying many filesystem objects in compact declarations.
     fs.builder("/tmp/foo")
     fs.builder("/tmp/bar", action="directory")
     for _ in [
-            Item(path="/tmp/{{ modname }}", action="directory"),
-            Item(path="/tmp/{{ modname }}/__init__.py"),
+            Item(dst="/tmp/{{ modname }}", action="directory"),
+            Item(dst="/tmp/{{ modname }}/__init__.py"),
             ]:
         builder()
 
 ### uplaybook.fs.cd:
 
-Change working directory to `path`.
+Change working directory to `dst`.
 
 Sets "extra.old_dir" on the return object to the directory before the `cd`
 is done.  Can also be used as a context manager and when the context is
 exited you are returned to the previous directory.
 
-:param path: Directory to change into (templateable).
+:param dst: Directory to change into (templateable).
 
 #### Examples:
 
 .. code-block:: python
 
-    fs.cd(path="/tmp")
+    fs.cd(dst="/tmp")
 
     #  As context manager:
-    with fs.cd(path="/tmp"):
+    with fs.cd(dst="/tmp"):
         #  creates /tmp/tempfile
         fs.mkfile("tempfile")
     #  now are back in previous directory
 
 ### uplaybook.fs.chmod:
 
-Change permissions of path.
+Change permissions of `dst`.
 
-:param path: Path to change (templateable).
-:param mode: Permissions of path (optional, templatable string or int).
-:param is_directory: Treat path as a directory, impacts "X".  If not specified
-        `path` is examined to determine if it is a directory.
+:param dst: Path to change (templateable).
+:param mode: Permissions of `dst` (optional, templatable string or int).
+:param is_directory: Treat `dst` as a directory, impacts "X".  If not specified
+        `dst` is examined to determine if it is a directory.
         (optional, bool).
 
 #### Examples:
 
 .. code-block:: python
 
-    fs.chmod(path="/tmp/foo", mode="a=rX,u+w")
-    fs.chmod(path="/tmp/foo", mode=0o755)
+    fs.chmod(dst="/tmp/foo", mode="a=rX,u+w")
+    fs.chmod(dst="/tmp/foo", mode=0o755)
 
 ### uplaybook.fs.chown:
 
-Change ownership/group of path.
+Change ownership/group of `dst`.
 
-:param path: Path to change (templateable).
-:param user: User to set on `path`. (optional, templatable).
-:param group: Group to set on `path`. (optional, templatable).
+:param dst: Path to change (templateable).
+:param user: User to set on `dst`. (optional, templatable).
+:param group: Group to set on `dst`. (optional, templatable).
 
 #### Examples:
 
 .. code-block:: python
 
-    fs.chown(path="/tmp", owner="root")
-    fs.chown(path="/tmp", group="wheel")
-    fs.chown(path="/tmp", owner="nobody", group="nobody")
+    fs.chown(dst="/tmp", owner="root")
+    fs.chown(dst="/tmp", group="wheel")
+    fs.chown(dst="/tmp", owner="nobody", group="nobody")
 
 ### uplaybook.fs.cp:
 
-Copy the `src` file to `path`, optionally templating the contents in `src`.
+Copy the `src` file to `dst`, optionally templating the contents in `src`.
 
-:param path: Name of destination file. (templateable).
+:param dst: Name of destination file. (templateable).
 :param src: Name of template to use as source (optional, templateable).
-        Defaults to the basename of `path` + ".j2".
+        Defaults to the basename of `dst` + ".j2".
 :param mode: Permissions of directory (optional, templatable string or int).
         Sets mode on creation.
 :param template: If True, apply Jinja2 templating to the contents of `src`,
@@ -506,22 +506,22 @@ Copy the `src` file to `path`, optionally templating the contents in `src`.
 :param template_filenames: If True, filenames found during recursive copy are
         jinja2 template expanded. (default: True)
 :param recursive: If True and `src` is a directory, recursively copy it and
-        everything below it to the `path`.  If `path` ends in a "/",
-        the last component of `src` is created under `path`, otherwise
-        the contents of `src` are written into `path`. (default: True)
+        everything below it to the `dst`.  If `dst` ends in a "/",
+        the last component of `src` is created under `dst`, otherwise
+        the contents of `src` are written into `dst`. (default: True)
 
 #### Examples:
 
 .. code-block:: python
 
-    fs.cp(path="/tmp/foo")
-    fs.cp(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
+    fs.cp(dst="/tmp/foo")
+    fs.cp(src="bar-{{ fqdn }}.j2", dst="/tmp/bar", template=False)
 
 ### uplaybook.fs.exists:
 
-Does `path` exist?
+Does `dst` exist?
 
-:param path: File location to see if it exists. (templateable).
+:param dst: File location to see if it exists. (templateable).
 :param ignore_failures: If True, do not treat file absence as a fatal failure.
          (optional, bool, default=True)
 
@@ -529,15 +529,15 @@ Does `path` exist?
 
 .. code-block:: python
 
-    fs.exists(path="/tmp/foo")
-    if fs.exists(path="/tmp/foo"):
+    fs.exists(dst="/tmp/foo")
+    if fs.exists(dst="/tmp/foo"):
         #  code for when file exists
 
 ### uplaybook.fs.ln:
 
-Create a link from `src` to `path`.
+Create a link from `src` to `dst`.
 
-:param path: Name of destination of link. (templateable).
+:param dst: Name of destination of link. (templateable).
 :param src: Name of location of source to create link from. (templateable).
 :param symbolic: If True, makes a symbolic link. (bool, default: False)
 
@@ -545,14 +545,14 @@ Create a link from `src` to `path`.
 
 .. code-block:: python
 
-    fs.ln(path="/tmp/foo", src="/tmp/bar")
-    fs.ln(path="/tmp/foo", src="/tmp/bar", symbolic=True)
+    fs.ln(dst="/tmp/foo", src="/tmp/bar")
+    fs.ln(dst="/tmp/foo", src="/tmp/bar", symbolic=True)
 
 ### uplaybook.fs.mkdir:
 
 Create a directory.  Defaults to creating necessary parent directories.
 
-:param path: Name of file to create (templateable).
+:param dst: Name of file to create (templateable).
 :param mode: Permissions of directory (optional, templatable string or int).
             Sets mode on creation.
 :param parents: Make parent directories if needed.  (optional, default=True)
@@ -561,15 +561,15 @@ Create a directory.  Defaults to creating necessary parent directories.
 
 .. code-block:: python
 
-    fs.mkdir(path="/tmp/foo")
-    fs.mkdir(path="/tmp/bar", mode="a=rX,u+w")
-    fs.mkdir(path="/tmp/baz/qux", mode=0o755, parents=True)
+    fs.mkdir(dst="/tmp/foo")
+    fs.mkdir(dst="/tmp/bar", mode="a=rX,u+w")
+    fs.mkdir(dst="/tmp/baz/qux", mode=0o755, parents=True)
 
 ### uplaybook.fs.mkfile:
 
 Create an empty file if it does not already exist.
 
-:param path: Name of file to create (templateable).
+:param dst: Name of file to create (templateable).
 :param mode: Permissions of file (optional, templatable string or int).
    Atomically sets mode on creation.
 
@@ -577,56 +577,56 @@ Create an empty file if it does not already exist.
 
 .. code-block:: python
 
-    fs.mkfile(path="/tmp/foo")
-    fs.mkfile(path="/tmp/bar", mode="a=rX,u+w")
-    fs.mkfile(path="/tmp/baz", mode=0o755)
+    fs.mkfile(dst="/tmp/foo")
+    fs.mkfile(dst="/tmp/bar", mode="a=rX,u+w")
+    fs.mkfile(dst="/tmp/baz", mode=0o755)
 
 ### uplaybook.fs.mv:
 
-Rename `src` to `path`.  If `src` does not exist but `path` does,
+Rename `src` to `dst`.  If `src` does not exist but `dst` does,
 it is considered successful without change.  If neither exists,
 it is failed.
 
-:param path: New name. (templateable).
+:param dst: New name. (templateable).
 :param src: Old name. (templateable).
 
 #### Examples:
 
 .. code-block:: python
 
-    fs.mv(path="/tmp/foo", src="/tmp/bar")
+    fs.mv(dst="/tmp/foo", src="/tmp/bar")
 
 ### uplaybook.fs.rm:
 
 Remove a file or recursively remove a directory.
 
-:param path: Name of file/directory to remove. (templateable).
-:param recursive: If True, recursively remove directory and all contents of `path`.
-       Otherwise only remove if `path` is a file.  (default: False)
+:param dst: Name of file/directory to remove. (templateable).
+:param recursive: If True, recursively remove directory and all contents of `dst`.
+       Otherwise only remove if `dst` is a file.  (default: False)
 
 #### Examples:
 
 .. code-block:: python
 
-    fs.rm(path="/tmp/foo")
-    fs.rm(path="/tmp/foo-dir", recursive=True)
+    fs.rm(dst="/tmp/foo")
+    fs.rm(dst="/tmp/foo-dir", recursive=True)
 
 ### uplaybook.fs.stat:
 
-Get information about `path`.
+Get information about `dst`.
 
-:param path: Path to stat.  (templateable).
+:param dst: Path to stat.  (templateable).
 :param follow_symlinks: If True (default), the result will be on the destination of
         a symlink, if False the result will be about the symlink itself.
         (bool, default: True)
 
 Extra:
 
-- **perms**: The permissions of `path` (st_mode & 0o777).
-- **st_mode**: Full mode of `path` (permissions, object type).  You probably want the
-        "perms" field if you just want the permissions of `path`.
+- **perms**: The permissions of `dst` (st_mode & 0o777).
+- **st_mode**: Full mode of `dst` (permissions, object type).  You probably want the
+        "perms" field if you just want the permissions of `dst`.
 - **st_ino**: Inode number.
-- **st_dev**: ID of the device containing `path`.
+- **st_dev**: ID of the device containing `dst`.
 - **st_nlink**: Number of hard links.
 - **st_uid**: User ID of owner.
 - **st_gid**: Group ID of owner.
@@ -634,21 +634,21 @@ Extra:
 - **st_atime**: The time of the last access of file data.
 - **st_mtime**: The time of last modification of file data.
 - **st_ctime**: The time of the last change of status/inode.
-- **S_ISBLK**: Is `path` a block special device file?
-- **S_ISCHR**: Is `path` a character special device file?
-- **S_ISDIR**: Is `path` a directory?
-- **S_ISDOOR**: Is `path` a door?
-- **S_ISFIFO**: Is `path` a named pipe?
-- **S_ISLNK**: Is `path` a symbolic link?
-- **S_ISPORT**: Is `path` an event port?
-- **S_ISREG**: Is `path` a regular file?
-- **S_ISSOCK**: Is `path` a socket?
-- **S_ISWHT**: Is `path` a whiteout?
+- **S_ISBLK**: Is `dst` a block special device file?
+- **S_ISCHR**: Is `dst` a character special device file?
+- **S_ISDIR**: Is `dst` a directory?
+- **S_ISDOOR**: Is `dst` a door?
+- **S_ISFIFO**: Is `dst` a named pipe?
+- **S_ISLNK**: Is `dst` a symbolic link?
+- **S_ISPORT**: Is `dst` an event port?
+- **S_ISREG**: Is `dst` a regular file?
+- **S_ISSOCK**: Is `dst` a socket?
+- **S_ISWHT**: Is `dst` a whiteout?
 
 #### Examples:
 
 .. code-block:: python
 
-    stat = fs.stat(path="/tmp/foo")
+    stat = fs.stat(dst="/tmp/foo")
     print(f"UID: {{stat.extra.st_uid}}")
-    fs.stat(path="/tmp/foo", follow_symlinks=False)
+    fs.stat(dst="/tmp/foo", follow_symlinks=False)

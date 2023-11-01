@@ -46,26 +46,26 @@ class Item(dict):
     Examples:
 
         for item in [
-                Item(path="foo"),
-                Item(path="bar"),
-                Item(path="baz"),
+                Item(dst="foo"),
+                Item(dst="bar"),
+                Item(dst="baz"),
                 ]:
-            fs.builder(path="{{item.path}}")
+            fs.builder(dst="{{item.dst}}")
 
         for item in [
-                Item(path="foo", action="directory", owner="nobody"),
-                Item(path="bar", action="exists"),
-                Item(path="/etc/apache2/sites-enabled/foo", notify=restart_apache),
+                Item(dst="foo", action="directory", owner="nobody"),
+                Item(dst="bar", action="exists"),
+                Item(dst="/etc/apache2/sites-enabled/foo", notify=restart_apache),
                 ]:
             fs.builder(**item)
 
-        with Item(path="foo", action="directory", owner="nobody") as item:
-            #  Can access as "path" as well as "item.path"
-            fs.exists(path="{{path}}")
-            fs.chown(path="{{path}}", owner="{{owner}}")
+        with Item(dst="foo", action="directory", owner="nobody") as item:
+            #  Can access as "dst" as well as "item.dst"
+            fs.exists(dst="{{dst}}")
+            fs.chown(dst="{{dst}}", owner="{{owner}}")
 
-        with Item(path="foo", action="directory", owner="nobody"):
-            fs.exists(path="{{path}}")
+        with Item(dst="foo", action="directory", owner="nobody"):
+            fs.exists(dst="{{dst}}")
 
     """
 
@@ -349,7 +349,7 @@ def become(user: Union[int, TemplateStr]) -> Return:
 
         with core.become(user="backup"):
             #  to tasks as backup user
-            fs.mkfile(path="/tmp/backupfile")
+            fs.mkfile(dst="/tmp/backupfile")
         #  now you are back to the previous user
 
     #taskdoc
