@@ -314,8 +314,12 @@ def rm(
         try:
             os.remove(path)
         except OSError:
-            raise Failure(
-                f"Path {path} is a directory, will not remove without `recursive` option"
+            return Return(
+                changed=False,
+                failure=True,
+                raise_exc=Failure(
+                    f"Path {path} is a directory, will not remove without `recursive` option"
+                ),
             )
     else:
         shutil.rmtree(path)
@@ -400,6 +404,43 @@ def stat(
     )
 
     return Return(changed=False, extra=ret)
+
+
+@calling_context
+@template_args
+def mv(
+    path: TemplateStr,
+    src: TemplateStr,
+) -> Return:
+    """
+    Rename `src` to `path`.  If `src` does not exist but `path` does,
+    it is considered successful without change.  If neither exists,
+    it is failed.
+
+    :param path: New name. (templateable).
+    :param src: Old name. (templateable).
+
+    Examples:
+
+    .. code-block:: python
+
+        fs.mv(path="/tmp/foo", src="/tmp/bar")
+
+    #taskdoc
+    """
+
+    if os.path.exists(src):
+        shutil.move(src, path)
+        return Return(changed=True)
+
+    if os.path.exists(path):
+        return Return(changed=False)
+
+    return Return(
+        changed=False,
+        failure=True,
+        raise_exc=Failure(f"No file to move: src={src} path={path}"),
+    )
 
 
 @calling_context
