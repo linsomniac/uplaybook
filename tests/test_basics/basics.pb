@@ -7,3 +7,6 @@ fs.mkdir(dst="testdir")
 with fs.cd(dst="testdir"):
     fs.cp(dst="testfile")
     assert fs.exists("testfile")
+
+core.run(command="date")
+core.run(command="true")
