@@ -260,7 +260,8 @@ If used as a context manager, you are switched back to the original user after t
 
 :param user: User name or UID of user to switch to.
 
-Example:
+#### Examples:
+
     core.become(user="nobody")
 
     with core.become(user="backup"):
@@ -289,7 +290,8 @@ End a playbook run.
 :param returncode: Exit code for process, 0 is success, 1-255 are failure (int, default=0).
 :param msg: Message to display (str, templatable, default "").
 
-Example:
+#### Examples:
+
     core.exit()
     core.exit(returncode=1)
     core.exit(msg="Unable to download file", returncode=1)
@@ -300,14 +302,16 @@ Abort a playbook run.
 
 :param msg: Message to display with failure (str, templateable).
 
-Example:
+#### Examples:
+
     core.fail(msg="Unable to download file")
 
 ### uplaybook.core.flush_handlers:
 
 Run any registred handlers.
 
-Example:
+#### Examples:
+
     core.flush_handlers()
 
 ### uplaybook.core.grep:
@@ -331,7 +335,8 @@ Add a notify handler to be called later.
 
 :param function: A function that takes no arguments, which is called at a later time.
 
-Example:
+#### Examples:
+
     core.notify(lambda: core.run(command="systemctl restart apache2"))
     core.notify(lambda: fs.remove("tmpdir", recursive=True))
 
@@ -343,7 +348,8 @@ Optionally, a playbook may specify that it needs arguments.  If defined,
 this will create an argument parser and command-line arguemnts and
 options.
 
-Example:
+#### Examples:
+
     core.playbook_args(
             core.Argument(name="is_owner", default=False, type="bool"),
             core.Argument(name="user"),
@@ -376,7 +382,8 @@ Verify we are running as the specified user.
 
 :param user: User name or UID of user to verify.  (int or str, templateable)
 
-Example:
+#### Examples:
+
     core.require(user="nobody")
 
 ### uplaybook.core.run:
