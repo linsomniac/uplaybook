@@ -226,7 +226,9 @@ def run(
         output=p.stdout.rstrip(),
         extra=extra,
         ignore_failure=ignore_failures,
-        raise_exc=Failure(f"Exit code {p.returncode}") if failure else None,
+        raise_exc=Failure(f"Exit code {p.returncode}")
+        if failure and not ignore_failures
+        else None,
     )
 
 

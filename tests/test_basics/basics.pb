@@ -9,4 +9,7 @@ with fs.cd(dst="testdir"):
     assert fs.exists("testfile")
 
 core.run(command="date")
-core.run(command="true")
+r = core.run(command="true")
+assert r
+r = core.run(command="false", ignore_failures=True)
+assert not r
