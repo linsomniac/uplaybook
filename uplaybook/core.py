@@ -525,3 +525,22 @@ def grep(
         ignore_failure=ignore_failures,
         raise_exc=Failure("No match found") if not ignore_failures else None,
     )
+
+
+@calling_context
+@template_args
+def print(
+    msg: TemplateStr,
+) -> None:
+    """
+    uPlaybook print helper, like python print() but does jinja templating.
+
+    :param msg: Message to print. (templateable)
+
+    Examples:
+
+        core.print("Arguments: {{playbook_arguments}}")
+
+    #taskdoc
+    """
+    sys.stdout.write(msg + "\n")

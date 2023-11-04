@@ -362,6 +362,16 @@ options.
     #    up playbook.pb --is-owner my_username
     #    up playbook.pb --no-is-owner my_username my_hostname
 
+### uplaybook.core.print:
+
+uPlaybook print helper, like python print() but does jinja templating.
+
+:param msg: Message to print. (templateable)
+
+#### Examples:
+
+    core.print("Arguments: {{playbook_arguments}}")
+
 ### uplaybook.core.render:
 
 Render a string as a jinja2 template and return the value
