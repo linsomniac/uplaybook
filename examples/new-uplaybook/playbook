@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+
+"""
+Create a new uplaybook.
+
+This playbook creates a new uplaybook.
+"""
+
+from uplaybook import fs, core, up_context
+
+core.playbook_args(
+        core.Argument(name="playbook_name",
+                      description="Name of playbook to create, creates directory of this name."),
+        core.Argument(name="force", default=False, type="bool",
+                      description="Reset the playbook back to the default if it already exists (default is to abort if playbook already exists)."),
+        )
+
+if fs.exists(playbook_args.playbook_name) and not playbook_args.force:
+    core.fail(msg=f"*** ERROR: Playbook {playbook_args.playbook_name} already exists.  Will not overwrite without '--force'")
+
+fs.mkdir(dst=playbook_args.playbook_name)
+with fs.cd(dst=playbook_args.playbook_name):
+    fs.cp(src="playbook.j2", dst="playbook")

@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+
+"""
+Short description of playbook here.
+
+More detailed information about playbook here.
+"""
+
+from uplaybook import fs, core, up_context
+
+#  example arguments
+#  This sets up the playbook to be called as "up playbook <NAME> [--force] [--optional=foo]"
+core.playbook_args(
+        core.Argument(name="name", description="Name of subdirectory"),
+        core.Argument(name="force", default=False, type="bool", description="Reset if already exists?"),
+        core.Argument(name="optional", default="default", description="Optional argument"),
+        )
