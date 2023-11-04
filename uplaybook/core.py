@@ -288,10 +288,16 @@ def playbook_args(
 
     Example:
         core.playbook_args(
+                core.Argument(name="is_owner", default=False, type="bool"),
                 core.Argument(name="user"),
-                core.Argument(name="hostname")
+                core.Argument(name="hostname", default="localhost")
                 )
         core.debug(msg="Arguments: user={{playbook_args.user}}  hostname={{playbook_args.hostname}}")
+        core.debug(msg="Arguments: is_owner={{playbook_args.is_owner}}")
+        #  run examples:
+        #    up playbook.pb my_username
+        #    up playbook.pb --is-owner my_username
+        #    up playbook.pb --no-is-owner my_username my_hostname
 
     #taskdoc
     """

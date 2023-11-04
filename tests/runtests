@@ -27,6 +27,7 @@ for TEST in test_*; do
   fi
 done
 
+echo "TEST PASSED"
 #  No python tests yet
 #cd "$TESTDIR"
 #python3 -m pytest
