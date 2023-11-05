@@ -107,7 +107,7 @@ class UpContext:
         self.playbook_directory = "."  #  Directory playbook is in
         self.playbook_files_seen = set()
 
-        self.jinja_env = jinja2.Environment()
+        self.jinja_env = jinja2.Environment(undefined=jinja2.StrictUndefined)
         self.jinja_env.filters["basename"] = os.path.basename
         self.jinja_env.filters["dirname"] = os.path.dirname
         self.jinja_env.filters["abspath"] = os.path.abspath
