@@ -256,7 +256,7 @@ class Argument:
                 core.Argument(name="user"),
                 core.Argument(name="hostname", default=None)
                 )
-        core.debug(msg="Arguments: user={{playbook_args.user}}  hostname={{playbook_args.hostname}}")
+        core.debug(msg="Arguments: user={{ARGS.user}}  hostname={{ARGS.hostname}}")
 
         #  Run with "up2 playbookname --hostname=localhost username
     """
@@ -338,7 +338,7 @@ def playbook_args(
     args_vars = vars(args)
     for arg in options:
         setattr(
-            up_context.context["playbook_args"],
+            up_context.context["ARGS"],
             arg.name,
             args_vars[name_mapping[arg.name]],
         )

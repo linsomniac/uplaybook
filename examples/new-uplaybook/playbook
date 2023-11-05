@@ -3,7 +3,8 @@
 """
 Create a new uplaybook.
 
-This playbook creates a new uplaybook.
+This playbook creates a new, example, uplaybook.  This can be
+used as a skeleton to create new uplaybooks.
 """
 
 from uplaybook import fs, core, up_context
@@ -15,9 +16,9 @@ core.playbook_args(
                       description="Reset the playbook back to the default if it already exists (default is to abort if playbook already exists)."),
         )
 
-if fs.exists(playbook_args.playbook_name) and not playbook_args.force:
-    core.fail(msg=f"*** ERROR: Playbook {playbook_args.playbook_name} already exists.  Will not overwrite without '--force'")
+if fs.exists(ARGS.playbook_name) and not ARGS.force:
+    core.fail(msg=f"*** ERROR: Playbook {ARGS.playbook_name} already exists.  Will not overwrite without '--force'")
 
-fs.mkdir(dst=playbook_args.playbook_name)
-with fs.cd(dst=playbook_args.playbook_name):
+fs.mkdir(dst=ARGS.playbook_name)
+with fs.cd(dst=ARGS.playbook_name):
     fs.cp(src="playbook.j2", dst="playbook")

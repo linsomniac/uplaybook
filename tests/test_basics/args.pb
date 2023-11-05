@@ -11,9 +11,9 @@ core.playbook_args(
         )
 #eval "$UP2 args.pb" release --arg1 --arg2=value || RETCODE=$?
 
-core.debug("{{playbook_args}}")
-assert playbook_args.release_name == "release"
-assert playbook_args.arg1 == True
-assert playbook_args.arg2 == "value"
-assert playbook_args.arg3 == "default"
-assert playbook_args.is_owner == False
+core.debug("{{ARGS}}")
+assert ARGS.release_name == "release"
+assert ARGS.arg1 == True
+assert ARGS.arg2 == "value"
+assert ARGS.arg3 == "default"
+assert ARGS.is_owner == False

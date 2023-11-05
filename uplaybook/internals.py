@@ -91,7 +91,7 @@ class UpContext:
 
     def __init__(self):
         self.globals = {"environ": os.environ, "platform": platform_info()}
-        self.context = {"playbook_args": SimpleNamespace()}
+        self.context = {"ARGS": SimpleNamespace()}
         self.calling_context = {}
         self.item_context = []
         self.changed_count = 0
