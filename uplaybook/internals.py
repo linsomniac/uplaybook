@@ -104,6 +104,7 @@ class UpContext:
         self.parsed_args = argparse.Namespace()
         self.playbook_namespace = {}  #  Namespace of the playbook module
         self.playbook_name = ""  #  Name of the playbook being run
+        self.playbook_docstring = ""
         self.playbook_directory = "."  #  Directory playbook is in
         self.playbook_files_seen = set()
 
@@ -826,6 +827,10 @@ def cli() -> None:
             playbook = find_playbook(pb_name)
         up_context.playbook_directory = playbook.directory.absolute()
         full_playbook_path = playbook.directory.absolute() / playbook.playbook_file
+
+        docs = extract_docstring_from_file(full_playbook_path)
+        up_context.playbook_docstring = docs if docs else ""
+
         up_context.playbook_files_seen.add(full_playbook_path.as_posix())
         import_script_as_module(
             pb_name, [playbook.playbook_file, playbook.playbook_file]

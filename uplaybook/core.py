@@ -28,6 +28,7 @@ import argparse
 import os
 import pwd
 import re
+import inspect
 
 
 class Item(dict):
@@ -304,7 +305,9 @@ def playbook_args(
 
     #taskdoc
     """
-    parser = argparse.ArgumentParser(prog=f"up:{up_context.playbook_name}")
+    parser = argparse.ArgumentParser(
+        prog=f"up:{up_context.playbook_name}", description=up_context.playbook_docstring
+    )
 
     name_mapping: dict[str, str] = {}
     for arg in options:
