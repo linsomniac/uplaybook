@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from uplaybook import fs, core, up_context
+from uplaybook import fs, core
 
 fs.rm(dst="testdir", recursive=True)
 fs.mkdir(dst="testdir")

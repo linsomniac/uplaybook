@@ -187,7 +187,7 @@ including detecting when no changes are made and updating permissions:
 
     #!/usr/bin/env python3
 
-    from uplaybook import fs, core, up_context
+    from uplaybook import fs, core
 
     def test_handler2():
         fs.mkfile('qux')
