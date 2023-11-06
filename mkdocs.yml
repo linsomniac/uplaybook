@@ -1,0 +1,51 @@
+---
+#  Based on the argo-cd setup
+plugins:
+- search
+- mkdocstrings:
+    default_handler: python
+    handlers:
+      python:
+        paths: [uplaybook]
+        options:
+          show_source: false
+extra_css:
+- assets/versions.css
+extra_javascript:
+- assets/versions.js
+markdown_extensions:
+- markdown_include.include
+- codehilite:
+    css_class: highlight
+- admonition
+- toc:
+    permalink: true
+- pymdownx.superfences
+nav:
+- Overview: index.md
+#- understand_the_basics.md
+- Task Documentation:
+  - tasks/index.md
+- Releases ⧉: https://github.com/linsomniac/uplaybook/releases
+repo_url: https://github.com/linsomniac/uplaybook
+site_name: uPlaybook - Declarative System/Project Setup
+strict: true
+theme:
+  favicon: assets/favicon.png
+  font:
+    text: Work Sans
+  logo: assets/logo.png
+  name: material
+  palette:
+  - media: '(prefers-color-scheme: light)'
+    primary: teal
+    scheme: default
+    toggle:
+      icon: material/brightness-7
+      name: Switch to dark mode
+  - media: '(prefers-color-scheme: dark)'
+    primary: teal
+    scheme: slate
+    toggle:
+      icon: material/brightness-4
+      name: Switch to light mode

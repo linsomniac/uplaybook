@@ -13,6 +13,7 @@ More documentation is available at: https://github.com/linsomniac/uplaybook2
 
 from . import internals
 from . import fs
+from . import core
 
 up_context = internals.up_context
 

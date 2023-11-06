@@ -2,12 +2,8 @@
 
 """
 Core Tasks
-**********
 
 Tasks that are a core part of uPlaybook.
-
-Task List
-=========
 """
 
 from .internals import (
@@ -46,28 +42,29 @@ class Item(dict):
 
     Examples:
 
-        for item in [
-                Item(dst="foo"),
-                Item(dst="bar"),
-                Item(dst="baz"),
-                ]:
-            fs.builder(dst="{{item.dst}}")
+    ```python
+    for item in [
+            Item(dst="foo"),
+            Item(dst="bar"),
+            Item(dst="baz"),
+            ]:
+        fs.builder(dst="{{item.dst}}")
 
-        for item in [
-                Item(dst="foo", action="directory", owner="nobody"),
-                Item(dst="bar", action="exists"),
-                Item(dst="/etc/apache2/sites-enabled/foo", notify=restart_apache),
-                ]:
-            fs.builder(**item)
+    for item in [
+            Item(dst="foo", action="directory", owner="nobody"),
+            Item(dst="bar", action="exists"),
+            Item(dst="/etc/apache2/sites-enabled/foo", notify=restart_apache),
+            ]:
+        fs.builder(**item)
 
-        with Item(dst="foo", action="directory", owner="nobody") as item:
-            #  Can access as "dst" as well as "item.dst"
-            fs.exists(dst="{{dst}}")
-            fs.chown(dst="{{dst}}", owner="{{owner}}")
+    with Item(dst="foo", action="directory", owner="nobody") as item:
+        #  Can access as "dst" as well as "item.dst"
+        fs.exists(dst="{{dst}}")
+        fs.chown(dst="{{dst}}", owner="{{owner}}")
 
-        with Item(dst="foo", action="directory", owner="nobody"):
-            fs.exists(dst="{{dst}}")
-
+    with Item(dst="foo", action="directory", owner="nobody"):
+        fs.exists(dst="{{dst}}")
+    ```
     """
 
     def __getattr__(self, key):
@@ -105,15 +102,18 @@ def debug(msg: Optional[TemplateStr] = None, var: Optional[object] = None) -> Re
 
     Print a message or pretty-print a variable.
 
-    :param msg: Message to display. (optional, templateable).
-    :param var: Object to pretty-print (optional, templateable).
+    Args:
+        msg: Message to display. (optional, templateable).
+        var: Object to pretty-print (optional, templateable).
 
     Examples:
 
-        core.debug(msg="Directory already exists, exiting")
-        core.debug(var=ret_value)
+    ```python
+    core.debug(msg="Directory already exists, exiting")
+    core.debug(var=ret_value)
+    ```
 
-    #taskdoc
+    <!-- #taskdoc -->
     """
 
     output = ""
@@ -139,7 +139,9 @@ def lookup(var: str) -> object:
 
     Examples:
 
-        print(core.lookup('name'))
+    ```python
+    print(core.lookup('name'))
+    ```
     """
     return up_context.get_env()[var]
 
@@ -150,17 +152,19 @@ def render(s: TemplateStr) -> str:
     """
     Render a string as a jinja2 template and return the value
 
-    :param s: Template to render. (templateable).
+    Args:
+        s: Template to render. (templateable).
 
     Returns:
-
-    - Rendered template as a string.
+        Rendered template as a string.
 
     Examples:
 
-        core.render(s="Value of foo: {{foo}}")
+    ```python
+    core.render(s="Value of foo: {{foo}}")
+    ```
 
-    #taskdoc
+    <!-- #taskdoc -->
     """
     return s
 
@@ -178,36 +182,39 @@ def run(
     Run a command.  Stdout is returned as `output` in the return object.  Stderr
     and return code are stored in `extra` in return object.
 
-    :param command: Command to run (templateable).
-    :param shell: If False, run `command` without a shell.  Safer.  Default is True:
+    Args:
+        command: Command to run (templateable).
+        shell: If False, run `command` without a shell.  Safer.  Default is True:
              allows shell processing of `command` for things like output
              redirection, wildcard expansion, pipelines, etc. (optional, bool)
-    :param ignore_failures: If True, do not treat non-0 return code as a fatal failure.
+        ignore_failures: If True, do not treat non-0 return code as a fatal failure.
              This allows testing of return code within playbook.  (optional, bool)
-    :param change: By default, all shell commands are assumed to have caused a change
+        change: By default, all shell commands are assumed to have caused a change
              to the system and will trigger notifications.  If False, this `command`
              is treated as not changing the system.  (optional, bool)
-    :param creates: If specified, if the path it specifies exists, consider the command
+        creates: If specified, if the path it specifies exists, consider the command
             to have already been run and skip future runes.
 
-    Extra:
+    Extra Data:
 
-    - **stderr**: Captured stderr output.
-    - **returncode**: The return code of the command.
+        stderr: Captured stderr output.
+        returncode: The return code of the command.
 
     Examples:
 
-        core.run(command="systemctl restart sshd")
-        core.run(command="rm *.foo", shell=False)   #  removes literal file "*.foo"
+    ```python
+    core.run(command="systemctl restart sshd")
+    core.run(command="rm *.foo", shell=False)   #  removes literal file "*.foo"
 
-        r = core.run(command="date", change=False)
-        print(f"Current date/time: {{r.output}}")
-        print(f"Return code: {{r.extra.returncode}}")
+    r = core.run(command="date", change=False)
+    print(f"Current date/time: {{r.output}}")
+    print(f"Return code: {{r.extra.returncode}}")
 
-        if core.run(command="grep -q ^user: /etc/passwd", ignore_failures=True, change=False):
-            print("User exists")
+    if core.run(command="grep -q ^user: /etc/passwd", ignore_failures=True, change=False):
+        print("User exists")
+    ```
 
-    #taskdoc
+    <!-- #taskdoc -->
     """
     if creates is not None and os.path.exists(creates):
         return Return(changed=False)
@@ -241,25 +248,28 @@ class Argument:
     List arguments if a playbook needs additional information from the user.
     This is used in combination with the `core.playbook_args()` task.
 
-    :param name: The name of the argument, this will determine the "--name" of the command-line
-        flag and the variable the value is stored in (str).
-    :param label: A label used when prompting the user for input (For future use, optional)
-    :param description: Detailed information on the argument for use in "--help" output.
-        (str, optional)
-    :param type: The type of the argument: str, bool, int, password (default=str)
-    :param default: A default value for the argument.  Arguments without a default
-        must be specified in the command-line, if a default is given an option with
-        "--name" will be available.
+    Args:
+        name: The name of the argument, this will determine the "--name" of the command-line
+            flag and the variable the value is stored in (str).
+            label: A label used when prompting the user for input (For future use, optional)
+        description: Detailed information on the argument for use in "--help" output.
+            (str, optional)
+        type: The type of the argument: str, bool, int, password (default=str)
+        default: A default value for the argument.  Arguments without a default
+            must be specified in the command-line, if a default is given an option with
+            "--name" will be available.
 
     Examples:
 
-        core.playbook_args(
-                core.Argument(name="user"),
-                core.Argument(name="hostname", default=None)
-                )
-        core.debug(msg="Arguments: user={{ARGS.user}}  hostname={{ARGS.hostname}}")
+    ```python
+    core.playbook_args(
+            core.Argument(name="user"),
+            core.Argument(name="hostname", default=None)
+            )
+    core.debug(msg="Arguments: user={{ARGS.user}}  hostname={{ARGS.hostname}}")
 
-        #  Run with "up2 playbookname --hostname=localhost username
+    #  Run with "up2 playbookname --hostname=localhost username
+    ```
     """
 
     def __init__(
@@ -291,19 +301,21 @@ def playbook_args(
 
     Examples:
 
-        core.playbook_args(
-                core.Argument(name="is_owner", default=False, type="bool"),
-                core.Argument(name="user"),
-                core.Argument(name="hostname", default="localhost")
-                )
-        core.debug(msg="Arguments: user={{playbook_args.user}}  hostname={{playbook_args.hostname}}")
-        core.debug(msg="Arguments: is_owner={{playbook_args.is_owner}}")
-        #  run examples:
-        #    up playbook.pb my_username
-        #    up playbook.pb --is-owner my_username
-        #    up playbook.pb --no-is-owner my_username my_hostname
+    ```python
+    core.playbook_args(
+            core.Argument(name="is_owner", default=False, type="bool"),
+            core.Argument(name="user"),
+            core.Argument(name="hostname", default="localhost")
+            )
+    core.debug(msg="Arguments: user={{playbook_args.user}}  hostname={{playbook_args.hostname}}")
+    core.debug(msg="Arguments: is_owner={{playbook_args.is_owner}}")
+    #  run examples:
+    #    up playbook.pb my_username
+    #    up playbook.pb --is-owner my_username
+    #    up playbook.pb --no-is-owner my_username my_hostname
+    ```
 
-    #taskdoc
+    <!-- #taskdoc -->
     """
     parser = argparse.ArgumentParser(
         prog=f"up:{up_context.playbook_name}", description=up_context.playbook_docstring
@@ -356,18 +368,20 @@ def become(user: Union[int, TemplateStr]) -> Return:
 
     If used as a context manager, you are switched back to the original user after the context.
 
-    :param user: User name or UID of user to switch to.
+    Args:
+        user: User name or UID of user to switch to.
 
     Examples:
 
-        core.become(user="nobody")
+    ```python
+    core.become(user="nobody")
 
-        with core.become(user="backup"):
-            #  to tasks as backup user
-            fs.mkfile(dst="/tmp/backupfile")
-        #  now you are back to the previous user
-
-    #taskdoc
+    with core.become(user="backup"):
+        #  to tasks as backup user
+        fs.mkfile(dst="/tmp/backupfile")
+    #  now you are back to the previous user
+    ```
+    <!-- #taskdoc -->
     """
     new_user = user
     if type(new_user) == str:
@@ -386,13 +400,15 @@ def require(user: Union[int, TemplateStr]) -> Return:
     """
     Verify we are running as the specified user.
 
-    :param user: User name or UID of user to verify.  (int or str, templateable)
+    Args:
+        user: User name or UID of user to verify.  (int or str, templateable)
 
     Examples:
 
-        core.require(user="nobody")
-
-    #taskdoc
+    ```python
+    core.require(user="nobody")
+    ```
+    <!-- #taskdoc -->
     """
     new_user = user
     if type(new_user) == str:
@@ -417,13 +433,16 @@ def fail(msg: TemplateStr) -> Return:
     """
     Abort a playbook run.
 
-    :param msg: Message to display with failure (str, templateable).
+    Args:
+        msg: Message to display with failure (str, templateable).
 
     Examples:
 
-        core.fail(msg="Unable to download file")
+    ```python
+    core.fail(msg="Unable to download file")
+    ```
 
-    #taskdoc
+    <!-- #taskdoc -->
     """
     return Return(changed=False, failure=True, raise_exc=Failure(msg))
 
@@ -434,16 +453,19 @@ def exit(returncode: int = 0, msg: Union[TemplateStr, str] = "") -> Return:
     """
     End a playbook run.
 
-    :param returncode: Exit code for process, 0 is success, 1-255 are failure (int, default=0).
-    :param msg: Message to display (str, templatable, default "").
+    Args:
+        returncode: Exit code for process, 0 is success, 1-255 are failure (int, default=0).
+        msg: Message to display (str, templatable, default "").
 
     Examples:
 
-        core.exit()
-        core.exit(returncode=1)
-        core.exit(msg="Unable to download file", returncode=1)
+    ```python
+    core.exit()
+    core.exit(returncode=1)
+    core.exit(msg="Unable to download file", returncode=1)
+    ```
 
-    #taskdoc
+    <!-- #taskdoc -->
     """
     return Return(
         changed=False, failure=returncode != 0, raise_exc=Exit(msg, returncode)
@@ -456,14 +478,17 @@ def notify(function: Callable) -> Return:
     """
     Add a notify handler to be called later.
 
-    :param function: A function that takes no arguments, which is called at a later time.
+    Args:
+        function: A function that takes no arguments, which is called at a later time.
 
     Examples:
 
-        core.notify(lambda: core.run(command="systemctl restart apache2"))
-        core.notify(lambda: fs.remove("tmpdir", recursive=True))
+    ```python
+    core.notify(lambda: core.run(command="systemctl restart apache2"))
+    core.notify(lambda: fs.remove("tmpdir", recursive=True))
+    ```
 
-    #taskdoc
+    <!-- #taskdoc -->
     """
     up_context.add_handler(function)
 
@@ -478,9 +503,11 @@ def flush_handlers() -> Return:
 
     Examples:
 
-        core.flush_handlers()
+    ```python
+    core.flush_handlers()
+    ```
 
-    #taskdoc
+    <!-- #taskdoc -->
     """
     up_context.flush_handlers()
 
@@ -498,18 +525,21 @@ def grep(
     """
     Look for `search` in the file `path`
 
-    :param path: File location to look for a match in. (templateable)
-    :param search: The string (or regex) to look for. (templateable)
-    :param regex: Do a regex search, if False do a simple string search. (bool, default=True)
-    :param ignore_failures: If True, do not treat file absence as a fatal failure.
+    Args:
+        path: File location to look for a match in. (templateable)
+        search: The string (or regex) to look for. (templateable)
+        regex: Do a regex search, if False do a simple string search. (bool, default=True)
+        ignore_failures: If True, do not treat file absence as a fatal failure.
              (optional, bool, default=True)
 
     Examples:
 
-        if core.grep(path="/tmp/foo", search="secret=xyzzy"):
-            #  code for when the string is found.
+    ```python
+    if core.grep(path="/tmp/foo", search="secret=xyzzy"):
+        #  code for when the string is found.
+    ```
 
-    #taskdoc
+    <!-- #taskdoc -->
     """
     with open(path, "r") as fp:
         if regex:
@@ -538,12 +568,15 @@ def print(
     """
     uPlaybook print helper, like python print() but does jinja templating.
 
-    :param msg: Message to print. (templateable)
+    Args:
+        msg: Message to print. (templateable)
 
     Examples:
 
-        core.print("Arguments: {{playbook_arguments}}")
+    ```python
+    core.print("Arguments: {{playbook_arguments}}")
+    ```
 
-    #taskdoc
+    <!-- #taskdoc -->
     """
     sys.stdout.write(msg + "\n")

@@ -44,9 +44,10 @@ def _mode_from_arg(
     If `mode` is None, it is kept as None (meaning no mode change to be done).
     If `mode` is an int, it is kept.
 
-    :param mode: Mode to convert, if it is a string.
-    :param initial_mode: The existing mode of the file (used for +/-/X).
-    :param is_directory: If the path to set the mode on is a directory (used for X).
+    Args:
+        mode: Mode to convert, if it is a string.
+        initial_mode: The existing mode of the file (used for +/-/X).
+        is_directory: If the path to set the mode on is a directory (used for X).
     """
     if type(mode) is int or mode is None:
         return mode
@@ -76,20 +77,21 @@ def chmod(
     """
     Change permissions of `dst`.
 
-    :param dst: Path to change (templateable).
-    :param mode: Permissions of `dst` (optional, templatable string or int).
-    :param is_directory: Treat `dst` as a directory, impacts "X".  If not specified
+    Args:
+        dst: Path to change (templateable).
+        mode: Permissions of `dst` (optional, templatable string or int).
+        is_directory: Treat `dst` as a directory, impacts "X".  If not specified
             `dst` is examined to determine if it is a directory.
             (optional, bool).
 
     Examples:
 
-    .. code-block:: python
+    ```python
+    fs.chmod(dst="/tmp/foo", mode="a=rX,u+w")
+    fs.chmod(dst="/tmp/foo", mode=0o755)
+    ```
 
-        fs.chmod(dst="/tmp/foo", mode="a=rX,u+w")
-        fs.chmod(dst="/tmp/foo", mode=0o755)
-
-    #taskdoc
+    <!-- #taskdoc -->
     """
     if mode is None:
         return Return(
@@ -124,19 +126,20 @@ def chown(
     """
     Change ownership/group of `dst`.
 
-    :param dst: Path to change (templateable).
-    :param user: User to set on `dst`. (optional, templatable).
-    :param group: Group to set on `dst`. (optional, templatable).
+    Args:
+        dst: Path to change (templateable).
+        user: User to set on `dst`. (optional, templatable).
+        group: Group to set on `dst`. (optional, templatable).
 
     Examples:
 
-    .. code-block:: python
+    ```python
+    fs.chown(dst="/tmp", owner="root")
+    fs.chown(dst="/tmp", group="wheel")
+    fs.chown(dst="/tmp", owner="nobody", group="nobody")
+    ```
 
-        fs.chown(dst="/tmp", owner="root")
-        fs.chown(dst="/tmp", group="wheel")
-        fs.chown(dst="/tmp", owner="nobody", group="nobody")
-
-    #taskdoc
+    <!-- #taskdoc -->
     """
     changed = False
     extra_messages = []
@@ -168,21 +171,22 @@ def cd(dst: TemplateStr) -> Return:
     is done.  Can also be used as a context manager and when the context is
     exited you are returned to the previous directory.
 
-    :param dst: Directory to change into (templateable).
+    Args:
+        dst: Directory to change into (templateable).
 
     Examples:
 
-    .. code-block:: python
+    ```python
+    fs.cd(dst="/tmp")
 
-        fs.cd(dst="/tmp")
+    #  As context manager:
+    with fs.cd(dst="/tmp"):
+        #  creates /tmp/tempfile
+        fs.mkfile("tempfile")
+    #  now are back in previous directory
+    ```
 
-        #  As context manager:
-        with fs.cd(dst="/tmp"):
-            #  creates /tmp/tempfile
-            fs.mkfile("tempfile")
-        #  now are back in previous directory
-
-    #taskdoc
+    <!-- #taskdoc -->
     """
     old_dir = os.getcwd()
     os.chdir(dst)
@@ -203,19 +207,20 @@ def mkfile(
     """
     Create an empty file if it does not already exist.
 
-    :param dst: Name of file to create (templateable).
-    :param mode: Permissions of file (optional, templatable string or int).
+    Args:
+        dst: Name of file to create (templateable).
+        mode: Permissions of file (optional, templatable string or int).
        Atomically sets mode on creation.
 
     Examples:
 
-    .. code-block:: python
+    ```python
+    fs.mkfile(dst="/tmp/foo")
+    fs.mkfile(dst="/tmp/bar", mode="a=rX,u+w")
+    fs.mkfile(dst="/tmp/baz", mode=0o755)
+    ```
 
-        fs.mkfile(dst="/tmp/foo")
-        fs.mkfile(dst="/tmp/bar", mode="a=rX,u+w")
-        fs.mkfile(dst="/tmp/baz", mode=0o755)
-
-    #taskdoc
+    <!-- #taskdoc -->
     """
     new_mode = mode
     if not os.path.exists(dst):
@@ -243,20 +248,22 @@ def mkdir(
     """
     Create a directory.  Defaults to creating necessary parent directories.
 
-    :param dst: Name of file to create (templateable).
-    :param mode: Permissions of directory (optional, templatable string or int).
+    Args:
+        dst: Name of file to create (templateable).
+        mode: Permissions of directory (optional, templatable string or int).
                 Sets mode on creation.
-    :param parents: Make parent directories if needed.  (optional, default=True)
+        parents: Make parent directories if needed.  (optional, default=True)
 
     Examples:
 
-    .. code-block:: python
+    ```python
 
-        fs.mkdir(dst="/tmp/foo")
-        fs.mkdir(dst="/tmp/bar", mode="a=rX,u+w")
-        fs.mkdir(dst="/tmp/baz/qux", mode=0o755, parents=True)
+    fs.mkdir(dst="/tmp/foo")
+    fs.mkdir(dst="/tmp/bar", mode="a=rX,u+w")
+    fs.mkdir(dst="/tmp/baz/qux", mode=0o755, parents=True)
+    ```
 
-    #taskdoc
+    <!-- #taskdoc -->
     """
     new_mode = mode
     if not os.path.exists(dst):
@@ -293,18 +300,19 @@ def rm(
     """
     Remove a file or recursively remove a directory.
 
-    :param dst: Name of file/directory to remove. (templateable).
-    :param recursive: If True, recursively remove directory and all contents of `dst`.
-           Otherwise only remove if `dst` is a file.  (default: False)
+    Args:
+        dst: Name of file/directory to remove. (templateable).
+        recursive: If True, recursively remove directory and all contents of `dst`.
+            Otherwise only remove if `dst` is a file.  (default: False)
 
     Examples:
 
-    .. code-block:: python
+    ```python
+    fs.rm(dst="/tmp/foo")
+    fs.rm(dst="/tmp/foo-dir", recursive=True)
+    ```
 
-        fs.rm(dst="/tmp/foo")
-        fs.rm(dst="/tmp/foo-dir", recursive=True)
-
-    #taskdoc
+    <!-- #taskdoc -->
     """
 
     if not os.path.exists(dst):
@@ -336,45 +344,46 @@ def stat(
     """
     Get information about `dst`.
 
-    :param dst: Path to stat.  (templateable).
-    :param follow_symlinks: If True (default), the result will be on the destination of
+    Args:
+        dst: Path to stat.  (templateable).
+        follow_symlinks: If True (default), the result will be on the destination of
             a symlink, if False the result will be about the symlink itself.
             (bool, default: True)
 
-    Extra:
+    Extra Data:
 
-    - **perms**: The permissions of `dst` (st_mode & 0o777).
-    - **st_mode**: Full mode of `dst` (permissions, object type).  You probably want the
+        perms: The permissions of `dst` (st_mode & 0o777).
+        st_mode: Full mode of `dst` (permissions, object type).  You probably want the
             "perms" field if you just want the permissions of `dst`.
-    - **st_ino**: Inode number.
-    - **st_dev**: ID of the device containing `dst`.
-    - **st_nlink**: Number of hard links.
-    - **st_uid**: User ID of owner.
-    - **st_gid**: Group ID of owner.
-    - **st_size**: Total size in bytes.
-    - **st_atime**: The time of the last access of file data.
-    - **st_mtime**: The time of last modification of file data.
-    - **st_ctime**: The time of the last change of status/inode.
-    - **S_ISBLK**: Is `dst` a block special device file?
-    - **S_ISCHR**: Is `dst` a character special device file?
-    - **S_ISDIR**: Is `dst` a directory?
-    - **S_ISDOOR**: Is `dst` a door?
-    - **S_ISFIFO**: Is `dst` a named pipe?
-    - **S_ISLNK**: Is `dst` a symbolic link?
-    - **S_ISPORT**: Is `dst` an event port?
-    - **S_ISREG**: Is `dst` a regular file?
-    - **S_ISSOCK**: Is `dst` a socket?
-    - **S_ISWHT**: Is `dst` a whiteout?
+        st_ino: Inode number.
+        st_dev: ID of the device containing `dst`.
+        st_nlink: Number of hard links.
+        st_uid: User ID of owner.
+        st_gid: Group ID of owner.
+        st_size: Total size in bytes.
+        st_atime: The time of the last access of file data.
+        st_mtime: The time of last modification of file data.
+        st_ctime: The time of the last change of status/inode.
+        S_ISBLK: Is `dst` a block special device file?
+        S_ISCHR: Is `dst` a character special device file?
+        S_ISDIR: Is `dst` a directory?
+        S_ISDOOR: Is `dst` a door?
+        S_ISFIFO: Is `dst` a named pipe?
+        S_ISLNK: Is `dst` a symbolic link?
+        S_ISPORT: Is `dst` an event port?
+        S_ISREG: Is `dst` a regular file?
+        S_ISSOCK: Is `dst` a socket?
+        S_ISWHT: Is `dst` a whiteout?
 
     Examples:
 
-    .. code-block:: python
+    ```python
+    stat = fs.stat(dst="/tmp/foo")
+    print(f"UID: {{stat.extra.st_uid}}")
+    fs.stat(dst="/tmp/foo", follow_symlinks=False)
+    ```
 
-        stat = fs.stat(dst="/tmp/foo")
-        print(f"UID: {{stat.extra.st_uid}}")
-        fs.stat(dst="/tmp/foo", follow_symlinks=False)
-
-    #taskdoc
+    <!-- #taskdoc -->
     """
 
     s = os.stat(dst, follow_symlinks=follow_symlinks)
@@ -417,16 +426,17 @@ def mv(
     it is considered successful without change.  If neither exists,
     it is failed.
 
-    :param dst: New name. (templateable).
-    :param src: Old name. (templateable).
+    Args:
+        dst: New name. (templateable).
+        src: Old name. (templateable).
 
     Examples:
 
-    .. code-block:: python
+    ```python
+    fs.mv(dst="/tmp/foo", src="/tmp/bar")
+    ```
 
-        fs.mv(dst="/tmp/foo", src="/tmp/bar")
-
-    #taskdoc
+    <!-- #taskdoc -->
     """
 
     if os.path.exists(src):
@@ -453,18 +463,19 @@ def ln(
     """
     Create a link from `src` to `dst`.
 
-    :param dst: Name of destination of link. (templateable).
-    :param src: Name of location of source to create link from. (templateable).
-    :param symbolic: If True, makes a symbolic link. (bool, default: False)
+    Args:
+        dst: Name of destination of link. (templateable).
+        src: Name of location of source to create link from. (templateable).
+        symbolic: If True, makes a symbolic link. (bool, default: False)
 
     Examples:
 
-    .. code-block:: python
+    ```python
+    fs.ln(dst="/tmp/foo", src="/tmp/bar")
+    fs.ln(dst="/tmp/foo", src="/tmp/bar", symbolic=True)
+    ```
 
-        fs.ln(dst="/tmp/foo", src="/tmp/bar")
-        fs.ln(dst="/tmp/foo", src="/tmp/bar", symbolic=True)
-
-    #taskdoc
+    <!-- #taskdoc -->
     """
 
     if symbolic:
@@ -506,28 +517,29 @@ def cp(
     """
     Copy the `src` file to `dst`, optionally templating the contents in `src`.
 
-    :param dst: Name of destination file. (templateable).
-    :param src: Name of template to use as source (optional, templateable).
+    Args:
+        dst: Name of destination file. (templateable).
+        src: Name of template to use as source (optional, templateable).
             Defaults to the basename of `dst` + ".j2".
-    :param mode: Permissions of directory (optional, templatable string or int).
+        mode: Permissions of directory (optional, templatable string or int).
             Sets mode on creation.
-    :param template: If True, apply Jinja2 templating to the contents of `src`,
+        template: If True, apply Jinja2 templating to the contents of `src`,
             otherwise copy verbatim.  (default: True)
-    :param template_filenames: If True, filenames found during recursive copy are
+        template_filenames: If True, filenames found during recursive copy are
             jinja2 template expanded. (default: True)
-    :param recursive: If True and `src` is a directory, recursively copy it and
+        recursive: If True and `src` is a directory, recursively copy it and
             everything below it to the `dst`.  If `dst` ends in a "/",
             the last component of `src` is created under `dst`, otherwise
             the contents of `src` are written into `dst`. (default: True)
 
     Examples:
 
-    .. code-block:: python
+    ```python
+    fs.cp(dst="/tmp/foo")
+    fs.cp(src="bar-{{ fqdn }}.j2", dst="/tmp/bar", template=False)
+    ```
 
-        fs.cp(dst="/tmp/foo")
-        fs.cp(src="bar-{{ fqdn }}.j2", dst="/tmp/bar", template=False)
-
-    #taskdoc
+    <!-- #taskdoc -->
     """
 
     def _copy_file(
@@ -638,30 +650,31 @@ def builder(
     This is targeted for use with Items() loops, for easily populating or
     modifying many filesystem objects in compact declarations.
 
-    :param dst: Name of destination filesystem object. (templateable).
-    :param src: Name of template to use as source (optional, templateable).
+    Args:
+        dst: Name of destination filesystem object. (templateable).
+        src: Name of template to use as source (optional, templateable).
             Defaults to the basename of `dst` + ".j2".
-    :param mode: Permissions of file (optional, templatable string or int).
-    :param owner: Ownership to set on `dst`. (optional, templatable).
-    :param group: Group to set on `dst`. (optional, templatable).
-    :param action: Type of `dst` to build, can be: "directory", "template", "exists",
+        mode: Permissions of file (optional, templatable string or int).
+        owner: Ownership to set on `dst`. (optional, templatable).
+        group: Group to set on `dst`. (optional, templatable).
+        action: Type of `dst` to build, can be: "directory", "template", "exists",
             "copy", "absent", "link", "symlink". (optional, templatable, default="template")
-    :param notify:  Handler to notify of changes.
+        notify:  Handler to notify of changes.
             (optional, Callable)
 
     Examples:
 
-    .. code-block:: python
+    ```python
+    fs.builder("/tmp/foo")
+    fs.builder("/tmp/bar", action="directory")
+    for _ in [
+            Item(dst="/tmp/{{ modname }}", action="directory"),
+            Item(dst="/tmp/{{ modname }}/__init__.py"),
+            ]:
+        builder()
+    ```
 
-        fs.builder("/tmp/foo")
-        fs.builder("/tmp/bar", action="directory")
-        for _ in [
-                Item(dst="/tmp/{{ modname }}", action="directory"),
-                Item(dst="/tmp/{{ modname }}/__init__.py"),
-                ]:
-            builder()
-
-    #taskdoc
+    <!-- #taskdoc -->
     """
 
     with CallDepth():
@@ -702,19 +715,20 @@ def exists(
     """
     Does `dst` exist?
 
-    :param dst: File location to see if it exists. (templateable).
-    :param ignore_failures: If True, do not treat file absence as a fatal failure.
+    Args:
+        dst: File location to see if it exists. (templateable).
+        ignore_failures: If True, do not treat file absence as a fatal failure.
              (optional, bool, default=True)
 
     Examples:
 
-    .. code-block:: python
+    ```python
+    fs.exists(dst="/tmp/foo")
+    if fs.exists(dst="/tmp/foo"):
+        #  code for when file exists
+    ```
 
-        fs.exists(dst="/tmp/foo")
-        if fs.exists(dst="/tmp/foo"):
-            #  code for when file exists
-
-    #taskdoc
+    <!-- #taskdoc -->
     """
     if os.path.exists(dst):
         return Return(changed=False)
