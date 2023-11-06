@@ -2,12 +2,9 @@
 
 """
 Filesystem Related Tasks
-************************
 
 This module contains uPlaybook tasks that are related to file system operations.
 
-Task List
-=========
 """
 
 from .internals import (
@@ -49,12 +46,12 @@ def _mode_from_arg(
         initial_mode: The existing mode of the file (used for +/-/X).
         is_directory: If the path to set the mode on is a directory (used for X).
     """
-    if type(mode) is int or mode is None:
+    if isinstance(mode, int) or mode is None:
         return mode
 
-    assert type(mode) is str
+    assert isinstance(mode, str)
 
-    mode_is_sym_str = type(mode) is str and not set(mode).issubset("01234567")
+    mode_is_sym_str = isinstance(mode, str) and not set(mode).issubset("01234567")
     if mode_is_sym_str:
         extra_args = {}
         if is_directory is not None:
@@ -105,7 +102,7 @@ def chmod(
         extra_args["is_directory"] = is_directory
     mode = _mode_from_arg(mode, initial_mode=current_mode, **extra_args)
     if current_mode != mode:
-        assert type(mode) is int
+        assert isinstance(mode, int)
         os.chmod(dst, mode)
         return Return(
             changed=True,

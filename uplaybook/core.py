@@ -24,7 +24,6 @@ import argparse
 import os
 import pwd
 import re
-import inspect
 
 
 class Item(dict):
@@ -384,10 +383,10 @@ def become(user: Union[int, TemplateStr]) -> Return:
     <!-- #taskdoc -->
     """
     new_user = user
-    if type(new_user) == str:
+    if isinstance(new_user, str):
         new_user = pwd.getpwnam(new_user).pw_uid
 
-    assert type(new_user) == int
+    assert isinstance(new_user, int)
     old_uid = os.getuid()
     os.seteuid(new_user)
 
@@ -411,10 +410,10 @@ def require(user: Union[int, TemplateStr]) -> Return:
     <!-- #taskdoc -->
     """
     new_user = user
-    if type(new_user) == str:
+    if isinstance(new_user, str):
         new_user = pwd.getpwnam(new_user).pw_uid
 
-    assert type(new_user) == int
+    assert isinstance(new_user, int)
     current_uid = os.getuid()
 
     if current_uid != new_user:
