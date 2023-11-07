@@ -21,6 +21,7 @@ import re
 from pathlib import Path
 from collections import namedtuple
 import itertools
+from rich.console import Console
 
 
 PlaybookInfo = namedtuple("PlaybookInfo", ["name", "directory", "playbook_file"])
@@ -107,6 +108,7 @@ class UpContext:
         self.playbook_docstring = ""
         self.playbook_directory = "."  #  Directory playbook is in
         self.playbook_files_seen = set()
+        self.console = Console()
 
         self.jinja_env = jinja2.Environment(undefined=jinja2.StrictUndefined)
         self.jinja_env.filters["basename"] = os.path.basename
@@ -394,15 +396,19 @@ class Return:
 
         prefix = "=#"
         suffix = ""
+        style = ""
         if self.changed:
             prefix = "=>"
+            style = "green"
         if self.failure:
             prefix = "=!"
             suffix = " (failure ignored)"
+            style = "red"
         call_depth = "=" * up_context.call_depth
 
-        print(
-            f"{call_depth}{prefix} {parent_function_name}({call_args}){add_msg}{suffix}"
+        up_context.console.print(
+            f"{call_depth}{prefix} {parent_function_name}({call_args}){add_msg}{suffix}",
+            style=style,
         )
         if self.output:
             print(self.output)
