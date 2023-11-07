@@ -583,13 +583,13 @@ class UpArgumentParser(argparse.ArgumentParser):
 
     def print_usage(self, file=None):
         super().print_usage(file)
-        self.list_playbooks()
+        self.help_list_playbooks()
 
     def print_help(self, file=None):
         super().print_help(file)
-        self.list_playbooks()
+        self.help_list_playbooks()
 
-    def list_playbooks(self):
+    def help_list_playbooks(self):
         print()
         print("Available playbooks:")
         playbooks_seen = set()
@@ -633,6 +633,11 @@ def parse_args() -> argparse.Namespace:
         help="Display a full traceback rather than the default abbreviated version.",
     )
     parser.add_argument(
+        "--up-list-playbooks",
+        action="store_true",
+        help="Display a list of playbook names and exit.",
+    )
+    parser.add_argument(
         "--up-debug",
         action="store_true",
         help="Display additional debugging information during playbook run.",
@@ -652,6 +657,10 @@ def parse_args() -> argparse.Namespace:
 
     args, remaining_args = parser.parse_known_args()
 
+    if args.up_list_playbooks:
+        for playbook in list_playbooks():
+            print(f"{playbook.name}")
+        sys.exit(0)
     if args.help:
         if args.playbook is None:
             parser.print_help()

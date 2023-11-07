@@ -1,0 +1,4 @@
+To install the completion for fish:
+
+cp completions/up.fish ~/.config/fish/completions/
+source ~/.config/fish/completions/up.fish
