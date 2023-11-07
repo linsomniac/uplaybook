@@ -1,3 +1,12 @@
+# bash
+
+To install the completion for bash:
+
+Add the "up.bash" to your ~/.bashrc, or if you have access to
+/etc/bash_completions.d you can copy the file there.
+
+# fish
+
 To install the completion for fish:
 
 cp completions/up.fish ~/.config/fish/completions/
