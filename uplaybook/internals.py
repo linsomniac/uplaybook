@@ -409,6 +409,8 @@ class Return:
         up_context.console.print(
             f"{call_depth}{prefix} {parent_function_name}({call_args}){add_msg}{suffix}",
             style=style,
+            highlight=False,
+            markup=False,
         )
         if self.output:
             print(self.output)
