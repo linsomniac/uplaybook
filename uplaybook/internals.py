@@ -413,7 +413,7 @@ class Return:
             markup=False,
         )
         if self.output:
-            print(self.output)
+            up_context.console.print(self.output, markup=False, highlight=True)
 
     def __repr__(self) -> str:
         """

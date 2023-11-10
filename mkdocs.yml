@@ -26,6 +26,8 @@ nav:
 #- understand_the_basics.md
 - Task Documentation:
   - tasks/index.md
+  - tasks/core.md
+  - tasks/fs.md
 - Releases ⧉: https://github.com/linsomniac/uplaybook/releases
 repo_url: https://github.com/linsomniac/uplaybook
 site_name: uPlaybook - Declarative System/Project Setup
