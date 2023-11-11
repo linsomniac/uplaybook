@@ -55,12 +55,26 @@ Or to run from the repository:
 
 The above starts a shell with uPlaybook available to run.
 
+## Getting Started
+
+You can create a skeleton playbook, in the uplaybook git checkout, with:
+
+    up new-uplaybook my-test-playbook
+
+Which creates a "my-test-playbook" directory with the skeleton playbook file
+"playbook".  The playbook used to create this skeleton is in
+".uplaybooks/new-uplaybook/playbook"
+
 ## State
 
-Currently (Oct 2023) this is experimental: the core functionality is implemented
-and it is usable with a limited number of tasks().  My next steps are to improve the
-documentation, and start using it in real world applications to allow me to prove out
-or adjust the design.
+This is Beta software: The core is done but as it gets real world use things
+may change in incompatible ways before final release.
+
+Currently (Nov 2023) I'm working on:
+
+- Documentation.
+- Test driving uPlaybook to find rough edges.
+- Adding more Tasks.
 
 If you look at it, your feedback would be appreciated.
 
