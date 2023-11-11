@@ -320,43 +320,35 @@ def playbook_args(
         prog=f"up:{up_context.playbook_name}", description=up_context.playbook_docstring
     )
 
-    name_mapping: dict[str, str] = {}
     for arg in options:
-        kw_args: dict[str, object] = {
-            "type": arg.type,
-        }
-        # orig_arg_name = arg.name
-        arg_name = arg.name.replace("_", "-")
-        name_mapping[arg.name] = arg.name
-        if arg.default is not None:
-            kw_args["dest"] = arg.name
-            arg_name = "--" + arg_name
-            kw_args["default"] = arg.default
-        else:
-            name_mapping[arg.name] = arg_name
-        if arg.description is not None:
-            kw_args["help"] = arg.description
-        kw_args["type"] = {
+        arg_type = {
             "bool": bool,
             "str": str,
             "int": int,
             "password": str,
         }[arg.type]
-        if kw_args["type"] is bool:
+
+        kw_args: dict[str, object] = {}
+        if arg.description is not None:
+            kw_args["help"] = arg.description
+        if arg.type == "bool":
             kw_args["action"] = argparse.BooleanOptionalAction
 
-        parser.add_argument(arg_name, **kw_args)
+        #  name is "--<NAME>" if default is specified, else make it a positional arg
+        argument = arg.name if arg.default is None else "--" + arg.name
+        if argument.startswith("--"):
+            kw_args["dest"] = argument[2:].replace("-", "_")
+        else:
+            argument = argument.replace("-", "_")
+
+        parser.add_argument(argument, type=arg_type, default=arg.default, **kw_args)
+
     args, remaining = parser.parse_known_args(up_context.remaining_args)
     up_context.remaining_args = remaining
 
-    args_vars = vars(args)
-    for arg in options:
-        setattr(
-            up_context.context["ARGS"],
-            arg.name,
-            args_vars[name_mapping[arg.name]],
-        )
-        up_context.context[arg.name] = args_vars[name_mapping[arg.name]]
+    #  update up_context.ARGS
+    for k, v in vars(args).items():
+        setattr(up_context.context["ARGS"], k, v)
 
 
 @calling_context

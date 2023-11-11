@@ -557,7 +557,7 @@ def cp(
 
         hash_before = None
         if os.path.exists(dst):
-            old_mode = stat.S_IMODE(os.stat(dst).st_mode)
+            old_mode = stat_module.S_IMODE(os.stat(dst).st_mode)
             with open(dst, "rb") as fp_in:
                 sha = hashlib.sha256()
                 sha.update(fp_in.read())

@@ -843,7 +843,7 @@ def cli() -> None:
         else:
             playbook = find_playbook(pb_name)
         up_context.playbook_directory = playbook.directory.absolute()
-        full_playbook_path = playbook.directory.absolute() / playbook.playbook_file
+        full_playbook_path = Path(playbook.playbook_file).absolute()
 
         docs = extract_docstring_from_file(full_playbook_path)
         up_context.playbook_docstring = docs if docs else ""
