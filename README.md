@@ -6,10 +6,11 @@ In a world where time is precious, uPlaybook emerges as your go-to solution for 
 templating and automation.  uPlaybook allows you to streamline your workflows, automate
 repetitive tasks, and configure projects with unparalleled ease.
 
-The desired state of the system is specified via a "playbook" (optionally including
-data and templates).  Playbooks are then run, with command-line arguments providing
-runtime customization of the run.  For example, a provided playbook creates
-a skeleton playbook with "up new-uplaybook my-example-playbook".
+The desired state of the system is specified via a "playbook" (an idea taken from
+Ansible).  Running a playbook sets up, updates, or repairs projects or systems.
+Command-line argument processing enables playbook specialization at run-time.
+In "examples/new-uplaybook" is a sample which creates a skeleton playbook by
+running the command: `up new-uplaybook my-example-playbook`.
 
 uPlaybook takes ideas from Ansible and Cookiecutter, trading their YAML syntax for
 Python. Playbooks are like shell scripts, oriented specifically towards setting up
@@ -31,13 +32,13 @@ tasks can be augmented by arbitrary Python code for ultimate power.
 
 ## High-level Ideas
 
-Some core ideas of it:
+uPlaybook delivers the following ideas:
 
     - Python syntax
     - First-class CLI argument handling.
     - Declare the state you want to end up at.
     - Tasks communicate whether they have changed something.
-    - Changed tasks can trigger a handler (if this file changes, restart a service).
+    - Changed tasks can trigger a handler (if this config file changes, restart a service).
     - Jinja2 templating of arguments and files delivered via fs.copy()
     - Status output.
 
@@ -63,7 +64,7 @@ You can create a skeleton playbook, in the uplaybook git checkout, with:
 
 Which creates a "my-test-playbook" directory with the skeleton playbook file
 "playbook".  The playbook used to create this skeleton is in
-".uplaybooks/new-uplaybook/playbook"
+`.uplaybooks/new-uplaybook/playbook`
 
 ## State
 
@@ -79,6 +80,8 @@ Currently (Nov 2023) I'm working on:
 If you look at it, your feedback would be appreciated.
 
 ## Examples
+
+- [New uPlaybook](examples/new-uplaybook)
 
 ## Documentation
 
@@ -105,45 +108,6 @@ implemented) to ask what changes the playbook will make, and tries to bring some
 first class actions into Python.  Shell is better at blindly running commands and
 pipelines.
 
-## What Is uPlaybook
-
-Ansible and uPlaybook1 both describe the desired state of the system via a YAML
-structure.  This is easy to build tooling around, but is kind of cumbersome, especially
-when you try to apply programming paradigms to it like loops, conditionals, and includes.
-
-For example, an Ansible block might look like:
-
-```yaml
-- name: haproxy syslog config
-  template:
-    src: 49-haproxy.conf.j2
-    dest: /etc/rsyslog.d/49-haproxy.conf
-    owner: root
-    group: root
-    mode: a=r,u+w
-  notify: Restart rsyslog
-```
-
-uPlaybook is, currently an experiment, into making a Python-based environment for expressing
-similar ideas:
-
-```python
-with core.Item(path="/etc/rsyslog.d/49-haproxy.conf"):
-    core.template(src="49-haproxy.conf.j2", path="{{path}}", mode="a=r,u+w").notify(restart_syslog)
-    core.chown(path="{{path}}", owner="root", group="root")
-```
-
-## Installation
-
-Currently, install "up2" by cloning this repo and running: `pip install -e up2`
-
-## Documentation
-
-Documentation, including task documentation, can now be accessed by running
-`up2 --up-doc <task-name>` (for example: `up2 --up-doc fs.mkfile`) and the
-module documentation including a list of tasks can be gotten from
-`up2 --up-doc <module>` (for example: `up2 --up-doc fs`)
-
 ## Features
 
 ### Uplifting of variables into templating
@@ -168,7 +132,7 @@ fs.mkfile(path="foo")   #  Only takes action if "foo" does not exist
 fs.mkfile(path="foo")   #  Never takes action because "foo" would be created above
 ```
 
-## Taks can trigger handlers if they change something
+### Taks can trigger handlers if they change something
 
 ```python
 def restart_apache()
@@ -181,7 +145,7 @@ fs.template(path="/etc/apache2/sites-enabled/other_site.conf", src="other_site.c
 The above will retart apache if either of the config files get created or updated.
 It will only restart apache once even if both files get updated.
 
-## Running a playbook displays status of tasks
+### Running a playbook displays status of tasks
 
 ```python
 core.run("rm -rf testdir")
@@ -216,71 +180,3 @@ Produces the following status output:
 Where ">" in the status means a change occurred, "#" means no change happened, and additional "="
 indentations indicate a task triggered by a parent task.  The parent task is the dedented task after
 the extra indents (the "builder") tasks above.
-
-## Example:
-
-Example showing what a playbook might look like, and the output of running it
-including detecting when no changes are made and updating permissions:
-
-    #!/usr/bin/env python3
-
-    from uplaybook import fs, core
-
-    def test_handler2():
-        fs.mkfile('qux')
-        fs.mkfile('xyzzy')
-
-    def test_handler():
-        fs.mkfile('bar').notify(test_handler2)
-        fs.mkfile('baz').notify(test_handler2)
-
-    fs.mkdir("testdir", mode="a=rX,u+w")
-    fs.cd('testdir')
-
-    foo = "test"
-    fs.mkfile("foo{{foo}}").notify(test_handler)
-
-    fs.makedirs("foodir/bar/baz", mode="a=rX,u+w")
-    core.run('date')
-    if core.run('true'):
-        print('Successfully ran true')
-    if not core.run('false', ignore_failures=True):
-        print('Successfully ran false')
-
-Which produces the following output:
-
-    [N] sean@seans-laptop ~/p/u/up2 (main)> up2 testpb
-    => mkdir(path=testdir, mode=a=rX,u+w)
-    =# cd(path=testdir)
-    => mkfile(path=foo, mode=None)
-    => makedirs(path=foodir/bar/baz, mode=a=rX,u+w)
-    => run(command=date, shell=True, ignore_failures=False, change=True)
-    Sat Oct  7 06:09:34 AM MDT 2023
-
-    => run(command=true, shell=True, ignore_failures=False, change=True)
-    Successfully ran true
-    =! run(command=false, shell=True, ignore_failures=True, change=True) (failure ignored)
-    Successfully ran false
-    >> *** Starting handler: test_handler
-    => mkfile(path=bar, mode=None)
-    => mkfile(path=baz, mode=None)
-    >> *** Starting handler: test_handler2
-    => mkfile(path=qux, mode=None)
-    => mkfile(path=xyzzy, mode=None)
-    >> *** Done with handlers
-
-    *** RECAP:  total=11 changed=10 failure=0
-    [N] sean@seans-laptop ~/p/u/up2 (main)> up2 testpb
-    =# mkdir(path=testdir, mode=a=rX,u+w)
-    =# cd(path=testdir)
-    =# mkfile(path=foo, mode=None)
-    =# makedirs(path=foodir/bar/baz, mode=a=rX,u+w)
-    => run(command=date, shell=True, ignore_failures=False, change=True)
-    Sat Oct  7 06:09:55 AM MDT 2023
-
-    => run(command=true, shell=True, ignore_failures=False, change=True)
-    Successfully ran true
-    =! run(command=false, shell=True, ignore_failures=True, change=True) (failure ignored)
-    Successfully ran false
-
-    *** RECAP:  total=7 changed=3 failure=0
