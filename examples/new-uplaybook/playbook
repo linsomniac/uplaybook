@@ -17,7 +17,8 @@ core.playbook_args(
         core.Argument(name="single-file", default=False, type="bool",
                       description="Create a single-file uplaybook rather than a directory."),
         core.Argument(name="force", default=False, type="bool",
-                      description="Reset the playbook back to the default if it already exists (default is to abort if playbook already exists)."),
+                      description="Reset the playbook back to the default if it already "
+                      "exists (default is to abort if playbook already exists)."),
         )
 
 if ARGS.git and ARGS.single_file:

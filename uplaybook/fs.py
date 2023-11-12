@@ -707,14 +707,14 @@ def builder(
 @template_args
 def exists(
     dst: TemplateStr,
-    ignore_failures: bool = True,
+    ignore_failure: bool = True,
 ) -> object:
     """
     Does `dst` exist?
 
     Args:
         dst: File location to see if it exists. (templateable).
-        ignore_failures: If True, do not treat file absence as a fatal failure.
+        ignore_failure: If True, do not treat file absence as a fatal failure.
              (optional, bool, default=True)
 
     Examples:
@@ -733,8 +733,8 @@ def exists(
     return Return(
         changed=False,
         failure=True,
-        ignore_failure=ignore_failures,
+        ignore_failure=ignore_failure,
         raise_exc=Failure(f"File does not exist: {dst}")
-        if not ignore_failures
+        if not ignore_failure
         else None,
     )

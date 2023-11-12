@@ -11,7 +11,7 @@ with fs.cd(dst="testdir"):
 core.run(command="date")
 r = core.run(command="true")
 assert r
-r = core.run(command="false", ignore_failures=True)
+r = core.run(command="false", ignore_failure=True)
 assert not r
 
 var = "bar"

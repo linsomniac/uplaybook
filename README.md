@@ -159,7 +159,7 @@ fs.builder(state="exists", path="testfile", mode="a=rX", group="sean")
 Produces the following status output:
 
 ```
-=> run(command=rm -rf testdir, shell=True, ignore_failures=False, change=True)
+=> run(command=rm -rf testdir, shell=True, ignore_failure=False, change=True)
 ==> mkdir(path=testdir, mode=a=rX,u+w, parents=True)
 ==# chmod(path=testdir, mode=493)
 => builder(path=testdir, mode=a=rX,u+w, state=directory)

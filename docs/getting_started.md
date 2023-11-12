@@ -49,16 +49,16 @@ You can create a test "skeleton" playbook called "my-test-playbook" by running `
 new-uplaybook my-test-playbook`:
 
     $ up new-uplaybook my-test-playbook
-    =! exists(dst=my-test-playbook, ignore_failures=True) (failure ignored)
+    =! exists(dst=my-test-playbook, ignore_failure=True) (failure ignored)
     => mkdir(dst=my-test-playbook, parents=True)
     =# cd(dst=my-test-playbook)
     => cp(dst=playbook, src=playbook.j2, template=True, template_filenames=True, recursive=True) (Contents)
     =# cd(dst=/home/sean/projects/uplaybook)
     >> *** Starting handler: git_init
     =# cd(dst=my-test-playbook)
-    => run(command=git init, shell=True, ignore_failures=False, change=True)
+    => run(command=git init, shell=True, ignore_failure=False, change=True)
     Initialized empty Git repository in /home/sean/projects/uplaybook/my-test-playbook/.git/
-    => run(command=git add ., shell=True, ignore_failures=False, change=True)
+    => run(command=git add ., shell=True, ignore_failure=False, change=True)
     =# cd(dst=/home/sean/projects/uplaybook)
     >> *** Done with handlers
 

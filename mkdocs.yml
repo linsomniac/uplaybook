@@ -14,12 +14,13 @@ extra_css:
 extra_javascript:
 - assets/versions.js
 markdown_extensions:
+- toc:
+    permalink: true
+    toc_depth: 3
 - markdown_include.include
 - codehilite:
     css_class: highlight
 - admonition
-- toc:
-    permalink: true
 - pymdownx.superfences
 repo_url: https://github.com/linsomniac/uplaybook
 site_name: uPlaybook - Declarative System/Project Setup

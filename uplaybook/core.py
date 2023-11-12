@@ -26,6 +26,26 @@ import pwd
 import re
 
 
+class IgnoreFailure:
+    """A context-manager to ignore failures in wrapped tasks.
+
+    Example:
+
+        with core.IgnoreFailures():
+            core.run("false")
+            if not core.mkdir("/root/failure"):
+                print("You are not root")
+    """
+
+    def __enter__(self):
+        up_context.ignore_failure_count += 1
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        up_context.ignore_failure_count -= 1
+        assert up_context.ignore_failure_count >= 0
+
+
 class Item(dict):
     """
     An (ansible-like) item for processing in a playbook (a file, directory, user...)
@@ -173,7 +193,7 @@ def render(s: TemplateStr) -> str:
 def run(
     command: TemplateStr,
     shell: bool = True,
-    ignore_failures: bool = False,
+    ignore_failure: bool = False,
     change: bool = True,
     creates: Optional[TemplateStr] = None,
 ) -> object:
@@ -186,7 +206,7 @@ def run(
         shell: If False, run `command` without a shell.  Safer.  Default is True:
              allows shell processing of `command` for things like output
              redirection, wildcard expansion, pipelines, etc. (optional, bool)
-        ignore_failures: If True, do not treat non-0 return code as a fatal failure.
+        ignore_failure: If True, do not treat non-0 return code as a fatal failure.
              This allows testing of return code within playbook.  (optional, bool)
         change: By default, all shell commands are assumed to have caused a change
              to the system and will trigger notifications.  If False, this `command`
@@ -209,7 +229,7 @@ def run(
     print(f"Current date/time: {{r.output}}")
     print(f"Return code: {{r.extra.returncode}}")
 
-    if core.run(command="grep -q ^user: /etc/passwd", ignore_failures=True, change=False):
+    if core.run(command="grep -q ^user: /etc/passwd", ignore_failure=True, change=False):
         print("User exists")
     ```
 
@@ -233,9 +253,9 @@ def run(
         failure=failure,
         output=p.stdout.rstrip(),
         extra=extra,
-        ignore_failure=ignore_failures,
+        ignore_failure=ignore_failure,
         raise_exc=Failure(f"Exit code {p.returncode}")
-        if failure and not ignore_failures
+        if failure and not ignore_failure
         else None,
     )
 
@@ -511,7 +531,7 @@ def grep(
     path: TemplateStr,
     search: TemplateStr,
     regex: bool = True,
-    ignore_failures: bool = True,
+    ignore_failure: bool = True,
 ) -> object:
     """
     Look for `search` in the file `path`
@@ -520,7 +540,7 @@ def grep(
         path: File location to look for a match in. (templateable)
         search: The string (or regex) to look for. (templateable)
         regex: Do a regex search, if False do a simple string search. (bool, default=True)
-        ignore_failures: If True, do not treat file absence as a fatal failure.
+        ignore_failure: If True, do not treat file absence as a fatal failure.
              (optional, bool, default=True)
 
     Examples:
@@ -546,8 +566,8 @@ def grep(
     return Return(
         changed=False,
         failure=True,
-        ignore_failure=ignore_failures,
-        raise_exc=Failure("No match found") if not ignore_failures else None,
+        ignore_failure=ignore_failure,
+        raise_exc=Failure("No match found") if not ignore_failure else None,
     )
 
 
