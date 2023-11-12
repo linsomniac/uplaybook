@@ -16,6 +16,7 @@ from . import fs
 from . import core
 
 up_context = internals.up_context
+ARGS = up_context.context["ARGS"]
 
 
 class IgnoreFailure:
