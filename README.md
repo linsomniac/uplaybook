@@ -180,3 +180,7 @@ Produces the following status output:
 Where ">" in the status means a change occurred, "#" means no change happened, and additional "="
 indentations indicate a task triggered by a parent task.  The parent task is the dedented task after
 the extra indents (the "builder") tasks above.
+
+## License
+
+Creative Commons Zero v1.0 Universal

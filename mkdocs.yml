@@ -21,13 +21,6 @@ markdown_extensions:
 - toc:
     permalink: true
 - pymdownx.superfences
-nav:
-- Overview: index.md
-#- understand_the_basics.md
-- Task Documentation:
-  - tasks/core.md
-  - tasks/fs.md
-- Releases ⧉: https://github.com/linsomniac/uplaybook/releases
 repo_url: https://github.com/linsomniac/uplaybook
 site_name: uPlaybook - Declarative System/Project Setup
 strict: true
@@ -50,3 +43,12 @@ theme:
     toggle:
       icon: material/brightness-4
       name: Switch to light mode
+nav:
+- Overview: index.md
+- Getting Started: getting_started.md
+- Installing: installing.md
+- Installing Playbooks: installing_playbooks.md
+- Task Documentation:
+  - tasks/core.md
+  - tasks/fs.md
+- Releases ⧉: https://github.com/linsomniac/uplaybook/releases

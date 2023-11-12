@@ -7,7 +7,7 @@ This playbook creates a new, example, uplaybook.  This can be
 used as a skeleton to create new uplaybooks.
 """
 
-from uplaybook import fs, core
+from uplaybook import fs, core, ARGS
 
 core.playbook_args(
         core.Argument(name="playbook_name",

@@ -701,7 +701,7 @@ def get_playbook_search_paths() -> List[Path]:
 
     search_path = os.environ.get(
         "UP_PLAYBOOK_PATH",
-        ".:.uplaybooks:~/.config/uplaybook/books:~/.config/uplaybook",
+        ".:.uplaybooks:~/.config/uplaybook:~/.config/uplaybook/library",
     )
     return [Path(x).expanduser().joinpath(".") for x in search_path.split(":")]
 
