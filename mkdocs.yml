@@ -47,8 +47,11 @@ nav:
 - Overview: index.md
 - Getting Started: getting_started.md
 - Installing: installing.md
-- Installing Playbooks: installing_playbooks.md
+- uPlaybook Library: uplaybook_library.md
+- Playbooks:
+  - What is a Playbook: playbooks/what_is.md
+  - Basics: playbooks/basics.md
 - Task Documentation:
-  - tasks/core.md
-  - tasks/fs.md
+  - Core Tasks: tasks/core.md
+  - File System Tasks: tasks/fs.md
 - Releases ⧉: https://github.com/linsomniac/uplaybook/releases

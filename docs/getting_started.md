@@ -4,7 +4,7 @@
 
 Typically you are able to install uPlaybook by running: `python3 -m pip install uplaybook`
 
-For more detailed installation instructions, see [Installing uPlaybook](/installing)
+For more detailed installation instructions, see [Installing uPlaybook](installing.md)
 
 ## Running
 

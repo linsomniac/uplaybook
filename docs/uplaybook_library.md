@@ -1,4 +1,4 @@
-# Installing Playbooks
+# Playbook Library
 
 ## Playbook Search Path
 
@@ -22,5 +22,17 @@ uPlaybook github repository, you could do:
 
     mkdir -p ~/.config/uplaybook/library
     cp -av examples/new-uplaybook ~/.config/uplaybook/library/
+
+## Sharing Playbooks with Git
+
+To share playbooks among hosts, you may wish to put your `~/.config/uplaybook` directory
+under git version control.  Exclude the `library` subdirectory if you are using it for
+playbooks you have downloaded:
+
+    cd ~/.config/uplaybook
+    git init .
+    echo /library/ >.gitignore
+    git add .
+    git commit
 
 <!-- vim: set tw=90: -->
