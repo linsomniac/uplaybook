@@ -79,9 +79,9 @@ Currently (Nov 2023) I'm working on:
 
 If you look at it, your feedback would be appreciated.
 
-## Examples
+## Example Playbooks
 
-- [New uPlaybook](examples/new-uplaybook)
+- [New uPlaybook](examples/new-uplaybook/playbook)
 
 ## Documentation
 

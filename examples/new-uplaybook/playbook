@@ -20,7 +20,6 @@ core.playbook_args(
                       description="Reset the playbook back to the default if it already exists (default is to abort if playbook already exists)."),
         )
 
-print(ARGS)
 if ARGS.git and ARGS.single_file:
     core.fail(msg="*** ERROR: Cannot do '--git' with '--single-file'.")
 
