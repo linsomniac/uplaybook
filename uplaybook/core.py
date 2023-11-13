@@ -14,6 +14,7 @@ from .internals import (
     calling_context,
     up_context,
     Failure,
+    RawStr,  # noqa
 )
 from typing import Optional, List, Union, Callable
 import pprint

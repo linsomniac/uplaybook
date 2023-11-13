@@ -52,7 +52,11 @@ nav:
 - Playbooks:
   - What is a Playbook: playbooks/what_is.md
   - Basics: playbooks/basics.md
-- Task Documentation:
+- Templating: templating.md
+- Hacking: hacking.md
+- Task Reference:
   - Core Tasks: tasks/core.md
   - File System Tasks: tasks/fs.md
+  - uPlaybook Internals: tasks/internals.md
+- For Ansible Users: for_ansible_users.md
 - Releases ⧉: https://github.com/linsomniac/uplaybook/releases

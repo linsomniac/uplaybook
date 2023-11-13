@@ -92,7 +92,7 @@ Tasks return a object called `Return()`.  This has some notable features:
 - Capture output: the `output` attribute stores output of the task, see
   [core.run](../tasks/core.md#uplaybook.core.run) for an example.
 - Extra data: The `extra` attribute stores additional information the task may return, see
-  for example (fs.stat)[/tasks/fs#uplaybook.fs.stat] stores information about the file in
+  for example (fs.stat)[/tasks/fs.md#uplaybook.fs.stat] stores information about the file in
   `extra`.
 
 ## Extra Return Data
@@ -137,7 +137,7 @@ The `up` command-line can be used to get documentation on the uPlaybook tasks wi
 
 An idea taken from Ansible, handlers are functions that are called only if changes are
 made to the system.  They are deferred, either until the end of the playbook run, or until
-(core.flush_handlers)[../tasks/core#uplaybook.core.handlers] is called.
+(core.flush_handlers)[../tasks/core.md#uplaybook.core.handlers] is called.
 
 They are deferred so that multiple tasks can all register handlers, but only run them once
 rather than running multiple times.  For example, if you are installing multiple Apache
@@ -177,18 +177,20 @@ This set up an argument of "playbook_name" and options of "--git", "--single-fil
 "--force".
 
 These can be accessed as `ARGS.playbook_name`, `ARGS.git`, `ARGS.single_file`, etc...
+Also note that `ARGS` can be imported from uplaybook to keep Language Server from
+complaining: `from uplaybook import ARGS`.
 
 !!! Note "Note on dash in name"
 
     A dash in the argument name is converted to an underscore in the `ARGS` list.
 
-See [core.Argument](../tasks/core#uplaybook.core.Argument) for full documentation.
+See [core.Argument](../tasks/core.md#uplaybook.core.Argument) for full documentation.
 
 ## Item Lists
 
 Another idea taken from Ansible is looping over items.  See
-[core.Item](../tasks/core#uplaybook.core.Item) and
-[fs.builder](../tasks/fs#uplaybook.fs.builder) for some examples on how to effectively use
+[core.Item](../tasks/core.md#uplaybook.core.Item) and
+[fs.builder](../tasks/fs.md#uplaybook.fs.builder) for some examples on how to effectively use
 item lists.
 
 Example:

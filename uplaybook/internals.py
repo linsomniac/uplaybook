@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 
+"""
+Internal uPlaybook objects and methods.
+
+These objects and methods typically are used by task developers, though some may be usful
+for reference by users.  These are typically not used directly by end-users, though other
+parts of the documentation may refer to these classes.
+"""
+
 import sys
 import inspect
 from typing import Optional, Union, List, Callable, Any, Iterator
@@ -27,28 +35,27 @@ from rich.console import Console
 PlaybookInfo = namedtuple("PlaybookInfo", ["name", "directory", "playbook_file"])
 
 
-def platform_info() -> types.SimpleNamespace:
+class Failure(Exception):
     """
-    Linux:
-         'arch': 'x86_64',
-         'release_codename': 'jammy',
-         'release_id': 'ubuntu',
-         'os_family': 'debian',
-         'release_name': 'Ubuntu',
-         'release_version': '22.04',
-         'system': 'Linux'
+    The default exception raised if a task fails.
+    """
 
-    MacOS:
-        'arch': 'arm64',
-        'release_version': '13.0.1',
-        'system': 'Darwin'
+    pass
 
-    Windows:
-        'arch': 'AMD64',
-        'release_edition': 'ServerStandard',
-        'release_name': '10',
-        'release_version': '10.0.17763',
-        'system': 'Windows'
+
+class Exit(Exception):
+    """
+    The exception raised to exit a playbook early.
+    """
+
+    def __init__(self, msg: str, return_code: int) -> None:
+        super().__init__(msg)
+        self.return_code = return_code
+
+
+def PlatformInfo() -> types.SimpleNamespace:
+    """
+    See "docs/templating.md#platform_info" for more information.
     """
     env = types.SimpleNamespace()
     uname = platform.uname()
@@ -91,7 +98,7 @@ class UpContext:
     """
 
     def __init__(self):
-        self.globals = {"environ": os.environ, "platform": platform_info()}
+        self.globals = {"environ": os.environ, "platform": PlatformInfo()}
         self.context = {"ARGS": SimpleNamespace()}
         self.calling_context = {}
         self.item_context = []
@@ -190,10 +197,10 @@ def template_args(func: Callable[..., Any]) -> Callable[..., Any]:
     rendering) is then passed to the wrapped function.
 
     Args:
-    - func (Callable): The function to be wrapped.
+        func (Callable): The function to be wrapped.
 
     Returns:
-    - Callable: The wrapped function with potentially modified arguments.
+        Callable: The wrapped function with potentially modified arguments.
 
     Usage:
     @template_args
@@ -252,7 +259,7 @@ def calling_context(func: Callable[..., Any]) -> Callable[..., Any]:
     for later use by templating.
 
     Args:
-    - func (Callable): The function to be wrapped.
+        func (Callable): The function to be wrapped.
     """
 
     @wraps(func)
@@ -280,25 +287,24 @@ class Return:
     It can also be used as a boolean, to check success/failure (needs `ignore_failure`, or failure
     will raise exception).  See `core.run()` for an exaple.
 
-    Arguments:
-
-    - **changed**: If True, mark the task as having changed system state. (bool)
-    - **failure**: If True, mark the task as having failed. (optional, bool)
-    - **ignore_failure**: If True, failure is not considered fatal, execution can continue on.
-            (bool, default False)
-    - **extra_message**: An extra message to display in the status line in parens (optional, str)
-    - **output**: Output of the task to display, for example stdout of a run command.  (optional, str)
-    - **hide_args**: If true, do not display any arguments names/values.  Useful for `debug()`
-            which doesn't need to show the message in the status line as well as the output.
-            (bool, default=False)
-    - **secret_args**: Arguments that have secrets in them, so obscure the value.  (optional, set)
-    - **extra**: Extra data to be returned to the caller, as a `types.SimpleNamespace()`, for
-            example `run()` will return exit code and stderr as extra.  (optional, types.SimpleNamespace())
-    - **raise_exc**: Raise this exception after handling the return.  If failure=True, this exception will be
-            raised, if not specified a Failure() exception will be raised. (optional, Exception())
-    - **context_manager**: This type can optionally behave as a Context Manager, and if so this function
-            will be called with no parameters at the end of the context.  Use a closure if you want to
-            associate data with the function call ("lambda: function(args)").  (optional, Callable).
+    Args:
+        changed: If True, mark the task as having changed system state. (bool)
+        failure: If True, mark the task as having failed. (optional, bool)
+        ignore_failure: If True, failure is not considered fatal, execution can continue on.
+                (bool, default False)
+        extra_message: An extra message to display in the status line in parens (optional, str)
+        output: Output of the task to display, for example stdout of a run command.  (optional, str)
+        hide_args: If true, do not display any arguments names/values.  Useful for `debug()`
+                which doesn't need to show the message in the status line as well as the output.
+                (bool, default=False)
+        secret_args: Arguments that have secrets in them, so obscure the value.  (optional, set)
+        extra: Extra data to be returned to the caller, as a `types.SimpleNamespace()`, for
+                example `run()` will return exit code and stderr as extra.  (optional, types.SimpleNamespace())
+        raise_exc: Raise this exception after handling the return.  If failure=True, this exception will be
+                raised, if not specified a Failure() exception will be raised. (optional, Exception())
+        context_manager: This type can optionally behave as a Context Manager, and if so this function
+                will be called with no parameters at the end of the context.  Use a closure if you want to
+                associate data with the function call ("lambda: function(args)").  (optional, Callable).
 
     Examples:
 
@@ -352,7 +358,7 @@ class Return:
         Begin a context if used as a context manager.
 
         Raises:
-            AttributeError() if no `context_manager` was specified.
+            AttributeError: if no `context_manager` was specified.
 
         Returns:
             The Return() object, so it can be used as "with fn() as return_obj:"
@@ -448,24 +454,6 @@ class Return:
             up_context.add_handler(fn)
 
 
-class Failure(Exception):
-    """
-    The default exception raised if a task fails.
-    """
-
-    pass
-
-
-class Exit(Exception):
-    """
-    The exception raised to exit a playbook early.
-    """
-
-    def __init__(self, msg: str, return_code: int) -> None:
-        super().__init__(msg)
-        self.return_code = return_code
-
-
 def extract_docstring_from_file(filename: str) -> Union[str, None]:
     """Open the specified file and retrieve the docstring from it.
 
@@ -552,7 +540,7 @@ def display_docs(name: str) -> None:
     formatting it for nicer representation.
 
     Args:
-        - name: Module name or module.task name.  If special value "__main__" it displays
+        name: Module name or module.task name.  If special value "__main__" it displays
                 the up2 documentation.
     """
     if name == "__main__":
