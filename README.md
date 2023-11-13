@@ -1,6 +1,4 @@
-![uPlaybook Logo](docs/assets/logo.png "uPlaybook")
-
-# uPlaybook
+# <img src="docs/assets/logo.png" width="25%" height="25%"> uPlaybook
 
 Unleash the Power of Automation with uPlaybook
 
