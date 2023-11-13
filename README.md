@@ -1,4 +1,4 @@
-<p align="center" style="font-size: 2em; font-weight: bold;"> <img src="docs/assets/logo.png" width="25%" height="25%"><br />uPlaybook</p>
+<p align="center" style="font-size: 20px; font-weight: bold;"> <img src="docs/assets/logo.png" width="25%" height="25%"><br />uPlaybook</p>
 
 Unleash the Power of Automation with uPlaybook
 
