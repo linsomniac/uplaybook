@@ -56,8 +56,35 @@ changes if they are meaningful.
 
 ### Argument Modification
 
+Do not assign new values to arguments of a task.  Always copy them to a new name.  This is
+because the "status" output examines the call stack to display the task call information,
+and will be confusing if it picks up the modified values.
 
+Example:
+
+```python
+def task(src):
+    #  WRONG:
+    src = os.path.basename(src)
+    #  Right:
+    final_src = os.path.basename(src)
 
 ### Secret Arguments
+
+Arguments to a task which may contain "secret" values such as encryption keys should be
+marked in the Return() object as secrets.
+
+Example:
+
+```python
+def task(password):
+    return Return(secret_args={"password"})
+```
+
+### Writing Documentation
+
+If working on the documentation, run the following command to set up a "mkdocs"
+documentation development server with live reloading:  `mkdocs serve --livereload -a
+0.0.0.0:8080`
 
 <!-- vim: set tw=90: -->
