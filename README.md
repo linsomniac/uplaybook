@@ -1,4 +1,4 @@
-# <img src="docs/assets/logo.png" width="25%" height="25%"> uPlaybook
+<p align="center"> <img src="docs/assets/logo.png" width="25%" height="25%"><br />uPlaybook</p>
 
 Unleash the Power of Automation with uPlaybook
 
