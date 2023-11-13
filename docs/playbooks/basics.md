@@ -137,7 +137,7 @@ The `up` command-line can be used to get documentation on the uPlaybook tasks wi
 
 An idea taken from Ansible, handlers are functions that are called only if changes are
 made to the system.  They are deferred, either until the end of the playbook run, or until
-(core.flush_handlers)[../tasks/core.md#uplaybook.core.handlers] is called.
+(core.flush_handlers)[../tasks/core.md#uplaybook.core.flush_handlers] is called.
 
 They are deferred so that multiple tasks can all register handlers, but only run them once
 rather than running multiple times.  For example, if you are installing multiple Apache
