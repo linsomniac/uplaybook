@@ -1,3 +1,5 @@
+![uPlaybook Logo](docs/assets/logo.png "uPlaybook")
+
 # uPlaybook
 
 Unleash the Power of Automation with uPlaybook
