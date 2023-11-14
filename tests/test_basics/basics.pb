@@ -19,6 +19,7 @@ r = core.render("foo{{ var }}")
 assert r == "foobar"
 core.debug(msg="Expanding template: {{var}}")
 core.print(msg="Expanding template: {{var}}")
+core.grep(path="samplefile", search="imap")
 
 class Handler:
     def __init__(self):
