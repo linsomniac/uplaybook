@@ -263,21 +263,25 @@ def run(
 
 class Argument:
     """
-    An argument for a playbook.
+    A playbook argument, this class is used to describe the details of an argument/option.
 
-    List arguments if a playbook needs additional information from the user.
+    Use this to provide details about arguments or options that can be used with a playbook.
+    These get turned into command-line arguments that can be described with "--help".
     This is used in combination with the `core.playbook_args()` task.
+
+    Names that include "_" (underscore) will be converted to "-" (hyphen) for the command
+    line argument.
 
     Args:
         name: The name of the argument, this will determine the "--name" of the command-line
             flag and the variable the value is stored in (str).
-            label: A label used when prompting the user for input (For future use, optional)
+        label: A label used when prompting the user for input (For future use, optional)
         description: Detailed information on the argument for use in "--help" output.
             (str, optional)
         type: The type of the argument: str, bool, int, password (default=str)
         default: A default value for the argument.  Arguments without a default
-            must be specified in the command-line, if a default is given an option with
-            "--name" will be available.
+            must be specified in the command-line.  If default is specified, a command-line
+            option with "--`name`" will be available.
 
     Examples:
 
@@ -285,10 +289,11 @@ class Argument:
     core.playbook_args(
             core.Argument(name="user"),
             core.Argument(name="hostname", default=None)
+            core.Argument(name="enable", type="bool", default=True)
             )
-    core.debug(msg="Arguments: user={{ARGS.user}}  hostname={{ARGS.hostname}}")
+    core.debug(msg="Arguments: user={{ARGS.user}}  hostname={{ARGS.hostname}} enable={{ARGS.enable}}")
 
-    #  Run with "up2 playbookname --hostname=localhost username
+    #  Run with "up2 playbookname --hostname=localhost --no-enable username
     ```
     """
 
