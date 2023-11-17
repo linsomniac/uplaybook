@@ -860,9 +860,18 @@ def cli() -> None:
 
     up_context.flush_handlers()
 
-    print()
-    print(
-        f"*** RECAP:  total={up_context.total_count} changed={up_context.changed_count} failure={up_context.failure_count}"
+    recap_msg = "*** RECAP"
+    failure_count_msg = f"failure={up_context.failure_count}"
+    if up_context.failure_count > 0:
+        failure_count_msg = f"[bold red]{failure_count_msg}[/]"
+        recap_msg = f"[bold red]{recap_msg}[/]"
+    else:
+        recap_msg = f"[green]{recap_msg}[/]"
+
+    up_context.console.print(
+        f"\n{recap_msg}:  total={up_context.total_count} changed={up_context.changed_count} {failure_count_msg}",
+        markup=True,
+        highlight=True,
     )
 
     sys.exit(return_code)
