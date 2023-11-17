@@ -275,7 +275,6 @@ class Argument:
     Args:
         name: The name of the argument, this will determine the "--name" of the command-line
             flag and the variable the value is stored in (str).
-        label: A label used when prompting the user for input (For future use, optional)
         description: Detailed information on the argument for use in "--help" output.
             (str, optional)
         type: The type of the argument: str, bool, int, password (default=str)
@@ -300,13 +299,11 @@ class Argument:
     def __init__(
         self,
         name: str,
-        label: Optional[str] = None,
         description: Optional[str] = None,
         type: str = "str",
         default: Optional[object] = None,
     ):
         self.name = name
-        self.label = label
         self.description = description
         self.type = type
         self.default = default
