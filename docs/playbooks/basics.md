@@ -156,6 +156,23 @@ core.flush_handlers()
 run("wget -O /dev/null http://localhost/")
 ```
 
+Handlers that are `.notify()`ed on a task only get registered if the task changes the
+system.  In this way, handlers are conditional on the task having performed some action.
+You can also notify a handler directly:
+
+```python
+core.notify(handler)
+```
+
+Handlers can be either a single handler function or a list of handlers:
+
+```python
+fs.cp(src="site.conf.j2", dst="/etc/apache2/sites-available/site.conf").notify([
+    a2ensite,
+    restart_apache
+    ])
+```
+
 ## Arguments
 
 Playbooks can include arguments and options for customizing the playbook run.  For

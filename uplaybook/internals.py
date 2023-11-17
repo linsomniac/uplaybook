@@ -446,12 +446,20 @@ class Return:
         """
         return not self.failure
 
-    def notify(self, fn: Callable) -> None:
+    def notify(self, handler: Union[Callable, List]) -> None:
         """
         Register a handler function to call if changed.
+
+        Args:
+            handler:  A function or a list of functions to register for calling later,
+                    if the task has changed the system.  (callable or list)
         """
         if self.changed:
-            up_context.add_handler(fn)
+            if callable(handler):
+                up_context.add_handler(handler)
+            else:
+                for x in handler:
+                    up_context.add_handler(x)
 
 
 def extract_docstring_from_file(filename: str) -> Union[str, None]:

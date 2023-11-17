@@ -488,23 +488,29 @@ def exit(returncode: int = 0, msg: Union[TemplateStr, str] = "") -> Return:
 
 @calling_context
 @template_args
-def notify(function: Callable) -> Return:
+def notify(handler: Union[Callable, List]) -> Return:
     """
     Add a notify handler to be called later.
 
     Args:
-        function: A function that takes no arguments, which is called at a later time.
+        handler: A function, or list of functions, that takes no arguments, which is
+                called at a later time.  (callable or list)
 
     Examples:
 
     ```python
     core.notify(lambda: core.run(command="systemctl restart apache2"))
     core.notify(lambda: fs.remove("tmpdir", recursive=True))
+    core.notify([handler1, handler2])
     ```
 
     <!-- #taskdoc -->
     """
-    up_context.add_handler(function)
+    if callable(handler):
+        up_context.add_handler(handler)
+    else:
+        for x in handler:
+            up_context.add_handler(x)
 
     return Return(changed=False)
 
