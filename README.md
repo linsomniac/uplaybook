@@ -46,6 +46,10 @@ uPlaybook delivers the following ideas:
 
 Installation can be done with:
 
+    pipx install uplaybook
+
+or:
+
     pip install uplaybook
 
 Or to run from the repository:
