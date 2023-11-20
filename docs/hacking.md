@@ -14,7 +14,7 @@ context for use in templating.
 Example:
 
 ```python
-@calling_context
+@task
 def my_task():
     ...
 ```
@@ -22,15 +22,15 @@ def my_task():
 ### Template Expanding Arguments
 
 Many arguments will benefit from being template expanded.  uPlaybook provides a helper to
-handle this for you.  Use the `internals.template_args` decorator (after `calling_context`
-handler), and use type-hints to define the arguments which should be templated as a
-`TemplateStr`.
+handle this for you.  Use the `internals.task` decorator and use type-hints to define the
+arguments which should be templated as a `TemplateStr`.
 
 Example:
 
 ```python
-@calling_context
-@template_args
+from uplaybook.internals import task
+
+@task
 def my_task(dst: TemplateStr, mode: Optional[TemplateStr] = None) -> Return:
     ...
 ```

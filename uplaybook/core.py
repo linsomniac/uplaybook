@@ -10,9 +10,8 @@ from .internals import (
     Return,
     Exit,
     TemplateStr,
-    template_args,
-    calling_context,
     up_context,
+    task,
     Failure,
     RawStr,  # noqa
 )
@@ -114,8 +113,7 @@ class Item(dict):
         up_context.item_context.pop(0)
 
 
-@calling_context
-@template_args
+@task
 def debug(msg: Optional[TemplateStr] = None, var: Optional[object] = None) -> Return:
     """
     Display informational message.
@@ -147,8 +145,7 @@ def debug(msg: Optional[TemplateStr] = None, var: Optional[object] = None) -> Re
     return Return(changed=False, output=output, hide_args=True)
 
 
-@calling_context
-@template_args
+@task
 def lookup(var: str) -> object:
     """
     Looks up `var` in the "up context" and returns the value.
@@ -166,8 +163,7 @@ def lookup(var: str) -> object:
     return up_context.get_env()[var]
 
 
-@calling_context
-@template_args
+@task
 def render(s: TemplateStr) -> str:
     """
     Render a string as a jinja2 template and return the value
@@ -189,8 +185,7 @@ def render(s: TemplateStr) -> str:
     return s
 
 
-@calling_context
-@template_args
+@task
 def run(
     command: TemplateStr,
     shell: bool = True,
@@ -309,8 +304,7 @@ class Argument:
         self.default = default
 
 
-@calling_context
-@template_args
+@task
 def playbook_args(
     *options: List[Argument],
 ) -> None:
@@ -374,8 +368,7 @@ def playbook_args(
         setattr(up_context.context["ARGS"], k, v)
 
 
-@calling_context
-@template_args
+@task
 def become(user: Union[int, TemplateStr]) -> Return:
     """
     Switch to running as another user in a playbook.
@@ -397,19 +390,17 @@ def become(user: Union[int, TemplateStr]) -> Return:
     ```
     <!-- #taskdoc -->
     """
-    new_user = user
-    if isinstance(new_user, str):
-        new_user = pwd.getpwnam(new_user).pw_uid
+    if isinstance(user, str):
+        user = pwd.getpwnam(user).pw_uid
 
-    assert isinstance(new_user, int)
+    assert isinstance(user, int)
     old_uid = os.getuid()
-    os.seteuid(new_user)
+    os.seteuid(user)
 
     return Return(changed=False, context_manager=lambda: os.seteuid(old_uid))
 
 
-@calling_context
-@template_args
+@task
 def require(user: Union[int, TemplateStr]) -> Return:
     """
     Verify we are running as the specified user.
@@ -424,14 +415,13 @@ def require(user: Union[int, TemplateStr]) -> Return:
     ```
     <!-- #taskdoc -->
     """
-    new_user = user
-    if isinstance(new_user, str):
-        new_user = pwd.getpwnam(new_user).pw_uid
+    if isinstance(user, str):
+        user = pwd.getpwnam(user).pw_uid
 
-    assert isinstance(new_user, int)
+    assert isinstance(user, int)
     current_uid = os.getuid()
 
-    if current_uid != new_user:
+    if current_uid != user:
         Return(
             changed=False,
             failure=True,
@@ -441,8 +431,7 @@ def require(user: Union[int, TemplateStr]) -> Return:
     return Return(changed=False)
 
 
-@calling_context
-@template_args
+@task
 def fail(msg: TemplateStr) -> Return:
     """
     Abort a playbook run.
@@ -461,8 +450,7 @@ def fail(msg: TemplateStr) -> Return:
     return Return(changed=False, failure=True, raise_exc=Failure(msg))
 
 
-@calling_context
-@template_args
+@task
 def exit(returncode: int = 0, msg: Union[TemplateStr, str] = "") -> Return:
     """
     End a playbook run.
@@ -486,8 +474,7 @@ def exit(returncode: int = 0, msg: Union[TemplateStr, str] = "") -> Return:
     )
 
 
-@calling_context
-@template_args
+@task
 def notify(handler: Union[Callable, List]) -> Return:
     """
     Add a notify handler to be called later.
@@ -515,8 +502,7 @@ def notify(handler: Union[Callable, List]) -> Return:
     return Return(changed=False)
 
 
-@calling_context
-@template_args
+@task
 def flush_handlers() -> Return:
     """
     Run any registred handlers.
@@ -534,8 +520,7 @@ def flush_handlers() -> Return:
     return Return(changed=False)
 
 
-@calling_context
-@template_args
+@task
 def grep(
     path: TemplateStr,
     search: TemplateStr,
@@ -580,8 +565,7 @@ def grep(
     )
 
 
-@calling_context
-@template_args
+@task
 def print(
     msg: TemplateStr,
 ) -> None:

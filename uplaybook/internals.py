@@ -251,6 +251,19 @@ def template_args(func: Callable[..., Any]) -> Callable[..., Any]:
     return wrapper
 
 
+TaskCallInfo = namedtuple(
+    "TaskCallInfo",
+    [
+        "function_name",
+        "function_qualname",
+        "module_name",
+        "annotations",
+        "args",
+        "kwargs",
+    ],
+)
+
+
 def calling_context(func: Callable[..., Any]) -> Callable[..., Any]:
     """
     Decorator to save off the calling function namespace into up_context.calling_context.
@@ -267,14 +280,28 @@ def calling_context(func: Callable[..., Any]) -> Callable[..., Any]:
         current_frame = inspect.currentframe()
         env = current_frame.f_back.f_locals.copy()
         up_context.calling_context = env
+        up_context.task_call_info = TaskCallInfo(
+            func.__name__,
+            func.__qualname__,
+            func.__module__,
+            func.__annotations__,
+            args,
+            kwargs.copy(),
+        )
 
         ret = func(*args, **kwargs)
 
+        up_context.task_call_info = None
         up_context.calling_context = {}
 
         return ret
 
     return wrapper
+
+
+def task(func: Callable[..., Any]) -> Callable[..., Any]:
+    """A decorator for tasks, combines @calling_context and @template_args"""
+    return calling_context(template_args(func))
 
 
 class Return:
@@ -390,6 +417,13 @@ class Return:
             call_args = "..."
         else:
             args, _, _, values = inspect.getargvalues(parent_frame_info.frame)
+
+            #  overwrite the original arguments (if any had been modified in function call)
+            #  NOTE: This only works for the inner-most of nested calls, this will need to
+            #  be converted to a stack to handle nesting.
+            if up_context.task_call_info:
+                values.update(up_context.task_call_info.kwargs)
+
             call_args = ", ".join(
                 [
                     f"{arg}=" + ("***" if arg in self.secret_args else f"{values[arg]}")

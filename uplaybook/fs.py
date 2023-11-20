@@ -12,9 +12,8 @@ from .internals import (
     Failure,
     TemplateStr,
     RawStr,
-    template_args,
-    calling_context,
     up_context,
+    task,
     CallDepth,
 )
 from . import internals
@@ -64,8 +63,7 @@ def _mode_from_arg(
     return int(mode, 8)
 
 
-@calling_context
-@template_args
+@task
 def chmod(
     dst: str,
     mode: Optional[Union[str, int]] = None,
@@ -113,8 +111,7 @@ def chmod(
     return Return(changed=False, secret_args={"decrypt_password", "encrypt_password"})
 
 
-@calling_context
-@template_args
+@task
 def chown(
     dst: str,
     user: Optional[TemplateStr] = None,
@@ -158,8 +155,7 @@ def chown(
     )
 
 
-@calling_context
-@template_args
+@task
 def cd(dst: TemplateStr) -> Return:
     """
     Change working directory to `dst`.
@@ -195,8 +191,7 @@ def cd(dst: TemplateStr) -> Return:
     )
 
 
-@calling_context
-@template_args
+@task
 def mkfile(
     dst: TemplateStr,
     mode: Optional[Union[TemplateStr, int]] = None,
@@ -219,10 +214,9 @@ def mkfile(
 
     <!-- #taskdoc -->
     """
-    new_mode = mode
     if not os.path.exists(dst):
-        new_mode = _mode_from_arg(new_mode)
-        mode_arg = {} if new_mode is None else {"mode": new_mode}
+        mode = _mode_from_arg(mode)
+        mode_arg = {} if mode is None else {"mode": mode}
         fd = os.open(dst, os.O_CREAT, **mode_arg)
         os.close(fd)
 
@@ -230,13 +224,12 @@ def mkfile(
 
     if mode is not None:
         with CallDepth():
-            chmod(dst, new_mode)
+            chmod(dst, mode)
 
     return Return(changed=False)
 
 
-@calling_context
-@template_args
+@task
 def mkdir(
     dst: TemplateStr,
     mode: Optional[Union[TemplateStr, int]] = None,
@@ -262,10 +255,9 @@ def mkdir(
 
     <!-- #taskdoc -->
     """
-    new_mode = mode
     if not os.path.exists(dst):
-        new_mode = _mode_from_arg(new_mode, is_directory=True)
-        mode_arg = {} if new_mode is None else {"mode": new_mode}
+        mode = _mode_from_arg(mode, is_directory=True)
+        mode_arg = {} if mode is None else {"mode": mode}
         if parents:
             os.makedirs(dst, **mode_arg)
         else:
@@ -274,7 +266,7 @@ def mkdir(
         return Return(changed=True)
 
     with CallDepth():
-        chmod(dst, new_mode, is_directory=True)
+        chmod(dst, mode, is_directory=True)
 
     return Return(changed=False)
 
@@ -288,8 +280,7 @@ def _random_ext(i: int = 8) -> str:
     )
 
 
-@calling_context
-@template_args
+@task
 def rm(
     dst: TemplateStr,
     recursive: bool = False,
@@ -332,8 +323,7 @@ def rm(
     return Return(changed=True)
 
 
-@calling_context
-@template_args
+@task
 def stat(
     dst: TemplateStr,
     follow_symlinks: bool = True,
@@ -412,8 +402,7 @@ def stat(
     return Return(changed=False, extra=ret)
 
 
-@calling_context
-@template_args
+@task
 def mv(
     dst: TemplateStr,
     src: TemplateStr,
@@ -450,8 +439,7 @@ def mv(
     )
 
 
-@calling_context
-@template_args
+@task
 def ln(
     dst: TemplateStr,
     src: TemplateStr,
@@ -499,8 +487,7 @@ def ln(
     return Return(changed=True)
 
 
-@calling_context
-@template_args
+@task
 def cp(
     dst: TemplateStr,
     src: Optional[TemplateStr] = None,
@@ -552,7 +539,6 @@ def cp(
         Returns:
             A string describing the change made, or None if no change made.
         """
-        new_mode = mode
         old_mode = None
 
         hash_before = None
@@ -574,16 +560,16 @@ def cp(
         sha.update(data.encode("latin-1"))
         hash_after = sha.hexdigest()
 
-        if new_mode is not None:
-            new_mode = _mode_from_arg(new_mode, initial_mode=old_mode)
+        if mode is not None:
+            mode = _mode_from_arg(mode, initial_mode=old_mode)
 
-        if hash_before == hash_after and (new_mode is None or new_mode == old_mode):
+        if hash_before == hash_after and (mode is None or mode == old_mode):
             return None
-        if hash_before == hash_after and (new_mode is not None or new_mode != old_mode):
+        if hash_before == hash_after and (mode is not None or mode != old_mode):
             return "Permissions"
 
         dstTmp = dst + ".tmp." + _random_ext()
-        mode_arg = {} if new_mode is None else {"mode": new_mode}
+        mode_arg = {} if mode is None else {"mode": mode}
         fd = os.open(dstTmp, os.O_WRONLY | os.O_CREAT, **mode_arg)
         with os.fdopen(fd, "w") as fp_out:
             fp_out.write(data)
@@ -591,18 +577,18 @@ def cp(
 
         return "Contents"
 
-    new_src = src if src is not None else os.path.basename(dst) + ".j2"
-    new_src = internals.find_file(new_src)
+    src = src if src is not None else os.path.basename(dst) + ".j2"
+    src = internals.find_file(src)
 
     if encrypt_password or decrypt_password:
         raise NotImplementedError("Crypto not implemented yet")
 
     changes_made = set()
-    src_is_dir = stat_module.S_ISDIR(os.stat(new_src).st_mode)
+    src_is_dir = stat_module.S_ISDIR(os.stat(src).st_mode)
     if recursive and src_is_dir:
         with CallDepth():
-            for dirpath, dirnames, filenames in os.walk(new_src):
-                dst_dir = os.path.join(dst, os.path.relpath(dirpath, new_src))
+            for dirpath, dirnames, filenames in os.walk(src):
+                dst_dir = os.path.join(dst, os.path.relpath(dirpath, src))
 
                 r = mkdir(dst=dst_dir, mode=mode)
                 if r.changed:
@@ -615,7 +601,7 @@ def cp(
                     if r.changed:
                         changes_made.add("Subfile")
     else:
-        change = _copy_file(new_src, dst, mode)
+        change = _copy_file(src, dst, mode)
         if change:
             changes_made.add(change)
 
@@ -630,8 +616,7 @@ def cp(
     )
 
 
-@calling_context
-@template_args
+@task
 def builder(
     dst: TemplateStr,
     src: Optional[TemplateStr] = None,
@@ -703,8 +688,7 @@ def builder(
     return Return(changed=r.changed)
 
 
-@calling_context
-@template_args
+@task
 def exists(
     dst: TemplateStr,
     ignore_failure: bool = True,
