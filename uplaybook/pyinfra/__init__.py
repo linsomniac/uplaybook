@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 
 """
-uPlaybook wrappers of pyinfra https://docs.pyinfra.com/en/2.x/
+##  pyinfra Introduction
+
+uPlaybook wrappers of pyinfra https://docs.pyinfra.com/en/2.x/ operators.
 
 This set of tasks provides a rich set of system management routines.
+This wraps the pyinfra application.
+
+Update docs in `docs/tasks/pyinfra/intro.md`
 """
 
 from collections import namedtuple
@@ -14,6 +19,14 @@ import os
 import re
 
 PyInfraResults = namedtuple("PyInfraResults", ["changed", "no_change", "errors"])
+
+
+class PyInfraGlobalArgContext(dict):
+    def __init__(self):
+        super().__init__(self)
+
+
+pyinfra_global_args = PyInfraGlobalArgContext()
 
 
 class PyInfraFailed(Exception):
@@ -34,6 +47,9 @@ def _run_pyinfra(
         operargs: kwargs-style arguments to the operator, the value needs to be a
                 valid python value of the type appropraite for the argument.
     """
+    operargs = operargs.copy()
+    operargs.update(pyinfra_global_args)
+
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as tmp_file:
         tmp_file.write(imports)
         tmp_file.write("\n")
@@ -77,3 +93,5 @@ def _run_pyinfra(
 
 
 from . import apt
+from . import pip
+from . import systemd

@@ -58,6 +58,7 @@ nav:
   - Core Tasks: tasks/core.md
   - File System Tasks: tasks/fs.md
   - pyinfra:
+    - Introduction: tasks/pyinfra/intro.md
     - apt: tasks/pyinfra/apt.md
     - pip: tasks/pyinfra/pip.md
     - systemd: tasks/pyinfra/systemd.md

@@ -91,7 +91,7 @@ def packages(
     present=True,
     latest=False,
     requirements=None,
-    pip=pip,
+    pip="pip3",
     virtualenv=None,
     virtualenv_kwargs=None,
     extra_install_args=None,
