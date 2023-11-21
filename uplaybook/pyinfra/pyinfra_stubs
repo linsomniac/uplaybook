@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+
+"""
+Given a module name, print out stubs of the functions within it.
+"""
+
+import ast
+import inspect
+import importlib
+import sys
+
+
+def get_function_signatures(module_name):
+    try:
+        source = inspect.getsource(importlib.import_module(module_name))
+    except Exception as e:
+        print(f"Error loading module '{module_name}': {e}")
+        return
+    oper_module_name = module_name.split(".")[-1]
+
+    tree = ast.parse(source)
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef):
+            args = node.args
+            arg_list = []
+
+            # Positional arguments
+            for arg in args.args:
+                arg_list.append(arg.arg)
+
+            # Default values for positional arguments
+            defaults = [ast.literal_eval(x) for x in args.defaults]
+            for i in range(1, len(defaults) + 1):
+                arg_list[-i] += f"={defaults[-i]}"
+
+            # *args and **kwargs
+            if args.vararg:
+                arg_list.append(f"*{args.vararg.arg}")
+            if args.kwarg:
+                arg_list.append(f"**{args.kwarg.arg}")
+
+            arg_str = ", ".join(arg_list)
+            print("@task")
+            print(f"def {node.name}({arg_str}):")
+            if (
+                node.body
+                and isinstance(node.body[0], ast.Expr)
+                and isinstance(node.body[0].value, ast.Str)
+            ):
+                print('    """')
+                print("    " + "\n".join(node.body[0].value.s.strip().split("\n")))
+                print('    """')
+            print("    raise NotImplementedError()")
+            print("    operargs = {")
+            for argname in [x.arg for x in args.args]:
+                print(f'        "{argname}": repr({argname}),')
+            print("    }")
+            print(
+                f"""
+
+    result = _run_pyinfra(
+        "from pyinfra.operations import {oper_module_name}", "{oper_module_name}.{node.name}", operargs
+    )
+
+    if result.errors:
+        return Return(failure=True)
+    return Return(changed=result.changed != 0)"""
+            )
+
+
+module_name = sys.argv[1]
+# module_name = "pyinfra.operations.apt"
+get_function_signatures(module_name)
