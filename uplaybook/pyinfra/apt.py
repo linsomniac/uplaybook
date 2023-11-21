@@ -13,7 +13,7 @@ from ..internals import task, TemplateStr, Return
 
 @task
 def packages(
-    packages: List[TemplateStr],
+    packages: Optional[List[TemplateStr]] = None,
     present: bool = True,
     latest: bool = False,
     update: bool = False,
@@ -62,9 +62,8 @@ def packages(
         "force": force,
         "no_recommends": no_recommends,
         "allow_downgrades": allow_downgrades,
+        "cache_time": cache_time,
     }
-    if cache_time is not None:
-        operargs["cache_time"] = (cache_time,)
 
     result = _run_pyinfra(
         "from pyinfra.operations import apt", "apt.packages", operargs
