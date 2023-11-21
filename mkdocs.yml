@@ -57,6 +57,7 @@ nav:
 - Task Reference:
   - Core Tasks: tasks/core.md
   - File System Tasks: tasks/fs.md
+  - pyinfra: tasks/pyinfra.md
   - uPlaybook Internals: tasks/internals.md
 - For Ansible Users: for_ansible_users.md
 - Releases ⧉: https://github.com/linsomniac/uplaybook/releases
