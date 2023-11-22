@@ -27,7 +27,6 @@ def sql(
     + database: optional database to open the connection with
     + mysql_*: global module arguments, see above
     """
-    raise NotImplementedError()
     operargs = {
         "sql": repr(sql),
         "database": repr(database),
@@ -119,7 +118,6 @@ def user(
             require_cipher="EDH-RSA-DES-CBC3-SHA",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "user": repr(user),
         "present": repr(present),
@@ -191,7 +189,6 @@ def database(
             charset="utf8",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "database": repr(database),
         "present": repr(present),
@@ -241,7 +238,6 @@ def privileges(
     + with_grant_option: whether the grant option privilege should be set
     + mysql_*: global module arguments, see above
     """
-    raise NotImplementedError()
     operargs = {
         "user": repr(user),
         "privileges": repr(privileges),
@@ -291,7 +287,6 @@ def dump(
             database="pyinfra_stuff",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "dest": repr(dest),
         "database": repr(database),
@@ -336,7 +331,6 @@ def load(
             database="pyinfra_stuff_copy",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "src": repr(src),
         "database": repr(database),
@@ -357,7 +351,6 @@ def load(
 
 @task
 def handle_privileges(action, target, privileges_to_apply, with_statement=None):
-    raise NotImplementedError()
     operargs = {
         "action": repr(action),
         "target": repr(target),
@@ -390,7 +383,6 @@ def sql(
     + database: optional database to open the connection with
     + mysql_*: global module arguments, see above
     """
-    raise NotImplementedError()
     operargs = {
         "sql": repr(sql),
         "database": repr(database),
@@ -482,7 +474,6 @@ def user(
             require_cipher="EDH-RSA-DES-CBC3-SHA",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "user": repr(user),
         "present": repr(present),
@@ -554,7 +545,6 @@ def database(
             charset="utf8",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "database": repr(database),
         "present": repr(present),
@@ -604,7 +594,6 @@ def privileges(
     + with_grant_option: whether the grant option privilege should be set
     + mysql_*: global module arguments, see above
     """
-    raise NotImplementedError()
     operargs = {
         "user": repr(user),
         "privileges": repr(privileges),
@@ -654,7 +643,6 @@ def dump(
             database="pyinfra_stuff",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "dest": repr(dest),
         "database": repr(database),
@@ -699,7 +687,6 @@ def load(
             database="pyinfra_stuff_copy",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "src": repr(src),
         "database": repr(database),
@@ -720,7 +707,6 @@ def load(
 
 @task
 def handle_privileges(action, target, privileges_to_apply, with_statement=None):
-    raise NotImplementedError()
     operargs = {
         "action": repr(action),
         "target": repr(target),

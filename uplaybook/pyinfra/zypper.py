@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 """
-## Yum package tasks
+## zypper
 
-Manage yum packages and repositories. Note that yum package names are case-sensitive.
+
 """
 
 from . import _run_pyinfra, PyInfraFailed, PyInfraResults
@@ -12,59 +12,30 @@ from ..internals import task, TemplateStr, Return
 
 
 @task
-def key(src):
-    """
-    Add yum gpg keys with ``rpm``.
-
-    + src: filename or URL
-
-    Note:
-        always returns one command, not state checking
-
-    **Example:**
-
-    .. code:: python
-
-        linux_id = host.get_fact(LinuxDistribution)["release_meta"].get("ID")
-        yum.key(
-            name="Add the Docker CentOS gpg key",
-            src=f"https://download.docker.com/linux/{linux_id}/gpg",
-        )
-    """
-    operargs = {
-        "src": repr(src),
-    }
-
-    result = _run_pyinfra("from pyinfra.operations import yum", "yum.key", operargs)
-
-    if result.errors:
-        return Return(failure=True)
-    return Return(changed=result.changed != 0)
-
-
-@task
 def repo(
     src,
-    present=True,
     baseurl=None,
+    present=True,
     description=None,
     enabled=True,
     gpgcheck=True,
     gpgkey=None,
+    type="rpm-md",
 ):
     """
-    Add/remove/update yum repositories.
+    Add/remove/update zypper repositories.
 
     + src: URL or name for the ``.repo``   file
-    + present: whether the ``.repo`` file should be present
     + baseurl: the baseurl of the repo (if ``name`` is not a URL)
+    + present: whether the ``.repo`` file should be present
     + description: optional verbose description
     + enabled: whether this repo is enabled
     + gpgcheck: whether set ``gpgcheck=1``
     + gpgkey: the URL to the gpg key for this repo
+    + type: the type field this repo (defaults to ``rpm-md``)
 
     ``Baseurl``/``description``/``gpgcheck``/``gpgkey``:
-        These are only valid when ``src`` is a filename (ie not a URL). This is
+        These are only valid when ``name`` is a filename (ie not a URL). This is
         for manual construction of repository files. Use a URL to download and
         install remote repository files.
 
@@ -73,29 +44,32 @@ def repo(
     .. code:: python
 
         # Download a repository file
-        yum.repo(
-            name="Install Docker-CE repo via URL",
-            src="https://download.docker.com/linux/centos/docker-ce.repo",
+        zypper.repo(
+            name="Install container virtualization repo via URL",
+            src="https://download.opensuse.org/repositories/Virtualization:containers/openSUSE_Tumbleweed/Virtualization:containers.repo",
         )
 
         # Create the repository file from baseurl/etc
-        yum.repo(
-            name="Add the Docker CentOS repo",
-            src="DockerCE",
-            baseurl="https://download.docker.com/linux/centos/7/$basearch/stable",
+        zypper.repo(
+            name="Install container virtualization repo",
+            src=="Virtualization:containers (openSUSE_Tumbleweed)",
+            baseurl="https://download.opensuse.org/repositories/Virtualization:/containers/openSUSE_Tumbleweed/",
         )
     """
     operargs = {
         "src": repr(src),
-        "present": repr(present),
         "baseurl": repr(baseurl),
+        "present": repr(present),
         "description": repr(description),
         "enabled": repr(enabled),
         "gpgcheck": repr(gpgcheck),
         "gpgkey": repr(gpgkey),
+        "type": repr(type),
     }
 
-    result = _run_pyinfra("from pyinfra.operations import yum", "yum.repo", operargs)
+    result = _run_pyinfra(
+        "from pyinfra.operations import zypper", "zypper.repo", operargs
+    )
 
     if result.errors:
         return Return(failure=True)
@@ -118,10 +92,9 @@ def rpm(src, present=True):
 
     .. code:: python
 
-        major_version = host.get_fact(LinuxDistribution)["major"]
-        dnf.rpm(
-           name="Install EPEL rpm to enable EPEL repo",
-           src=f"https://dl.fedoraproject.org/pub/epel/epel-release-latest-{major_version}.noarch.rpm",
+        zypper.rpm(
+           name="Install task from rpm",
+           src="https://github.com/go-task/task/releases/download/v2.8.1/task_linux_amd64.rpm",
         )
     """
     operargs = {
@@ -129,7 +102,9 @@ def rpm(src, present=True):
         "present": repr(present),
     }
 
-    result = _run_pyinfra("from pyinfra.operations import yum", "yum.rpm", operargs)
+    result = _run_pyinfra(
+        "from pyinfra.operations import zypper", "zypper.rpm", operargs
+    )
 
     if result.errors:
         return Return(failure=True)
@@ -139,11 +114,13 @@ def rpm(src, present=True):
 @task
 def update():
     """
-    Updates all yum packages.
+    Updates all zypper packages.
     """
     operargs = {}
 
-    result = _run_pyinfra("from pyinfra.operations import yum", "yum.update", operargs)
+    result = _run_pyinfra(
+        "from pyinfra.operations import zypper", "zypper.update", operargs
+    )
 
     if result.errors:
         return Return(failure=True)
@@ -157,38 +134,40 @@ def packages(
     latest=False,
     update=False,
     clean=False,
-    nobest=False,
+    extra_global_install_args=None,
     extra_install_args=None,
+    extra_global_uninstall_args=None,
     extra_uninstall_args=None,
 ):
     """
-    Install/remove/update yum packages & updates.
+    Install/remove/update zypper packages & updates.
 
     + packages: list of packages to ensure
     + present: whether the packages should be installed
     + latest: whether to upgrade packages without a specified version
-    + update: run ``yum update`` before installing packages
-    + clean: run ``yum clean all`` before installing packages
-    + nobest: add the no best option to install
-    + extra_install_args: additional arguments to the yum install command
-    + extra_uninstall_args: additional arguments to the yum uninstall command
+    + update: run ``zypper update`` before installing packages
+    + clean: run ``zypper clean --all`` before installing packages
+    + extra_global_install_args: additional global arguments to the zypper install command
+    + extra_install_args: additional arguments to the zypper install command
+    + extra_global_uninstall_args: additional global arguments to the zypper uninstall command
+    + extra_uninstall_args: additional arguments to the zypper uninstall command
 
     Versions:
-        Package versions can be pinned as follows: ``<pkg>=<version>``
+        Package versions can be pinned like zypper: ``<pkg>=<version>``
 
     **Examples:**
 
     .. code:: python
 
         # Update package list and install packages
-        yum.packages(
+        zypper.packages(
             name="Install Vim and Vim enhanced",
             packages=["vim-enhanced", "vim"],
             update=True,
         )
 
         # Install the latest versions of packages (always check)
-        yum.packages(
+        zypper.packages(
             name="Install latest Vim",
             packages=["vim"],
             latest=True,
@@ -200,13 +179,14 @@ def packages(
         "latest": repr(latest),
         "update": repr(update),
         "clean": repr(clean),
-        "nobest": repr(nobest),
+        "extra_global_install_args": repr(extra_global_install_args),
         "extra_install_args": repr(extra_install_args),
+        "extra_global_uninstall_args": repr(extra_global_uninstall_args),
         "extra_uninstall_args": repr(extra_uninstall_args),
     }
 
     result = _run_pyinfra(
-        "from pyinfra.operations import yum", "yum.packages", operargs
+        "from pyinfra.operations import zypper", "zypper.packages", operargs
     )
 
     if result.errors:

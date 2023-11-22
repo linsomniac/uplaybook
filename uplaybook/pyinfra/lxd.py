@@ -13,7 +13,6 @@ from ..internals import task, TemplateStr, Return
 
 @task
 def get_container_named(name, containers):
-    raise NotImplementedError()
     operargs = {
         "name": repr(name),
         "containers": repr(containers),
@@ -50,7 +49,6 @@ def container(id, present=True, image="ubuntu:16.04"):
             image="ubuntu:19.10",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "id": repr(id),
         "present": repr(present),

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 """
-## Yum package tasks
+## dnf
 
-Manage yum packages and repositories. Note that yum package names are case-sensitive.
+
+Manage dnf packages and repositories. Note that dnf package names are case-sensitive.
 """
 
 from . import _run_pyinfra, PyInfraFailed, PyInfraResults
@@ -14,19 +15,19 @@ from ..internals import task, TemplateStr, Return
 @task
 def key(src):
     """
-    Add yum gpg keys with ``rpm``.
+    Add dnf gpg keys with ``rpm``.
 
-    + src: filename or URL
+    + key: filename or URL
 
     Note:
-        always returns one command, not state checking
+        always returns one command, not idempotent
 
     **Example:**
 
     .. code:: python
 
         linux_id = host.get_fact(LinuxDistribution)["release_meta"].get("ID")
-        yum.key(
+        dnf.key(
             name="Add the Docker CentOS gpg key",
             src=f"https://download.docker.com/linux/{linux_id}/gpg",
         )
@@ -35,7 +36,7 @@ def key(src):
         "src": repr(src),
     }
 
-    result = _run_pyinfra("from pyinfra.operations import yum", "yum.key", operargs)
+    result = _run_pyinfra("from pyinfra.operations import dnf", "dnf.key", operargs)
 
     if result.errors:
         return Return(failure=True)
@@ -53,9 +54,9 @@ def repo(
     gpgkey=None,
 ):
     """
-    Add/remove/update yum repositories.
+    Add/remove/update dnf repositories.
 
-    + src: URL or name for the ``.repo``   file
+    + name: URL or name for the ``.repo``   file
     + present: whether the ``.repo`` file should be present
     + baseurl: the baseurl of the repo (if ``name`` is not a URL)
     + description: optional verbose description
@@ -64,7 +65,7 @@ def repo(
     + gpgkey: the URL to the gpg key for this repo
 
     ``Baseurl``/``description``/``gpgcheck``/``gpgkey``:
-        These are only valid when ``src`` is a filename (ie not a URL). This is
+        These are only valid when ``name`` is a filename (ie not a URL). This is
         for manual construction of repository files. Use a URL to download and
         install remote repository files.
 
@@ -73,13 +74,13 @@ def repo(
     .. code:: python
 
         # Download a repository file
-        yum.repo(
+        dnf.rpm(
             name="Install Docker-CE repo via URL",
             src="https://download.docker.com/linux/centos/docker-ce.repo",
         )
 
         # Create the repository file from baseurl/etc
-        yum.repo(
+        dnf.repo(
             name="Add the Docker CentOS repo",
             src="DockerCE",
             baseurl="https://download.docker.com/linux/centos/7/$basearch/stable",
@@ -95,7 +96,7 @@ def repo(
         "gpgkey": repr(gpgkey),
     }
 
-    result = _run_pyinfra("from pyinfra.operations import yum", "yum.repo", operargs)
+    result = _run_pyinfra("from pyinfra.operations import dnf", "dnf.repo", operargs)
 
     if result.errors:
         return Return(failure=True)
@@ -118,10 +119,10 @@ def rpm(src, present=True):
 
     .. code:: python
 
-        major_version = host.get_fact(LinuxDistribution)["major"]
+        major_centos_version = host.get_fact(LinuxDistribution)["major"]
         dnf.rpm(
            name="Install EPEL rpm to enable EPEL repo",
-           src=f"https://dl.fedoraproject.org/pub/epel/epel-release-latest-{major_version}.noarch.rpm",
+           src=f"https://dl.fedoraproject.org/pub/epel/epel-release-latest-{major_centos_version}.noarch.rpm",
         )
     """
     operargs = {
@@ -129,7 +130,7 @@ def rpm(src, present=True):
         "present": repr(present),
     }
 
-    result = _run_pyinfra("from pyinfra.operations import yum", "yum.rpm", operargs)
+    result = _run_pyinfra("from pyinfra.operations import dnf", "dnf.rpm", operargs)
 
     if result.errors:
         return Return(failure=True)
@@ -139,11 +140,11 @@ def rpm(src, present=True):
 @task
 def update():
     """
-    Updates all yum packages.
+    Updates all dnf packages.
     """
     operargs = {}
 
-    result = _run_pyinfra("from pyinfra.operations import yum", "yum.update", operargs)
+    result = _run_pyinfra("from pyinfra.operations import dnf", "dnf.update", operargs)
 
     if result.errors:
         return Return(failure=True)
@@ -162,16 +163,16 @@ def packages(
     extra_uninstall_args=None,
 ):
     """
-    Install/remove/update yum packages & updates.
+    Install/remove/update dnf packages & updates.
 
     + packages: list of packages to ensure
     + present: whether the packages should be installed
     + latest: whether to upgrade packages without a specified version
-    + update: run ``yum update`` before installing packages
-    + clean: run ``yum clean all`` before installing packages
+    + update: run ``dnf update`` before installing packages
+    + clean: run ``dnf clean`` before installing packages
     + nobest: add the no best option to install
-    + extra_install_args: additional arguments to the yum install command
-    + extra_uninstall_args: additional arguments to the yum uninstall command
+    + extra_install_args: additional arguments to the dnf install command
+    + extra_uninstall_args: additional arguments to the dnf uninstall command
 
     Versions:
         Package versions can be pinned as follows: ``<pkg>=<version>``
@@ -181,14 +182,14 @@ def packages(
     .. code:: python
 
         # Update package list and install packages
-        yum.packages(
-            name="Install Vim and Vim enhanced",
+        dnf.packages(
+            name='Install Vim and Vim enhanced',
             packages=["vim-enhanced", "vim"],
             update=True,
         )
 
         # Install the latest versions of packages (always check)
-        yum.packages(
+        dnf.packages(
             name="Install latest Vim",
             packages=["vim"],
             latest=True,
@@ -206,7 +207,7 @@ def packages(
     }
 
     result = _run_pyinfra(
-        "from pyinfra.operations import yum", "yum.packages", operargs
+        "from pyinfra.operations import dnf", "dnf.packages", operargs
     )
 
     if result.errors:

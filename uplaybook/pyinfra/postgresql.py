@@ -13,7 +13,6 @@ from ..internals import task, TemplateStr, Return
 
 @task
 def _translate_legacy_args(func):
-    raise NotImplementedError()
     operargs = {
         "func": repr(func),
     }
@@ -45,7 +44,6 @@ def sql(
     + database: optional database to execute against
     + psql_*: global module arguments, see above
     """
-    raise NotImplementedError()
     operargs = {
         "sql": repr(sql),
         "database": repr(database),
@@ -114,7 +112,6 @@ def role(
             sudo_user="postgres",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "role": repr(role),
         "present": repr(present),
@@ -188,7 +185,6 @@ def database(
             sudo_user="postgres",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "database": repr(database),
         "present": repr(present),
@@ -241,7 +237,6 @@ def dump(
             sudo_user="postgres",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "dest": repr(dest),
         "database": repr(database),
@@ -287,7 +282,6 @@ def load(
             sudo_user="postgres",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "src": repr(src),
         "database": repr(database),
@@ -308,7 +302,6 @@ def load(
 
 @task
 def decorated_func(*args, **kwargs):
-    raise NotImplementedError()
     operargs = {}
 
     result = _run_pyinfra(

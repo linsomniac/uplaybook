@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 """
-## Apk package tasks
+## pkgin
 
-This module provides tasks for interacting with the apk package manager.
+
+Manage pkgin packages.
 """
 
 from . import _run_pyinfra, PyInfraFailed, PyInfraResults
@@ -12,17 +13,15 @@ from ..internals import task, TemplateStr, Return
 
 
 @task
-def upgrade(available=False):
+def upgrade():
     """
-    Upgrades all apk packages.
-
-    + available: force all packages to be upgraded (recommended on whole Alpine version upgrades)
+    Upgrades all pkgin packages.
     """
-    operargs = {
-        "available": repr(available),
-    }
+    operargs = {}
 
-    result = _run_pyinfra("from pyinfra.operations import apk", "apk.upgrade", operargs)
+    result = _run_pyinfra(
+        "from pyinfra.operations import pkgin", "pkgin.upgrade", operargs
+    )
 
     if result.errors:
         return Return(failure=True)
@@ -32,11 +31,13 @@ def upgrade(available=False):
 @task
 def update():
     """
-    Updates apk repositories.
+    Updates pkgin repositories.
     """
     operargs = {}
 
-    result = _run_pyinfra("from pyinfra.operations import apk", "apk.update", operargs)
+    result = _run_pyinfra(
+        "from pyinfra.operations import pkgin", "pkgin.update", operargs
+    )
 
     if result.errors:
         return Return(failure=True)
@@ -46,30 +47,27 @@ def update():
 @task
 def packages(packages=None, present=True, latest=False, update=False, upgrade=False):
     """
-    Add/remove/update apk packages.
+    Add/remove/update pkgin packages.
 
     + packages: list of packages to ensure
     + present: whether the packages should be installed
     + latest: whether to upgrade packages without a specified version
-    + update: run ``apk update`` before installing packages
-    + upgrade: run ``apk upgrade`` before installing packages
-
-    Versions:
-        Package versions can be pinned like apk: ``<pkg>=<version>``.
+    + update: run ``pkgin update`` before installing packages
+    + upgrade: run ``pkgin upgrade`` before installing packages
 
     **Examples:**
 
     .. code:: python
 
         # Update package list and install packages
-        apk.packages(
-            name="Install Asterisk and Vim",
-            packages=["asterisk", "vim"],
+        pkgin.packages(
+            name="Install tmux and Vim",
+            packages=["tmux", "vim"],
             update=True,
         )
 
         # Install the latest versions of packages (always check)
-        apk.packages(
+        pkgin.packages(
             name="Install latest Vim",
             packages=["vim"],
             latest=True,
@@ -84,7 +82,7 @@ def packages(packages=None, present=True, latest=False, update=False, upgrade=Fa
     }
 
     result = _run_pyinfra(
-        "from pyinfra.operations import apk", "apk.packages", operargs
+        "from pyinfra.operations import pkgin", "pkgin.packages", operargs
     )
 
     if result.errors:

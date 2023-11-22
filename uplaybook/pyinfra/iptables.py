@@ -25,7 +25,6 @@ def chain(chain, present=True, table=filter, policy=None, version=4):
     Policy:
         These can only be applied to system chains (FORWARD, INPUT, OUTPUT, etc).
     """
-    raise NotImplementedError()
     operargs = {
         "chain": repr(chain),
         "present": repr(present),
@@ -117,7 +116,6 @@ def rule(
             to_destination="8.8.4.4:8080",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "chain": repr(chain),
         "jump": repr(jump),

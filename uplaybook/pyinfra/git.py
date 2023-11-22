@@ -32,7 +32,6 @@ def config(key, value, multi_value=False, repo=None):
             repo="/usr/local/src/pyinfra",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "key": repr(key),
         "value": repr(value),
@@ -84,7 +83,6 @@ def repo(
             dest="/usr/local/src/pyinfra",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "src": repr(src),
         "dest": repr(dest),
@@ -226,7 +224,6 @@ def worktree(
             force=True,
         )
     """
-    raise NotImplementedError()
     operargs = {
         "worktree": repr(worktree),
         "repo": repr(repo),
@@ -271,7 +268,6 @@ def bare_repo(path, user=None, group=None, present=True):
             path="/home/git/test.git",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "path": repr(path),
         "user": repr(user),

@@ -28,7 +28,6 @@ def keyscan(hostname, force=False, port=22):
             hostname="two.example.com",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "hostname": repr(hostname),
         "force": repr(force),
@@ -63,7 +62,6 @@ def command(hostname, command, user=None, port=22):
             user="vagrant",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "hostname": repr(hostname),
         "command": repr(command),
@@ -99,7 +97,6 @@ def upload(
     + use_remote_sudo: upload to a temporary location and move using sudo
     + ssh_keyscan: execute ``ssh.keyscan`` before uploading the file
     """
-    raise NotImplementedError()
     operargs = {
         "hostname": repr(hostname),
         "filename": repr(filename),
@@ -138,7 +135,6 @@ def download(
     + user: connect with this user
     + ssh_keyscan: execute ``ssh.keyscan`` before uploading the file
     """
-    raise NotImplementedError()
     operargs = {
         "hostname": repr(hostname),
         "filename": repr(filename),

@@ -30,7 +30,6 @@ def reboot(delay=10, interval=1, reboot_timeout=300):
             reboot_timeout=600,
         )
     """
-    raise NotImplementedError()
     operargs = {
         "delay": repr(delay),
         "interval": repr(interval),
@@ -63,7 +62,6 @@ def wait(port):
             port=80,
         )
     """
-    raise NotImplementedError()
     operargs = {
         "port": repr(port),
     }
@@ -95,7 +93,6 @@ def shell(commands):
             commands=["lxd init --auto"],
         )
     """
-    raise NotImplementedError()
     operargs = {
         "commands": repr(commands),
     }
@@ -134,7 +131,6 @@ def script(src, args=()):
             args=("do-something", "with-this"),
         )
     """
-    raise NotImplementedError()
     operargs = {
         "src": repr(src),
         "args": repr(args),
@@ -171,7 +167,6 @@ def script_template(src, args=(), **data):
             some_var=some_var,
         )
     """
-    raise NotImplementedError()
     operargs = {
         "src": repr(src),
         "args": repr(args),
@@ -204,7 +199,6 @@ def modprobe(module, present=True, force=False):
             module="floppy",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "module": repr(module),
         "present": repr(present),
@@ -237,7 +231,6 @@ def mount(path, mounted=True, options=None, device=None, fs_type=None):
         This operation does not attempt to modify the on disk fstab file - for
         that you should use the `files.line operation <./files.html#files-line>`_.
     """
-    raise NotImplementedError()
     operargs = {
         "path": repr(path),
         "mounted": repr(mounted),
@@ -281,7 +274,6 @@ def hostname(hostname, hostname_file=None):
             hostname="server1.example.com",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "hostname": repr(hostname),
         "hostname_file": repr(hostname_file),
@@ -317,7 +309,6 @@ def sysctl(key, value, persist=False, persist_file="/etc/sysctl.conf"):
             persist=True,
         )
     """
-    raise NotImplementedError()
     operargs = {
         "key": repr(key),
         "value": repr(value),
@@ -359,7 +350,6 @@ def service(
             enabled=True,
         )
     """
-    raise NotImplementedError()
     operargs = {
         "service": repr(service),
         "running": repr(running),
@@ -396,7 +386,6 @@ def packages(packages, present=True):
             packages=["vimpager", "vim"],
         )
     """
-    raise NotImplementedError()
     operargs = {
         "packages": repr(packages),
         "present": repr(present),
@@ -463,7 +452,6 @@ def crontab(
             minute=0,
         )
     """
-    raise NotImplementedError()
     operargs = {
         "command": repr(command),
         "present": repr(present),
@@ -516,7 +504,6 @@ def group(group, present=True, system=False, gid=None):
                 group=group,
             )
     """
-    raise NotImplementedError()
     operargs = {
         "group": repr(group),
         "present": repr(present),
@@ -564,7 +551,6 @@ def user_authorized_keys(
             public_keys=["ed25519..."],
         )
     """
-    raise NotImplementedError()
     operargs = {
         "user": repr(user),
         "public_keys": repr(public_keys),
@@ -654,7 +640,6 @@ def user(
                 present=False,
             )
     """
-    raise NotImplementedError()
     operargs = {
         "user": repr(user),
         "present": repr(present),
@@ -705,7 +690,6 @@ def locale(locale, present=True):
             locale="en_GB.UTF-8",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "locale": repr(locale),
         "present": repr(present),
@@ -722,7 +706,6 @@ def locale(locale, present=True):
 
 @task
 def remove_any_askpass_file(state, host):
-    raise NotImplementedError()
     operargs = {
         "state": repr(state),
         "host": repr(host),
@@ -741,7 +724,6 @@ def remove_any_askpass_file(state, host):
 
 @task
 def wait_and_reconnect(state, host):
-    raise NotImplementedError()
     operargs = {
         "state": repr(state),
         "host": repr(host),
@@ -758,7 +740,6 @@ def wait_and_reconnect(state, host):
 
 @task
 def partition(predicate, iterable):
-    raise NotImplementedError()
     operargs = {
         "predicate": repr(predicate),
         "iterable": repr(iterable),
@@ -775,7 +756,6 @@ def partition(predicate, iterable):
 
 @task
 def comma_sep(value):
-    raise NotImplementedError()
     operargs = {
         "value": repr(value),
     }
@@ -791,7 +771,6 @@ def comma_sep(value):
 
 @task
 def read_any_pub_key_file(key):
-    raise NotImplementedError()
     operargs = {
         "key": repr(key),
     }
