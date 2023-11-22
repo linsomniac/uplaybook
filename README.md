@@ -20,6 +20,22 @@ has been tricky to do well in shell scripts.
 Despite its simplicity, uPlaybook doesn't compromise on functionality.  The core
 tasks can be augmented by arbitrary Python code for ultimate power.
 
+## Simple Example
+
+```python
+#!/usr/bin/env python3
+
+from uplaybook import fs, core, pyinfra
+
+#  Restart apache, but only if the site config or symlink to sites-enabled notify
+#  that it has changed
+def restart_apache():
+    pyinfra.systemd.service(service="apache2", restarted=True)
+
+fs.cp(src="my-site.conf.j2", dst="/etc/apache2/sites-available/my-site.conf").notify(restart_apache)
+fs.ln(src="/etc/apache2/sites-available/my-site.conf", dst="/etc/apache2/sites-enabled/", symbolic=True).notify(restart_apache)
+```
+
 ## Use cases:
 
 - Shell scripts, but declarative rather than command-based.  Built in arg parsing,

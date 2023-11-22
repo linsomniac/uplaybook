@@ -463,6 +463,9 @@ def ln(
     <!-- #taskdoc -->
     """
 
+    if os.path.isdir(dst):
+        dst = os.path.join(dst, os.path.basename(src))
+
     if symbolic:
         if os.path.islink(dst) and os.readlink(dst) == src:
             return Return(changed=False)
