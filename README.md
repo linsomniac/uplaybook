@@ -32,6 +32,7 @@ from uplaybook import fs, core, pyinfra
 def restart_apache():
     pyinfra.systemd.service(service="apache2", restarted=True)
 
+pyinfra.apt.package(packages=["apache2"])
 fs.cp(src="my-site.conf.j2", dst="/etc/apache2/sites-available/my-site.conf").notify(restart_apache)
 fs.ln(src="/etc/apache2/sites-available/my-site.conf", dst="/etc/apache2/sites-enabled/", symbolic=True).notify(restart_apache)
 ```
