@@ -59,9 +59,19 @@ nav:
   - File System Tasks: tasks/fs.md
   - pyinfra:
     - Introduction: tasks/pyinfra/intro.md
+    - apk: tasks/pyinfra/apk.md
     - apt: tasks/pyinfra/apt.md
+    - files: tasks/pyinfra/files.md
+    - git: tasks/pyinfra/git.md
+    - iptables: tasks/pyinfra/iptables.md
+    - lxd: tasks/pyinfra/lxd.md
+    - mysql: tasks/pyinfra/mysql.md
     - pip: tasks/pyinfra/pip.md
+    - postgresql: tasks/pyinfra/postgresql.md
+    - server: tasks/pyinfra/server.md
+    - ssh: tasks/pyinfra/ssh.md
     - systemd: tasks/pyinfra/systemd.md
+    - yum: tasks/pyinfra/yum.md
   - uPlaybook Internals: tasks/internals.md
 - For Ansible Users: for_ansible_users.md
 - Releases ⧉: https://github.com/linsomniac/uplaybook/releases

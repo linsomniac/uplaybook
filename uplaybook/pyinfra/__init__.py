@@ -92,6 +92,16 @@ def _run_pyinfra(
         )
 
 
+from . import apk
 from . import apt
+from . import files
+from . import git
+from . import iptables
+from . import lxd
+from . import mysql
 from . import pip
+from . import postgresql
+from . import server
+from . import ssh
 from . import systemd
+from . import yum
