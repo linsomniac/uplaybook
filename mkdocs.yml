@@ -61,17 +61,36 @@ nav:
     - Introduction: tasks/pyinfra/intro.md
     - apk: tasks/pyinfra/apk.md
     - apt: tasks/pyinfra/apt.md
+    - brew: tasks/pyinfra/brew.md
+    - bsdinit: tasks/pyinfra/bsdinit.md
+    - choco: tasks/pyinfra/choco.md
+    - dnf: tasks/pyinfra/dnf.md
     - files: tasks/pyinfra/files.md
+    - gem: tasks/pyinfra/gem.md
     - git: tasks/pyinfra/git.md
     - iptables: tasks/pyinfra/iptables.md
+    - launchd: tasks/pyinfra/launchd.md
     - lxd: tasks/pyinfra/lxd.md
     - mysql: tasks/pyinfra/mysql.md
+    - npm: tasks/pyinfra/npm.md
+    - openrc: tasks/pyinfra/openrc.md
+    - pacman: tasks/pyinfra/pacman.md
     - pip: tasks/pyinfra/pip.md
+    - pkg: tasks/pyinfra/pkg.md
+    - pkgin: tasks/pyinfra/pkgin.md
     - postgresql: tasks/pyinfra/postgresql.md
+    - puppet: tasks/pyinfra/puppet.md
     - server: tasks/pyinfra/server.md
     - ssh: tasks/pyinfra/ssh.md
     - systemd: tasks/pyinfra/systemd.md
+    - sysvinit: tasks/pyinfra/sysvinit.md
+    - upstart: tasks/pyinfra/upstart.md
+    - vzctl: tasks/pyinfra/vzctl.md
+    - windows: tasks/pyinfra/windows.md
+    - windows_files: tasks/pyinfra/windows_files.md
+    - xbps: tasks/pyinfra/xbps.md
     - yum: tasks/pyinfra/yum.md
+    - zypper: tasks/pyinfra/zypper.md
   - uPlaybook Internals: tasks/internals.md
 - For Ansible Users: for_ansible_users.md
 - Releases ⧉: https://github.com/linsomniac/uplaybook/releases
