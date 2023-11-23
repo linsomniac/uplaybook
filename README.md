@@ -1,13 +1,42 @@
 <p align="center"><img src="docs/assets/logo.png" width="25%" height="25%" /><br />uPlaybook</p>
 
-Unleash the Power of Automation with uPlaybook
+# Unleash the Power of Automation with uPlaybook
 
-In a world where time is precious, uPlaybook emerges as your go-to solution for project
-templating and automation.  uPlaybook allows you to streamline your workflows, automate
-repetitive tasks, and configure projects with unparalleled ease.
+uPlaybook (pronounced "Micro Playbook") fits in between templaters like Cookiecutter and
+full "fleet level" Configuration Management/Infrastructure as Code ecosystem like Ansible.
+If Ansible was a shell script: you'd have uPlaybook.
 
-The desired state of the system is specified via a "playbook" (an idea taken from
-Ansible).  Running a playbook sets up, updates, or repairs projects or systems.
+uPlaybook only targets running on a
+single system, so the complexities of managing your "fleet inventory" are gone.  On top of
+that is
+
+uPlaybook consists of "playbooks" of declarative "tasks" with the full power of Python,
+providing for a richer scripting experience than YAML (as done in Ansible).  The
+declarative nature allows you to specify the desired state of a system or service, and the
+playbook will make the required changes.  Modify the playbook and re-run it to gain new
+state, and keep the playbook in git to version and reuse it.
+
+# Benefits
+
+- Targets running on the local system: Does away with the complexities of managing a
+  "fleet infrastructure".
+- Playbook discoverability: Run "up" and a list of available playbooks is displayed.
+  System, user, and project level playbooks are found via a search path.
+- Argument handling: Easy CLI argument handling, playbooks can create project scaffolding,
+  deploy and configure Apache modules, etc...
+- Shell scripts, but declarative rather than command-based.  Built in arg parsing,
+  templating, and "handlers" called when changes are made (as in Ansible).
+
+# Use-cases
+
+- Streamline your workflows
+- Automate repetitive tasks
+- Configure projects
+- Install and deploy software or services
+- Manage workstation or server installation and configuration
+- Project templating.
+- IT Automation.
+
 Command-line argument processing enables playbook specialization at run-time.
 In "examples/new-uplaybook" is a sample which creates a skeleton playbook by
 running the command: `up new-uplaybook my-example-playbook`.
@@ -19,33 +48,6 @@ has been tricky to do well in shell scripts.
 
 Despite its simplicity, uPlaybook doesn't compromise on functionality.  The core
 tasks can be augmented by arbitrary Python code for ultimate power.
-
-## Simple Example
-
-```python
-#!/usr/bin/env python3
-
-from uplaybook import fs, core, pyinfra
-
-#  Restart apache, but only if the site config or symlink to sites-enabled notify
-#  that it has changed
-def restart_apache():
-    pyinfra.systemd.service(service="apache2", restarted=True)
-
-pyinfra.apt.package(packages=["apache2"])
-fs.cp(src="my-site.conf.j2", dst="/etc/apache2/sites-available/my-site.conf").notify(restart_apache)
-fs.ln(src="/etc/apache2/sites-available/my-site.conf", dst="/etc/apache2/sites-enabled/", symbolic=True).notify(restart_apache)
-```
-
-## Use cases:
-
-- Shell scripts, but declarative rather than command-based.  Built in arg parsing,
-  templating, and "handlers" called when changes are made (as in Ansible).
-- Project templating.  Think "cookiecutter", but with a declarative scripting.
-  For example: It could conditionally create files based on argument values, can
-  do "git init" if a directory is created, etc...
-- IT Automation.  Current task support for system administration tasks are rudimentary,
-  but longer term I plan to add tasks for package installation, service management, etc...
 
 ## High-level Ideas
 
@@ -87,26 +89,70 @@ Which creates a "my-test-playbook" directory with the skeleton playbook file
 "playbook".  The playbook used to create this skeleton is in
 `.uplaybooks/new-uplaybook/playbook`
 
+## Documentation
+
+[Full uPlaybook Documentation](https://linsomniac.github.com/uplaybook)
+
+## Simple Examples
+
+Deploy an Apache site:
+
+```python
+from uplaybook import fs, core, pyinfra
+
+#  Restart apache, but only if the site config or symlink to sites-enabled notify
+#  that it has changed
+def restart_apache():
+    pyinfra.systemd.service(service="apache2", restarted=True)
+
+pyinfra.apt.packages(packages=["apache2"])
+fs.cp(src="my-site.conf.j2", dst="/etc/apache2/sites-available/my-site.conf").notify(restart_apache)
+fs.ln(src="/etc/apache2/sites-available/my-site.conf", dst="/etc/apache2/sites-enabled/", symbolic=True).notify(restart_apache)
+```
+
+Enable an Apache module:
+
+```python
+from uplaybook import fs, core, pyinfra
+
+core.playbook_args(
+        core.Argument(name="module_name", description="Name of module"),
+        core.Argument(name="remove", type="bool", default=False,
+                      description="Remove the module rather than install it"),
+        )
+
+def restart_and_enable_apache():
+    pyinfra.systemd.service(service="apache2", restarted=True, enabled=True)
+
+if not ARGS.remove:
+    pyinfra.apt.packages(packages=["apache2", f"libapache2-mod-{ARGS.module_name}"]
+          ).notify(restart_and_enable_apache)
+    fs.ln(src="/etc/apache2/mods-available/{{ ARGS.module_name }}.load",
+          dst="/etc/apache2/mods-enabled/{{ ARGS.module_name }}.load",
+          symbolic=True).notify(restart_and_enable_apache)
+else:
+    fs.rm(dst="/etc/apache2/mods-enabled/{{ ARGS.module_name }}.load",
+          ).notify(restart_and_enable_apache)
+    pyinfra.apt.packages(packages=[f"libapache2-mod-{ARGS.module_name}"], present=False,
+          ).notify(restart_and_enable_apache)
+```
+
+## Example Playbooks
+
+- [New uPlaybook](examples/new-uplaybook/playbook)
+
 ## State
 
 This is Beta software: The core is done but as it gets real world use things
 may change in incompatible ways before final release.
 
-Currently (Nov 2023) I'm working on:
+Currently (Late Nov 2023) I'm working on:
 
 - Documentation.
 - Test driving uPlaybook to find rough edges.
 - Adding more Tasks.
 
 If you look at it, your feedback would be appreciated.
-
-## Example Playbooks
-
-- [New uPlaybook](examples/new-uplaybook/playbook)
-
-## Documentation
-
-[Full uPlaybook Documentation](https://linsomniac.github.com/uplaybook)
 
 ## Compared to...
 

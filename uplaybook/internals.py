@@ -500,6 +500,8 @@ def extract_docstring_from_file(filename: str) -> Union[str, None]:
     """Open the specified file and retrieve the docstring from it.
 
     Returns None if no docstring is found"""
+    if os.path.isdir(filename):
+        filename = os.path.join(filename, "playbook")
     with open(filename, "r") as f:
         try:
             node = ast.parse(f.read())
@@ -867,11 +869,7 @@ def cli() -> None:
     try:
         pb_name = args.playbook
         up_context.playbook_name = pb_name
-        if os.path.exists(pb_name):
-            path = Path(pb_name)
-            playbook = PlaybookInfo(path.name, path.parent, path.name)
-        else:
-            playbook = find_playbook(pb_name)
+        playbook = find_playbook(pb_name)
         up_context.playbook_directory = playbook.directory.absolute()
         full_playbook_path = Path(playbook.playbook_file).absolute()
 

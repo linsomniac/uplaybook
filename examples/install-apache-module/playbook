@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+
+"""
+Install and enable an Apache module
+
+Apache modules need to be installed, configured, and Apache restarted to
+take effect.  This does all of that.
+"""
+
+from uplaybook import fs, core, pyinfra
+
+core.playbook_args(
+    core.Argument(name="module_name", description="Name of module"),
+    core.Argument(
+        name="remove",
+        type="bool",
+        default=False,
+        description="Remove the module rather than install it",
+    ),
+)
+
+
+def restart_and_enable_apache():
+    pyinfra.systemd.service(service="apache2", restarted=True, enabled=True)
+
+
+if not ARGS.remove:
+    pyinfra.apt.packages(
+        packages=["apache2", f"libapache2-mod-{ARGS.module_name}"]
+    ).notify(restart_and_enable_apache)
+    fs.ln(
+        src="/etc/apache2/mods-available/{{ ARGS.module_name }}.load",
+        dst="/etc/apache2/mods-enabled/{{ ARGS.module_name }}.load",
+        symbolic=True,
+    ).notify(restart_and_enable_apache)
+else:
+    fs.rm(
+        dst="/etc/apache2/mods-enabled/{{ ARGS.module_name }}.load",
+    ).notify(restart_and_enable_apache)
+    pyinfra.apt.packages(
+        packages=[f"libapache2-mod-{ARGS.module_name}"],
+        present=False,
+    ).notify(restart_and_enable_apache)
