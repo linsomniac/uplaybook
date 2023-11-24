@@ -85,8 +85,6 @@ def chmod(
     fs.chmod(dst="/tmp/foo", mode="a=rX,u+w")
     fs.chmod(dst="/tmp/foo", mode=0o755)
     ```
-
-    <!-- #taskdoc -->
     """
     if mode is None:
         return Return(
@@ -132,8 +130,6 @@ def chown(
     fs.chown(dst="/tmp", group="wheel")
     fs.chown(dst="/tmp", owner="nobody", group="nobody")
     ```
-
-    <!-- #taskdoc -->
     """
     changed = False
     extra_messages = []
@@ -178,8 +174,6 @@ def cd(dst: TemplateStr) -> Return:
         fs.mkfile("tempfile")
     #  now are back in previous directory
     ```
-
-    <!-- #taskdoc -->
     """
     old_dir = os.getcwd()
     os.chdir(dst)
@@ -211,8 +205,6 @@ def mkfile(
     fs.mkfile(dst="/tmp/bar", mode="a=rX,u+w")
     fs.mkfile(dst="/tmp/baz", mode=0o755)
     ```
-
-    <!-- #taskdoc -->
     """
     if not os.path.exists(dst):
         mode = _mode_from_arg(mode)
@@ -252,8 +244,6 @@ def mkdir(
     fs.mkdir(dst="/tmp/bar", mode="a=rX,u+w")
     fs.mkdir(dst="/tmp/baz/qux", mode=0o755, parents=True)
     ```
-
-    <!-- #taskdoc -->
     """
     if not os.path.exists(dst):
         mode = _mode_from_arg(mode, is_directory=True)
@@ -299,8 +289,6 @@ def rm(
     fs.rm(dst="/tmp/foo")
     fs.rm(dst="/tmp/foo-dir", recursive=True)
     ```
-
-    <!-- #taskdoc -->
     """
 
     if not os.path.exists(dst):
@@ -369,8 +357,6 @@ def stat(
     print(f"UID: {{stat.extra.st_uid}}")
     fs.stat(dst="/tmp/foo", follow_symlinks=False)
     ```
-
-    <!-- #taskdoc -->
     """
 
     s = os.stat(dst, follow_symlinks=follow_symlinks)
@@ -421,8 +407,6 @@ def mv(
     ```python
     fs.mv(dst="/tmp/foo", src="/tmp/bar")
     ```
-
-    <!-- #taskdoc -->
     """
 
     if os.path.exists(src):
@@ -459,8 +443,6 @@ def ln(
     fs.ln(dst="/tmp/foo", src="/tmp/bar")
     fs.ln(dst="/tmp/foo", src="/tmp/bar", symbolic=True)
     ```
-
-    <!-- #taskdoc -->
     """
 
     if os.path.isdir(dst):
@@ -525,8 +507,6 @@ def cp(
     fs.cp(dst="/tmp/foo")
     fs.cp(src="bar-{{ fqdn }}.j2", dst="/tmp/bar", template=False)
     ```
-
-    <!-- #taskdoc -->
     """
 
     def _copy_file(
@@ -658,8 +638,6 @@ def builder(
             ]:
         builder()
     ```
-
-    <!-- #taskdoc -->
     """
 
     with CallDepth():
@@ -711,8 +689,6 @@ def exists(
     if fs.exists(dst="/tmp/foo"):
         #  code for when file exists
     ```
-
-    <!-- #taskdoc -->
     """
     if os.path.exists(dst):
         return Return(changed=False)

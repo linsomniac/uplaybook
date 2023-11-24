@@ -301,6 +301,7 @@ def calling_context(func: Callable[..., Any]) -> Callable[..., Any]:
 
 def task(func: Callable[..., Any]) -> Callable[..., Any]:
     """A decorator for tasks, combines @calling_context and @template_args"""
+    func.__is_uplaybook_task__ = True
     return calling_context(template_args(func))
 
 
@@ -576,6 +577,43 @@ def import_script_as_module(module_name: str, paths_to_try: List[str]) -> Module
     return module
 
 
+def find_docs(name: str) -> str:
+    if name == "__main__":
+        from . import __doc__
+
+        return __doc__
+
+    #  if a module is specified
+    try:
+        module = importlib.import_module(f".{name}", package=__package__)
+        docs = (module.__doc__ if module.__doc__ is not None else "").rstrip()
+
+        task_functions = []
+        for attr_name in dir(module):
+            attr = getattr(module, attr_name)
+            if (
+                callable(attr)
+                and getattr(attr, "__doc__", None)
+                and getattr(attr, "__is_uplaybook_task__", False)
+            ):
+                first_line = getattr(attr, "__doc__", "").lstrip().split("\n")[0]
+                task_functions.append(f"{attr_name} - {first_line}")
+
+        docs = (docs + "\n\n## Available Tasks:\n\n").lstrip("\n")
+        for task_name in task_functions:
+            docs += f"- {name}.{task_name}\n"
+
+        return docs
+    except ModuleNotFoundError:
+        pass
+
+    #  module.task docs
+    module_name, function_name = name.rsplit(".", 1)
+    module = importlib.import_module(f".{module_name}", package=__package__)
+    function = getattr(module, function_name)
+    return f"# {name}\n\n" + function.__doc__.lstrip("\n")
+
+
 def display_docs(name: str) -> None:
     """
     Display the documentation for the component specified by `name`.
@@ -587,34 +625,7 @@ def display_docs(name: str) -> None:
         name: Module name or module.task name.  If special value "__main__" it displays
                 the up2 documentation.
     """
-    if name == "__main__":
-        from . import __doc__
-
-        docs = __doc__
-    elif "." in name:
-        module_name, function_name = name.split(".", 1)
-        module = importlib.import_module(f".{module_name}", package=__package__)
-        function = getattr(module, function_name)
-        docs = f"# {name}\n\n" + function.__doc__.lstrip("\n")
-    else:
-        module = importlib.import_module(f".{name}", package=__package__)
-        docs = (module.__doc__ if module.__doc__ is not None else "").rstrip()
-
-        task_functions = []
-        for attr_name in dir(module):
-            attr = getattr(module, attr_name)
-            if (
-                callable(attr)
-                and getattr(attr, "__doc__", None)
-                and "#taskdoc" in attr.__doc__
-            ):
-                first_line = getattr(attr, "__doc__", "").lstrip().split("\n")[0]
-                task_functions.append(f"{attr_name} - {first_line}")
-
-        docs = (docs + "\n\n## Available Tasks:\n\n").lstrip("\n")
-        for task_name in task_functions:
-            docs += f"- {name}.{task_name}\n"
-
+    docs = find_docs(name)
     pydoc.pager(re.sub(r"#\w+", "", docs).rstrip())
 
 

@@ -130,8 +130,6 @@ def debug(msg: Optional[TemplateStr] = None, var: Optional[object] = None) -> Re
     core.debug(msg="Directory already exists, exiting")
     core.debug(var=ret_value)
     ```
-
-    <!-- #taskdoc -->
     """
 
     output = ""
@@ -179,8 +177,6 @@ def render(s: TemplateStr) -> str:
     ```python
     core.render(s="Value of foo: {{foo}}")
     ```
-
-    <!-- #taskdoc -->
     """
     return s
 
@@ -228,8 +224,6 @@ def run(
     if core.run(command="grep -q ^user: /etc/passwd", ignore_failure=True, change=False):
         print("User exists")
     ```
-
-    <!-- #taskdoc -->
     """
     if creates is not None and os.path.exists(creates):
         return Return(changed=False)
@@ -330,8 +324,6 @@ def playbook_args(
     #    up playbook.pb --is-owner my_username
     #    up playbook.pb --no-is-owner my_username my_hostname
     ```
-
-    <!-- #taskdoc -->
     """
     parser = argparse.ArgumentParser(
         prog=f"up:{up_context.playbook_name}", description=up_context.playbook_docstring
@@ -388,7 +380,6 @@ def become(user: Union[int, TemplateStr]) -> Return:
         fs.mkfile(dst="/tmp/backupfile")
     #  now you are back to the previous user
     ```
-    <!-- #taskdoc -->
     """
     if isinstance(user, str):
         user = pwd.getpwnam(user).pw_uid
@@ -413,7 +404,6 @@ def require(user: Union[int, TemplateStr]) -> Return:
     ```python
     core.require(user="nobody")
     ```
-    <!-- #taskdoc -->
     """
     if isinstance(user, str):
         user = pwd.getpwnam(user).pw_uid
@@ -444,8 +434,6 @@ def fail(msg: TemplateStr) -> Return:
     ```python
     core.fail(msg="Unable to download file")
     ```
-
-    <!-- #taskdoc -->
     """
     return Return(changed=False, failure=True, raise_exc=Failure(msg))
 
@@ -466,8 +454,6 @@ def exit(returncode: int = 0, msg: Union[TemplateStr, str] = "") -> Return:
     core.exit(returncode=1)
     core.exit(msg="Unable to download file", returncode=1)
     ```
-
-    <!-- #taskdoc -->
     """
     return Return(
         changed=False, failure=returncode != 0, raise_exc=Exit(msg, returncode)
@@ -490,8 +476,6 @@ def notify(handler: Union[Callable, List]) -> Return:
     core.notify(lambda: fs.remove("tmpdir", recursive=True))
     core.notify([handler1, handler2])
     ```
-
-    <!-- #taskdoc -->
     """
     if callable(handler):
         up_context.add_handler(handler)
@@ -512,8 +496,6 @@ def flush_handlers() -> Return:
     ```python
     core.flush_handlers()
     ```
-
-    <!-- #taskdoc -->
     """
     up_context.flush_handlers()
 
@@ -543,8 +525,6 @@ def grep(
     if core.grep(path="/tmp/foo", search="secret=xyzzy"):
         #  code for when the string is found.
     ```
-
-    <!-- #taskdoc -->
     """
     with open(path, "r") as fp:
         if regex:
@@ -580,7 +560,5 @@ def print(
     ```python
     core.print("Arguments: {{playbook_arguments}}")
     ```
-
-    <!-- #taskdoc -->
     """
     sys.stdout.write(msg + "\n")
