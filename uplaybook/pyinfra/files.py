@@ -44,13 +44,13 @@ def download(
 
     **Example:**
 
-    .. code:: python
-
-        files.download(
-            name="Download the Docker repo file",
-            src="https://download.docker.com/linux/centos/docker-ce.repo",
-            dest="/etc/yum.repos.d/docker-ce.repo",
-        )
+    ```python
+    files.download(
+        name="Download the Docker repo file",
+        src="https://download.docker.com/linux/centos/docker-ce.repo",
+        dest="/etc/yum.repos.d/docker-ce.repo",
+    )
+    ```
     """
     operargs = {
         "src": repr(src),
@@ -128,49 +128,49 @@ def line(
 
     **Examples:**
 
-    .. code:: python
+    ```python
+    # prepare to do some maintenance
+    maintenance_line = "SYSTEM IS DOWN FOR MAINTENANCE"
+    files.line(
+        name="Add the down-for-maintenance line in /etc/motd",
+        path="/etc/motd",
+        line=maintenance_line,
+    )
 
-        # prepare to do some maintenance
-        maintenance_line = "SYSTEM IS DOWN FOR MAINTENANCE"
-        files.line(
-            name="Add the down-for-maintenance line in /etc/motd",
-            path="/etc/motd",
-            line=maintenance_line,
-        )
+    # Then, after the maintenance is done, remove the maintenance line
+    files.line(
+        name="Remove the down-for-maintenance line in /etc/motd",
+        path="/etc/motd",
+        line=maintenance_line,
+        replace="",
+        present=False,
+    )
 
-        # Then, after the maintenance is done, remove the maintenance line
-        files.line(
-            name="Remove the down-for-maintenance line in /etc/motd",
-            path="/etc/motd",
-            line=maintenance_line,
-            replace="",
-            present=False,
-        )
+    # example where there is '*' in the line
+    files.line(
+        name="Ensure /netboot/nfs is in /etc/exports",
+        path="/etc/exports",
+        line=r"/netboot/nfs .*",
+        replace="/netboot/nfs *(ro,sync,no_wdelay,insecure_locks,no_root_squash,"
+        "insecure,no_subtree_check)",
+    )
 
-        # example where there is '*' in the line
-        files.line(
-            name="Ensure /netboot/nfs is in /etc/exports",
-            path="/etc/exports",
-            line=r"/netboot/nfs .*",
-            replace="/netboot/nfs *(ro,sync,no_wdelay,insecure_locks,no_root_squash,"
-            "insecure,no_subtree_check)",
-        )
+    files.line(
+        name="Ensure myweb can run /usr/bin/python3 without password",
+        path="/etc/sudoers",
+        line=r"myweb .*",
+        replace="myweb ALL=(ALL) NOPASSWD: /usr/bin/python3",
+    )
 
-        files.line(
-            name="Ensure myweb can run /usr/bin/python3 without password",
-            path="/etc/sudoers",
-            line=r"myweb .*",
-            replace="myweb ALL=(ALL) NOPASSWD: /usr/bin/python3",
-        )
-
-        # example when there are double quotes (")
-        line = 'QUOTAUSER=""'
-        files.line(
-            name="Example with double quotes (")",
-            path="/etc/adduser.conf",
-            line="^{}$".format(line),
-            replace=line,
-        )
+    # example when there are double quotes (")
+    line = 'QUOTAUSER=""'
+    files.line(
+        name="Example with double quotes (")",
+        path="/etc/adduser.conf",
+        line="^{}$".format(line),
+        replace=line,
+    )
+    ```
     """
     operargs = {
         "path": repr(path),
@@ -221,14 +221,14 @@ def replace(
 
     **Example:**
 
-    .. code:: python
-
-        files.replace(
-            name="Change part of a line in a file",
-            path="/etc/motd",
-            text="verboten",
-            replace="forbidden",
-        )
+    ```python
+    files.replace(
+        name="Change part of a line in a file",
+        path="/etc/motd",
+        text="verboten",
+        replace="forbidden",
+    )
+    ```
     """
     operargs = {
         "path": repr(path),
@@ -279,14 +279,14 @@ def sync(
 
     **Example:**
 
-    .. code:: python
-
-        # Sync local files/tempdir to remote /tmp/tempdir
-        files.sync(
-            name="Sync a local directory with remote",
-            src="files/tempdir",
-            dest="/tmp/tempdir",
-        )
+    ```python
+    # Sync local files/tempdir to remote /tmp/tempdir
+    files.sync(
+        name="Sync a local directory with remote",
+        src="files/tempdir",
+        dest="/tmp/tempdir",
+    )
+    ```
 
     Note: ``exclude`` and ``exclude_dir`` use ``fnmatch`` behind the scenes to do the filtering.
 
@@ -397,13 +397,13 @@ def get(src, dest, add_deploy_dir=True, create_local_dir=False, force=False):
 
     **Example:**
 
-    .. code:: python
-
-        files.get(
-            name="Download a file from a remote",
-            src="/etc/centos-release",
-            dest="/tmp/whocares",
-        )
+    ```python
+    files.get(
+        name="Download a file from a remote",
+        src="/etc/centos-release",
+        dest="/tmp/whocares",
+    )
+    ```
     """
     operargs = {
         "src": repr(src),
@@ -464,20 +464,20 @@ def put(
 
     **Examples:**
 
-    .. code:: python
+    ```python
+    files.put(
+        name="Update the message of the day file",
+        src="files/motd",
+        dest="/etc/motd",
+        mode="644",
+    )
 
-        files.put(
-            name="Update the message of the day file",
-            src="files/motd",
-            dest="/etc/motd",
-            mode="644",
-        )
-
-        files.put(
-            name="Upload a StringIO object",
-            src=StringIO("file contents"),
-            dest="/etc/motd",
-        )
+    files.put(
+        name="Upload a StringIO object",
+        src=StringIO("file contents"),
+        dest="/etc/motd",
+    )
+    ```
     """
     operargs = {
         "src": repr(src),
@@ -526,54 +526,54 @@ def template(
 
     **Examples:**
 
-    .. code:: python
+    ```python
+    files.template(
+        name="Create a templated file",
+        src="templates/somefile.conf.j2",
+        dest="/etc/somefile.conf",
+    )
 
-        files.template(
-            name="Create a templated file",
-            src="templates/somefile.conf.j2",
-            dest="/etc/somefile.conf",
-        )
+    files.template(
+        name="Create service file",
+        src="templates/myweb.service.j2",
+        dest="/etc/systemd/system/myweb.service",
+        mode="755",
+        user="root",
+        group="root",
+    )
 
-        files.template(
-            name="Create service file",
-            src="templates/myweb.service.j2",
-            dest="/etc/systemd/system/myweb.service",
-            mode="755",
-            user="root",
-            group="root",
-        )
+    # Example showing how to pass python variable to template file. You can also
+    # use dicts and lists. The .j2 file can use `{{ foo_variable }}` to be interpolated.
+    foo_variable = 'This is some foo variable contents'
+    foo_dict = {
+        "str1": "This is string 1",
+        "str2": "This is string 2"
+    }
+    foo_list = [
+        "entry 1",
+        "entry 2"
+    ]
 
-        # Example showing how to pass python variable to template file. You can also
-        # use dicts and lists. The .j2 file can use `{{ foo_variable }}` to be interpolated.
-        foo_variable = 'This is some foo variable contents'
-        foo_dict = {
-            "str1": "This is string 1",
-            "str2": "This is string 2"
-        }
-        foo_list = [
-            "entry 1",
-            "entry 2"
-        ]
+    template = StringIO('''
+    name: "{{ foo_variable }}"
+    dict_contents:
+        str1: "{{ foo_dict.str1 }}"
+        str2: "{{ foo_dict.str2 }}"
+    list_contents:
+    {% for entry in foo_list %}
+        - "{{ entry }}"
+    {% endfor %}
+    ''')
 
-        template = StringIO('''
-        name: "{{ foo_variable }}"
-        dict_contents:
-            str1: "{{ foo_dict.str1 }}"
-            str2: "{{ foo_dict.str2 }}"
-        list_contents:
-        {% for entry in foo_list %}
-            - "{{ entry }}"
-        {% endfor %}
-        ''')
-
-        files.template(
-            name="Create a templated file",
-            src=template,
-            dest="/tmp/foo.yml",
-            foo_variable=foo_variable,
-            foo_dict=foo_dict,
-            foo_list=foo_list
-        )
+    files.template(
+        name="Create a templated file",
+        src=template,
+        dest="/tmp/foo.yml",
+        foo_variable=foo_variable,
+        foo_dict=foo_dict,
+        foo_list=foo_list
+    )
+    ```
     """
     operargs = {
         "src": repr(src),
@@ -669,29 +669,29 @@ def link(
 
     **Examples:**
 
-    .. code:: python
+    ```python
+    files.link(
+        name="Create link /etc/issue2 that points to /etc/issue",
+        path="/etc/issue2",
+        target="/etc/issue",
+    )
 
-        files.link(
-            name="Create link /etc/issue2 that points to /etc/issue",
-            path="/etc/issue2",
-            target="/etc/issue",
-        )
 
+    # Complex example demonstrating the assume_present option
+    from pyinfra.operations import apt, files
 
-        # Complex example demonstrating the assume_present option
-        from pyinfra.operations import apt, files
+    install_nginx = apt.packages(
+        name="Install nginx",
+        packages=["nginx"],
+    )
 
-        install_nginx = apt.packages(
-            name="Install nginx",
-            packages=["nginx"],
-        )
-
-        files.link(
-            name="Remove default nginx site",
-            path="/etc/nginx/sites-enabled/default",
-            present=False,
-            assume_present=install_nginx.changed,
-        )
+    files.link(
+        name="Remove default nginx site",
+        path="/etc/nginx/sites-enabled/default",
+        present=False,
+        assume_present=install_nginx.changed,
+    )
+    ```
     """
     operargs = {
         "path": repr(path),
@@ -752,18 +752,18 @@ def file(
 
     **Example:**
 
-    .. code:: python
-
-        # Note: The directory /tmp/secret will get created with the default umask.
-        files.file(
-            name="Create /tmp/secret/file",
-            path="/tmp/secret/file",
-            mode="600",
-            user="root",
-            group="root",
-            touch=True,
-            create_remote_dir=True,
-        )
+    ```python
+    # Note: The directory /tmp/secret will get created with the default umask.
+    files.file(
+        name="Create /tmp/secret/file",
+        path="/tmp/secret/file",
+        mode="600",
+        user="root",
+        group="root",
+        touch=True,
+        create_remote_dir=True,
+    )
+    ```
     """
     operargs = {
         "path": repr(path),
@@ -819,27 +819,27 @@ def directory(
 
     **Examples:**
 
-    .. code:: python
+    ```python
+    files.directory(
+        name="Ensure the /tmp/dir_that_we_want_removed is removed",
+        path="/tmp/dir_that_we_want_removed",
+        present=False,
+    )
 
+    files.directory(
+        name="Ensure /web exists",
+        path="/web",
+        user="myweb",
+        group="myweb",
+    )
+
+    # Multiple directories
+    for dir in ["/netboot/tftp", "/netboot/nfs"]:
         files.directory(
-            name="Ensure the /tmp/dir_that_we_want_removed is removed",
-            path="/tmp/dir_that_we_want_removed",
-            present=False,
+            name="Ensure the directory `{}` exists".format(dir),
+            path=dir,
         )
-
-        files.directory(
-            name="Ensure /web exists",
-            path="/web",
-            user="myweb",
-            group="myweb",
-        )
-
-        # Multiple directories
-        for dir in ["/netboot/tftp", "/netboot/nfs"]:
-            files.directory(
-                name="Ensure the directory `{}` exists".format(dir),
-                path=dir,
-            )
+    ```
     """
     operargs = {
         "path": repr(path),
@@ -876,22 +876,22 @@ def flags(path, flags=None, present=True):
 
     **Examples:**
 
-    .. code:: python
+    ```python
+    files.flags(
+        name="Ensure ~/Library is visible in the GUI",
+        path="~/Library",
+        flags="hidden",
+        present=False
+    )
 
-        files.flags(
-            name="Ensure ~/Library is visible in the GUI",
-            path="~/Library",
-            flags="hidden",
-            present=False
-        )
-
-        files.directory(
-            name="Ensure no one can change these files",
-            path="/something/very/important",
-            flags=["uchg", "schg"],
-            present=True,
-            _sudo=True
-        )
+    files.directory(
+        name="Ensure no one can change these files",
+        path="/something/very/important",
+        flags=["uchg", "schg"],
+        present=True,
+        _sudo=True
+    )
+    ```
     """
     operargs = {
         "path": repr(path),
@@ -951,42 +951,42 @@ def block(
 
     **Examples:**
 
-    .. code:: python
+    ```python
+    # add entry to /etc/host
+    files.marked_block(
+        name="add IP address for red server",
+        path="/etc/hosts",
+        content="10.0.0.1 mars-one",
+        before=True,
+        regex=".*localhost",
+    )
 
-        # add entry to /etc/host
-        files.marked_block(
-            name="add IP address for red server",
-            path="/etc/hosts",
-            content="10.0.0.1 mars-one",
-            before=True,
-            regex=".*localhost",
-        )
+    # have two entries in /etc/host
+    files.marked_block(
+        name="add IP address for red server",
+        path="/etc/hosts",
+        content="10.0.0.1 mars-one\\n10.0.0.2 mars-two",
+        before=True,
+        regex=".*localhost",
+    )
 
-        # have two entries in /etc/host
-        files.marked_block(
-            name="add IP address for red server",
-            path="/etc/hosts",
-            content="10.0.0.1 mars-one\n10.0.0.2 mars-two",
-            before=True,
-            regex=".*localhost",
-        )
+    # remove marked entry from /etc/hosts
+    files.marked_block(
+        name="remove all 10.* addresses from /etc/hosts",
+        path="/etc/hosts",
+        present=False
+    )
 
-        # remove marked entry from /etc/hosts
-        files.marked_block(
-            name="remove all 10.* addresses from /etc/hosts",
-            path="/etc/hosts",
-            present=False
-        )
-
-        # add out of date warning to web page
-        files.marked_block(
-            name="add out of date warning to web page",
-            path="/var/www/html/something.html",
-            content= "<p>Warning: this page is out of date.</p>",
-            regex=".*<body>.*",
-            after=True
-            marker="<!-- {mark} PYINFRA BLOCK -->",
-        )
+    # add out of date warning to web page
+    files.marked_block(
+        name="add out of date warning to web page",
+        path="/var/www/html/something.html",
+        content= "<p>Warning: this page is out of date.</p>",
+        regex=".*<body>.*",
+        after=True
+        marker="<!-- {mark} PYINFRA BLOCK -->",
+    )
+    ```
     """
     operargs = {
         "path": repr(path),
