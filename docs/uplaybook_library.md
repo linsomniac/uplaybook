@@ -3,7 +3,8 @@
 ## Playbook Search Path
 
 uPlaybook searches for playbooks by using the $UP_PLAYBOOK_PATH environment variable, with
-the default being: `.:.uplaybooks:~/.config/uplaybook:~/.config/uplaybook/library`
+the default being:
+`.:.uplaybooks:~/.config/uplaybook:~/.config/uplaybook/library:/etc/uplaybook`
 
 This means `up` will look for playbooks in:
 
@@ -16,6 +17,7 @@ This means `up` will look for playbooks in:
   want to be available system-wide (as opposed to project-specific playbooks).
 - The directory `.config/uplaybook/library` in your home directory.  The recommended
   location for playbooks you download.
+- The directory `/etc/uplaybook` is a location for system-wide playbooks.
 
 For example, if you want to install the example "new-uplaybook" playbook from the
 uPlaybook github repository, you could do:
