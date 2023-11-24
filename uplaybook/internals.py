@@ -231,15 +231,33 @@ def template_args(func: Callable[..., Any]) -> Callable[..., Any]:
 
         # Process bound arguments and replace if type is TemplateStr
         for name, value in bound_args.arguments.items():
-            if not isinstance(value, str) or (value not in args and name not in kwargs):
+            if value not in args and name not in kwargs:
+                continue
+            if not (
+                isinstance(value, list) and isinstance(value[0], str)
+            ) and not isinstance(value, str):
                 continue
 
             annotation = sig.parameters[name].annotation
 
+            if (
+                annotation == Optional[List[TemplateStr]]
+                or annotation == List[TemplateStr]
+            ) and isinstance(value, list):
+                if name in kwargs:
+                    kwargs[name] = list([_render_jinja_arg(x) for x in value])
+                else:
+                    args[bound_args.args.index(value)] = list(
+                        [_render_jinja_arg(x) for x in value]
+                    )
+
             # Check for TemplateStr directly or as part of a Union
-            if annotation is TemplateStr or (
-                hasattr(annotation, "__origin__")
-                and issubclass(TemplateStr, annotation.__args__)
+            elif isinstance(value, str) and (
+                annotation is TemplateStr
+                or (
+                    hasattr(annotation, "__origin__")
+                    and issubclass(TemplateStr, annotation.__args__)
+                )
             ):
                 if name in kwargs:
                     kwargs[name] = _render_jinja_arg(value)

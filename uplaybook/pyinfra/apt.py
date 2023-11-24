@@ -53,6 +53,7 @@ def packages(
     apt.packages(packages=["neovim"], latest=True)
     ```
     """
+    print(f"packages: {packages}")  # @@@
     operargs = {
         "packages": repr(packages),
         "present": present,
