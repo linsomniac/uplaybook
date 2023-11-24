@@ -52,7 +52,6 @@ def download(
             dest="/etc/yum.repos.d/docker-ce.repo",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "src": repr(src),
         "dest": repr(dest),
@@ -173,7 +172,6 @@ def line(
             replace=line,
         )
     """
-    raise NotImplementedError()
     operargs = {
         "path": repr(path),
         "line": repr(line),
@@ -232,7 +230,6 @@ def replace(
             replace="forbidden",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "path": repr(path),
         "text": repr(text),
@@ -299,7 +296,6 @@ def sync(
       excluding all directories matching a given name, however deep under ``src`` they are,
       can be done for example with ``exclude_dir=["__pycache__", "*/__pycache__"]``
     """
-    raise NotImplementedError()
     operargs = {
         "src": repr(src),
         "dest": repr(dest),
@@ -324,7 +320,6 @@ def sync(
 
 @task
 def show_rsync_warning():
-    raise NotImplementedError()
     operargs = {}
 
     result = _run_pyinfra(
@@ -351,7 +346,6 @@ def rsync(src, dest, flags=["-ax", "--delete"]):
         When using SSH, the ``files.rsync`` operation only supports the ``sudo`` and ``sudo_user``
         global arguments.
     """
-    raise NotImplementedError()
     operargs = {
         "src": repr(src),
         "dest": repr(dest),
@@ -369,7 +363,6 @@ def rsync(src, dest, flags=["-ax", "--delete"]):
 
 @task
 def _create_remote_dir(state, host, remote_filename, user, group):
-    raise NotImplementedError()
     operargs = {
         "state": repr(state),
         "host": repr(host),
@@ -412,7 +405,6 @@ def get(src, dest, add_deploy_dir=True, create_local_dir=False, force=False):
             dest="/tmp/whocares",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "src": repr(src),
         "dest": repr(dest),
@@ -487,7 +479,6 @@ def put(
             dest="/etc/motd",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "src": repr(src),
         "dest": repr(dest),
@@ -584,7 +575,6 @@ def template(
             foo_list=foo_list
         )
     """
-    raise NotImplementedError()
     operargs = {
         "src": repr(src),
         "dest": repr(dest),
@@ -605,7 +595,6 @@ def template(
 
 @task
 def _validate_path(path):
-    raise NotImplementedError()
     operargs = {
         "path": repr(path),
     }
@@ -621,7 +610,6 @@ def _validate_path(path):
 
 @task
 def _raise_or_remove_invalid_path(fs_type, path, force, force_backup, force_backup_dir):
-    raise NotImplementedError()
     operargs = {
         "fs_type": repr(fs_type),
         "path": repr(path),
@@ -705,7 +693,6 @@ def link(
             assume_present=install_nginx.changed,
         )
     """
-    raise NotImplementedError()
     operargs = {
         "path": repr(path),
         "target": repr(target),
@@ -778,7 +765,6 @@ def file(
             create_remote_dir=True,
         )
     """
-    raise NotImplementedError()
     operargs = {
         "path": repr(path),
         "present": repr(present),
@@ -855,7 +841,6 @@ def directory(
                 path=dir,
             )
     """
-    raise NotImplementedError()
     operargs = {
         "path": repr(path),
         "present": repr(present),
@@ -908,7 +893,6 @@ def flags(path, flags=None, present=True):
             _sudo=True
         )
     """
-    raise NotImplementedError()
     operargs = {
         "path": repr(path),
         "flags": repr(flags),
@@ -1004,7 +988,6 @@ def block(
             marker="<!-- {mark} PYINFRA BLOCK -->",
         )
     """
-    raise NotImplementedError()
     operargs = {
         "path": repr(path),
         "content": repr(content),
