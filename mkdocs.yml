@@ -48,6 +48,7 @@ nav:
 - Overview: index.md
 - Getting Started: getting_started.md
 - Installing: installing.md
+- Running: running.md
 - uPlaybook Library: uplaybook_library.md
 - Playbooks:
   - What is a Playbook: playbooks/what_is.md

@@ -780,6 +780,17 @@ def find_playbook(playbookname: str) -> PlaybookInfo:
     Raises:
         FileNotFoundError: If the playbook file is not found in the search paths."""
 
+    #  absolute path name given, just use it
+    if os.path.sep in playbookname or (
+        os.path.altsep and os.path.altsep in playbookname
+    ):
+        playbook = Path(playbookname)
+        if playbook.is_dir() and (playbook / "playbook").exists():
+            playbook = playbook / "playbook"
+        return PlaybookInfo(
+            playbook.name, playbook.absolute().parent, playbook.absolute()
+        )
+
     for playbook in list_playbooks():
         if playbook.name == playbookname or (
             playbook.name.endswith(".pb")
