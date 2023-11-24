@@ -595,7 +595,19 @@ def import_script_as_module(module_name: str, paths_to_try: List[str]) -> Module
     return module
 
 
-def find_docs(name: str) -> str:
+def find_updocs(name: str) -> str:
+    """
+    Given a module/task name, return the docstring for it.
+
+    This iterates over the various options for how a "--up-docs" may be requested and returns
+    the first appropriate docstring found.
+
+    Args:
+        name: The "--up-docs" document to find.
+
+    Returns:
+        The associated updoc.
+    """
     if name == "__main__":
         from . import __doc__
 
@@ -643,7 +655,7 @@ def display_docs(name: str) -> None:
         name: Module name or module.task name.  If special value "__main__" it displays
                 the up2 documentation.
     """
-    docs = find_docs(name)
+    docs = find_updocs(name)
     pydoc.pager(re.sub(r"#\w+", "", docs).rstrip())
 
 

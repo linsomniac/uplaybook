@@ -14,7 +14,9 @@ from .internals import (
     task,
     Failure,
     RawStr,  # noqa
+    CallDepth,
 )
+from . import internals
 from typing import Optional, List, Union, Callable
 import pprint
 import subprocess
@@ -562,3 +564,35 @@ def print(
     ```
     """
     sys.stdout.write(msg + "\n")
+
+
+@task
+def include(playbook: str):
+    """
+    Include a playbook.
+
+    Run another playbook within the current one.
+    """
+    full_playbook_path = os.path.join(up_context.playbook_directory, playbook)
+    # pb_info = internals.find_playbook(full_playbook_path)
+    # internals.import_script_as_module(
+    #    playbook, [pb_info.playbook_file, pb_info.playbook_file]
+    # )
+
+    from importlib.util import spec_from_loader, module_from_spec
+    from importlib.machinery import SourceFileLoader
+
+    ret = Return(changed=False)
+
+    with CallDepth():
+        spec = spec_from_loader(
+            playbook, SourceFileLoader(playbook, str(full_playbook_path))
+        )
+        if spec is None:
+            raise ImportError(
+                "Unable to spec_from_loader() the module, no error returned."
+            )
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+    return ret
