@@ -88,18 +88,18 @@ def key(src=None, keyserver=None, keyid=None):
 
     **Examples:**
 
-    .. code:: python
+    ```python
+    # Note: If using URL, wget is assumed to be installed.
+    apt.key(
+        name="Add the Docker apt gpg key",
+        src="https://download.docker.com/linux/ubuntu/gpg",
+    )
 
-        # Note: If using URL, wget is assumed to be installed.
-        apt.key(
-            name="Add the Docker apt gpg key",
-            src="https://download.docker.com/linux/ubuntu/gpg",
-        )
-
-        apt.key(
-            name="Install VirtualBox key",
-            src="https://www.virtualbox.org/download/oracle_vbox_2016.asc",
-        )
+    apt.key(
+        name="Install VirtualBox key",
+        src="https://www.virtualbox.org/download/oracle_vbox_2016.asc",
+    )
+    ```
     """
     operargs = {
         "src": repr(src),
@@ -126,12 +126,12 @@ def repo(src, present=True, filename=None):
 
     **Example:**
 
-    .. code:: python
-
-        apt.repo(
-            name="Install VirtualBox repo",
-            src="deb https://download.virtualbox.org/virtualbox/debian bionic contrib",
-        )
+    ```python
+    apt.repo(
+        name="Install VirtualBox repo",
+        src="deb https://download.virtualbox.org/virtualbox/debian bionic contrib",
+    )
+    ```
     """
     operargs = {
         "src": repr(src),
@@ -159,13 +159,13 @@ def ppa(src, present=True):
 
     **Example:**
 
-    .. code:: python
-
-        # Note: Assumes software-properties-common is installed.
-        apt.ppa(
-            name="Add the Bitcoin ppa",
-            src="ppa:bitcoin/bitcoin",
-        )
+    ```python
+    # Note: Assumes software-properties-common is installed.
+    apt.ppa(
+        name="Add the Bitcoin ppa",
+        src="ppa:bitcoin/bitcoin",
+    )
+    ```
     """
     operargs = {
         "src": repr(src),
@@ -198,13 +198,13 @@ def deb(src, present=True, force=False):
 
     **Example:**
 
-    .. code:: python
-
-        # Note: Assumes wget is installed.
-        apt.deb(
-            name="Install Chrome via deb",
-            src="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb",
-        )
+    ```python
+    # Note: Assumes wget is installed.
+    apt.deb(
+        name="Install Chrome via deb",
+        src="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb",
+    )
+    ```
     """
     operargs = {
         "src": repr(src),
@@ -228,12 +228,12 @@ def update(cache_time=None):
 
     **Example:**
 
-    .. code:: python
-
-        apt.update(
-            name="Update apt repositories",
-            cache_time=3600,
-        )
+    ```python
+    apt.update(
+        name="Update apt repositories",
+        cache_time=3600,
+    )
+    ```
     """
     operargs = {
         "cache_time": repr(cache_time),
@@ -255,18 +255,18 @@ def upgrade(auto_remove=False):
 
     **Example:**
 
-    .. code:: python
+    ```python
+    # Upgrade all packages
+    apt.upgrade(
+        name="Upgrade apt packages",
+    )
 
-        # Upgrade all packages
-        apt.upgrade(
-            name="Upgrade apt packages",
-        )
-
-        # Upgrade all packages and remove unneeded transitive dependencies
-        apt.upgrade(
-            name="Upgrade apt packages and remove unneeded dependencies"
-            auto_remove=True
-        )
+    # Upgrade all packages and remove unneeded transitive dependencies
+    apt.upgrade(
+        name="Upgrade apt packages and remove unneeded dependencies"
+        auto_remove=True
+    )
+    ```
     """
     operargs = {
         "auto_remove": repr(auto_remove),
@@ -286,11 +286,11 @@ def dist_upgrade():
 
     **Example:**
 
-    .. code:: python
-
-        apt.dist_upgrade(
-            name="Upgrade apt packages using dist-upgrade",
-        )
+    ```python
+    apt.dist_upgrade(
+        name="Upgrade apt packages using dist-upgrade",
+    )
+    ```
     """
     operargs = {}
 

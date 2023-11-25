@@ -7,9 +7,9 @@ uPlaybook wrappers of pyinfra https://docs.pyinfra.com/en/2.x/ operators.
 
 This set of tasks provides a rich set of system management routines.
 This wraps the pyinfra application.
-
-Update docs in `docs/tasks/pyinfra/intro.md`
 """
+
+#  Full docs are in `docs/tasks/pyinfra/intro.md`
 
 from collections import namedtuple
 from typing import Dict
