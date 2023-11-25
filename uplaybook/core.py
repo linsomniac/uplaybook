@@ -26,6 +26,7 @@ import argparse
 import os
 import pwd
 import re
+import requests
 
 
 class IgnoreFailure:
@@ -612,3 +613,31 @@ def include(playbook: TemplateStr, hoist_vars: bool = True) -> Return:
                     up_context.playbook_namespace[key] = value
 
     return ret
+
+
+@task
+def get_url(
+    url: TemplateStr, path: TemplateStr, skip_if_path_exists: bool = True
+) -> Return:
+    """
+    Access another playbook from an existing playbook.
+
+    Args:
+        url: URL to download.
+        path: Location to write file.
+        skip_if_path_exists: If `path` already exists, do not download again.
+
+    Examples:
+
+    ```python
+    core.get_url(url="https://google.com")
+    ```
+    """
+    if skip_if_path_exists is not None and os.path.exists(path):
+        return Return(changed=False)
+
+    r = requests.get(url)
+    with open(path, "wb") as fp:
+        fp.write(r.content)
+
+    return Return(changed=True)

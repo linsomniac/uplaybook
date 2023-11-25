@@ -189,6 +189,7 @@ def cd(path: TemplateStr) -> Return:
 def mkfile(
     path: TemplateStr,
     mode: Optional[Union[TemplateStr, int]] = None,
+    contents: Optional[TemplateStr] = None,
 ) -> Return:
     """
     Create an empty file if it does not already exist.
@@ -196,7 +197,8 @@ def mkfile(
     Args:
         path: Name of file to create (templateable).
         mode: Permissions of file (optional, templatable string or int).
-       Atomically sets mode on creation.
+              Atomically sets mode on creation.
+        contents: If specified, ensure the contents of the file are `contents`.
 
     Examples:
 
@@ -212,13 +214,26 @@ def mkfile(
         fd = os.open(path, os.O_CREAT, **mode_arg)
         os.close(fd)
 
+        if contents is not None:
+            with open(path, "w") as fp:
+                fp.write(contents)
+
         return Return(changed=True)
+
+    changed = False
+    if contents is not None:
+        with open(path, "r") as fp:
+            current_data = fp.read(len(contents) + 1)
+        if current_data != contents:
+            with open(path, "w") as fp:
+                fp.write(contents)
+            changed = True
 
     if mode is not None:
         with CallDepth():
             chmod(path, mode)
 
-    return Return(changed=False)
+    return Return(changed=changed)
 
 
 @task
