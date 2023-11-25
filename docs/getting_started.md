@@ -49,17 +49,17 @@ You can create a test "skeleton" playbook called "my-test-playbook" by running `
 new-uplaybook my-test-playbook`:
 
     $ up new-uplaybook my-test-playbook
-    =! exists(dst=my-test-playbook, ignore_failure=True) (failure ignored)
-    => mkdir(dst=my-test-playbook, parents=True)
-    =# cd(dst=my-test-playbook)
-    => cp(dst=playbook, src=playbook.j2, template=True, template_filenames=True, recursive=True) (Contents)
-    =# cd(dst=/home/sean/projects/uplaybook)
+    =! exists(path=my-test-playbook, ignore_failure=True) (failure ignored)
+    => mkdir(path=my-test-playbook, parents=True)
+    =# cd(path=my-test-playbook)
+    => cp(path=playbook, src=playbook.j2, template=True, template_filenames=True, recursive=True) (Contents)
+    =# cd(path=/home/sean/projects/uplaybook)
     >> *** Starting handler: git_init
-    =# cd(dst=my-test-playbook)
+    =# cd(path=my-test-playbook)
     => run(command=git init, shell=True, ignore_failure=False, change=True)
     Initialized empty Git repository in /home/sean/projects/uplaybook/my-test-playbook/.git/
     => run(command=git add ., shell=True, ignore_failure=False, change=True)
-    =# cd(dst=/home/sean/projects/uplaybook)
+    =# cd(path=/home/sean/projects/uplaybook)
     >> *** Done with handlers
 
     *** RECAP:  total=9 changed=4 failure=0

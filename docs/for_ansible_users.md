@@ -32,14 +32,14 @@ Would be the following in uPlaybook:
 
 ```python
 for item in [
-        core.Item(src="foo.cfg.j2", dst="/etc/foo/foo.cfg"),
-        core.Item(src="bar.cfg.j2", dst="/etc/foo/bar.cfg"),
+        core.Item(src="foo.cfg.j2", path="/etc/foo/foo.cfg"),
+        core.Item(src="bar.cfg.j2", path="/etc/foo/bar.cfg"),
         ]:
     fs.cp(**item)
     #  or:
-    fs.cp(src=item.src, dst=item.dst)
+    fs.cp(src=item.src, path=item.dst)
     #  or:
-    fs.cp(src="{{item.src}}", dst="{{item.dst}}")
+    fs.cp(src="{{item.src}}", path="{{item.dst}}")
 ```
 
 The `**item` syntax applies the attributes from `item` as if they are arguments to the
@@ -53,11 +53,11 @@ the [fs.builder()](tasks/fs.md#uplaybook.fs.builder) meta-task to do simiar func
 Example:
 
 for item in [
-        core.Item(dst="dest", action="directory"),
-        core.Item(src="foo", dst="dest/foo", owner="root"),
-        core.Item(src="bar", dst="dest/bar", owner="root"),
-        core.Item(dst="dest/user-config", group="nobody", mode="a=rX", action="exists"),
-        core.Item(dst="dest/legacy-file", action="absent"),
+        core.Item(path="dest", action="directory"),
+        core.Item(src="foo", path="dest/foo", owner="root"),
+        core.Item(src="bar", path="dest/bar", owner="root"),
+        core.Item(path="dest/user-config", group="nobody", mode="a=rX", action="exists"),
+        core.Item(path="dest/legacy-file", action="absent"),
         ]:
     fs.builder(**items)
 

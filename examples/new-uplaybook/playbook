@@ -39,8 +39,8 @@ def git_init():
         core.run("git add .")
 
 if ARGS.single_file:
-    fs.cp(src="playbook.j2", dst=playbook_fs_name)
+    fs.cp(src="playbook.j2", path=playbook_fs_name)
 else:
-    fs.mkdir(dst=ARGS.playbook_name).notify(git_init)
-    with fs.cd(dst=ARGS.playbook_name):
-        fs.cp(src="playbook.j2", dst="playbook")
+    fs.mkdir(path=ARGS.playbook_name).notify(git_init)
+    with fs.cd(path=ARGS.playbook_name):
+        fs.cp(src="playbook.j2", path="playbook")

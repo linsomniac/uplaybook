@@ -69,16 +69,16 @@ in it, but if you do you have these options:
 
 - Use a RawStr
     ```
-    fs.cp(src="template.j2", dst=core.RawStr("{{filename}}"))
+    fs.cp(src="template.j2", path=core.RawStr("{{filename}}"))
     ```
 - Put the value in a variable that is template expanded:
     ```
     filename = "{{ my weird filename"
-    fs.cp(src="template.j2", dst="{{filename}}")
+    fs.cp(src="template.j2", path="{{filename}}")
     ```
 - Use the "raw" Jinja2 tag:
     ```
-    fs.cp(src="template.j2", dst="{{raw}}{{filename}}{{endraw}}")
+    fs.cp(src="template.j2", path="{{raw}}{{filename}}{{endraw}}")
     ```
 
 ## Files with cp()

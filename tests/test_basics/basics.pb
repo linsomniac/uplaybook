@@ -2,10 +2,10 @@
 
 from uplaybook import fs, core
 
-fs.rm(dst="testdir", recursive=True)
-fs.mkdir(dst="testdir")
-with fs.cd(dst="testdir"):
-    fs.cp(dst="testfile")
+fs.rm(path="testdir", recursive=True)
+fs.mkdir(path="testdir")
+with fs.cd(path="testdir"):
+    fs.cp(path="testfile")
     assert fs.exists("testfile")
 
 core.run(command="date")

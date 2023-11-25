@@ -48,20 +48,20 @@ Output of the above playbook, if run twice, is:
 
 ```bash
 $ up my-test-playbook
-=> mkdir(dst=my-test-project, parents=True)
+=> mkdir(path=my-test-project, parents=True)
 >> *** Starting handler: initialize_project
-=# cd(dst=my-test-project)
-=> mkfile(dst=README)
+=# cd(path=my-test-project)
+=> mkfile(path=README)
 => run(command=git init, shell=True, ignore_failure=False, change=True)
 Initialized empty Git repository in /home/sean/projects/uplaybook/my-test-project/.git/
 => run(command=git add ., shell=True, ignore_failure=False, change=True)
-=# cd(dst=/home/sean/projects/uplaybook)
+=# cd(path=/home/sean/projects/uplaybook)
 >> *** Done with handlers
 
 *** RECAP:  total=6 changed=4 failure=0
 $ #  Running it a second time:
 $ up my-test-playbook
-=# mkdir(dst=my-test-project, parents=True)
+=# mkdir(path=my-test-project, parents=True)
 
 *** RECAP:  total=2 changed=0 failure=0
 ```
@@ -148,9 +148,9 @@ modules, and writing several configuration files, these all may "notify" the
 def restart_apache():
     core.run("systemctl restart apache2")
 core.run("apt -y install apache2", creates="/etc/apache2").notify(restart_apache)
-fs.cp(src="site1.conf.j2", dst="/etc/apache2/sites-enabled/site1.conf").notify(restart_apache)
-fs.cp(src="site2.conf.j2", dst="/etc/apache2/sites-enabled/site2.conf").notify(restart_apache)
-fs.cp(src="site3.conf.j2", dst="/etc/apache2/sites-enabled/site3.conf").notify(restart_apache)
+fs.cp(src="site1.conf.j2", path="/etc/apache2/sites-enabled/site1.conf").notify(restart_apache)
+fs.cp(src="site2.conf.j2", path="/etc/apache2/sites-enabled/site2.conf").notify(restart_apache)
+fs.cp(src="site3.conf.j2", path="/etc/apache2/sites-enabled/site3.conf").notify(restart_apache)
 core.flush_handlers()
 #  ensure apache is running
 run("wget -O /dev/null http://localhost/")
@@ -167,7 +167,7 @@ core.notify(handler)
 Handlers can be either a single handler function or a list of handlers:
 
 ```python
-fs.cp(src="site.conf.j2", dst="/etc/apache2/sites-available/site.conf").notify([
+fs.cp(src="site.conf.j2", path="/etc/apache2/sites-available/site.conf").notify([
     a2ensite,
     restart_apache
     ])
@@ -213,9 +213,9 @@ item lists.
 Example:
 
     for item in [
-            core.Item(dst="foo", action="directory", owner="nobody"),
-            core.Item(dst="bar", action="exists"),
-            core.Item(dst="/etc/apache2/sites-enabled/foo", notify=restart_apache),
+            core.Item(path="foo", action="directory", owner="nobody"),
+            core.Item(path="bar", action="exists"),
+            core.Item(path="/etc/apache2/sites-enabled/foo", notify=restart_apache),
             ]:
         fs.builder(**item)
 

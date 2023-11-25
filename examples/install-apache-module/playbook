@@ -30,12 +30,12 @@ if not ARGS.remove:
     ).notify(restart_and_enable_apache)
     fs.ln(
         src="/etc/apache2/mods-available/{{ ARGS.module_name }}.load",
-        dst="/etc/apache2/mods-enabled/{{ ARGS.module_name }}.load",
+        path="/etc/apache2/mods-enabled/{{ ARGS.module_name }}.load",
         symbolic=True,
     ).notify(restart_and_enable_apache)
 else:
     fs.rm(
-        dst="/etc/apache2/mods-enabled/{{ ARGS.module_name }}.load",
+        path="/etc/apache2/mods-enabled/{{ ARGS.module_name }}.load",
     ).notify(restart_and_enable_apache)
     pyinfra.apt.packages(
         packages=[f"libapache2-mod-{ARGS.module_name}"],

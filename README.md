@@ -106,8 +106,8 @@ def restart_apache():
     pyinfra.systemd.service(service="apache2", restarted=True)
 
 pyinfra.apt.packages(packages=["apache2"])
-fs.cp(src="my-site.conf.j2", dst="/etc/apache2/sites-available/my-site.conf").notify(restart_apache)
-fs.ln(src="/etc/apache2/sites-available/my-site.conf", dst="/etc/apache2/sites-enabled/", symbolic=True).notify(restart_apache)
+fs.cp(src="my-site.conf.j2", path="/etc/apache2/sites-available/my-site.conf").notify(restart_apache)
+fs.ln(src="/etc/apache2/sites-available/my-site.conf", path="/etc/apache2/sites-enabled/", symbolic=True).notify(restart_apache)
 ```
 
 Enable an Apache module:
@@ -128,10 +128,10 @@ if not ARGS.remove:
     pyinfra.apt.packages(packages=["apache2", f"libapache2-mod-{ARGS.module_name}"]
           ).notify(restart_and_enable_apache)
     fs.ln(src="/etc/apache2/mods-available/{{ ARGS.module_name }}.load",
-          dst="/etc/apache2/mods-enabled/{{ ARGS.module_name }}.load",
+          path="/etc/apache2/mods-enabled/{{ ARGS.module_name }}.load",
           symbolic=True).notify(restart_and_enable_apache)
 else:
-    fs.rm(dst="/etc/apache2/mods-enabled/{{ ARGS.module_name }}.load",
+    fs.rm(path="/etc/apache2/mods-enabled/{{ ARGS.module_name }}.load",
           ).notify(restart_and_enable_apache)
     pyinfra.apt.packages(packages=[f"libapache2-mod-{ARGS.module_name}"], present=False,
           ).notify(restart_and_enable_apache)

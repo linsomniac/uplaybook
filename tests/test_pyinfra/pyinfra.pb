@@ -4,11 +4,11 @@ from uplaybook import fs, core, pyinfra
 import os
 
 def cleanup():
-    fs.rm(dst="testdir", recursive=True)
+    fs.rm(path="testdir", recursive=True)
 
-fs.rm(dst="testdir", recursive=True)
-fs.mkdir(dst="testdir")
-with fs.cd(dst="testdir"):
+fs.rm(path="testdir", recursive=True)
+fs.mkdir(path="testdir")
+with fs.cd(path="testdir"):
     pyinfra.files.directory(path="infradir")
     assert os.path.exists("infradir")
     pyinfra.files.directory(path="infradir")
