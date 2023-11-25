@@ -262,7 +262,7 @@ def sync(
     exclude_dir=None,
     add_deploy_dir=True,
 ):
-    """
+    r"""
     Syncs a local directory with a remote one, with delete support. Note that delete will
     remove extra files on the remote side, but not extra directories.
 
@@ -922,7 +922,7 @@ def block(
     begin=None,
     end=None,
 ):
-    """
+    r"""
     Ensure content, surrounded by the appropriate markers, is present (or not) in the file.
 
     + path: target remote file
@@ -965,7 +965,7 @@ def block(
     files.marked_block(
         name="add IP address for red server",
         path="/etc/hosts",
-        content="10.0.0.1 mars-one\\n10.0.0.2 mars-two",
+        content="10.0.0.1 mars-one\n10.0.0.2 mars-two",
         before=True,
         regex=".*localhost",
     )

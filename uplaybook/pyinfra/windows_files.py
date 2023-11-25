@@ -25,7 +25,7 @@ def download(
     sha1sum=None,
     md5sum=None,
 ):
-    """
+    r"""
     Download files from remote locations using curl or wget.
 
     + src: source URL of the file
@@ -85,7 +85,7 @@ def put(
     force=False,
     assume_exists=False,
 ):
-    """
+    r"""
     Upload a local file to the remote system.
 
     + src: local filename to upload
@@ -150,7 +150,7 @@ def file(
     touch=False,
     create_remote_dir=True,
 ):
-    """
+    r"""
     Add/remove/update files.
 
     + path: path of the remote file
@@ -228,7 +228,7 @@ def directory(
     mode=None,
     recursive=False,
 ):
-    """
+    r"""
     Add/remove/update directories.
 
     + path: path of the remote folder
@@ -313,7 +313,7 @@ def link(
     force=True,
     create_remote_dir=True,
 ):
-    """
+    r"""
     Add/remove/update links.
 
     + path: the name of the link

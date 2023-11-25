@@ -9,6 +9,8 @@ plugins:
         paths: [uplaybook]
         options:
           show_source: false
+watch:
+  - uplaybook
 extra_css:
 - assets/versions.css
 extra_javascript:
