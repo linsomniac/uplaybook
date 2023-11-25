@@ -9,5 +9,10 @@ eval "$UP2 notify.pb" || RETCODE=$?
 eval "$UP2 include.pb" || RETCODE=$?
 eval "$UP2 args.pb" release --arg1 --arg2=value || RETCODE=$?
 
+echo "Running loader tests:"
+./loader.pb | grep xyzzy || ( RETCODE=$? && echo "ERROR: Loader test 1 failed" )
+up ./loader.pb | grep xyzzy || ( RETCODE=$? && echo "ERROR: Loader test 2 failed" )
+up loader | grep xyzzy || ( RETCODE=$? && echo "ERROR: Loader test 3 failed" )
+
 [ "${UP_TEST_CLEANUP:-yes}" = "yes" ] && rm -rf testdir
 exit $RETCODE
