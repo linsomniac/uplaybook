@@ -590,7 +590,6 @@ def import_script_as_module(module_name: str, paths_to_try: List[str]) -> Module
     module.__dict__.update(up_context.get_env())
     up_context.playbook_namespace = module.__dict__
     spec.loader.exec_module(module)
-    sys.modules["up"] = module
 
     return module
 

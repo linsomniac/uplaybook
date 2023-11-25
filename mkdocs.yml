@@ -54,6 +54,7 @@ nav:
   - What is a Playbook: playbooks/what_is.md
   - Basics: playbooks/basics.md
 - Templating: templating.md
+- Including Sub-Playbooks: include.md
 - Hacking: hacking.md
 - Task Reference:
   - Core Tasks: tasks/core.md

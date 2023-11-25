@@ -567,11 +567,20 @@ def print(
 
 
 @task
-def include(playbook: str):
+def include(playbook: TemplateStr, hoist_vars: bool = True) -> Return:
     """
-    Include a playbook.
+    Access another playbook from an existing playbook.
 
-    Run another playbook within the current one.
+    Args:
+        playbook: Playbook to include. (templateable)
+        hoist_vars: If True (the default), variables set in the playbook are "hoisted"
+                up into the main playbook.
+
+    Examples:
+
+    ```python
+    core.include(playbook="set_vars.pb")
+    ```
     """
     full_playbook_path = os.path.join(up_context.playbook_directory, playbook)
     # pb_info = internals.find_playbook(full_playbook_path)
@@ -593,6 +602,13 @@ def include(playbook: str):
                 "Unable to spec_from_loader() the module, no error returned."
             )
         module = module_from_spec(spec)
+        keys_before = set(module.__dict__.keys())
         spec.loader.exec_module(module)
+
+        if hoist_vars:
+            for key, value in module.__dict__.items():
+                if key not in keys_before:
+                    module.__dict__[key] = value
+                    up_context.playbook_namespace[key] = value
 
     return ret
