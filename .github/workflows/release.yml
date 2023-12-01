@@ -30,6 +30,9 @@ jobs:
       - name: Update version in pyproject.toml
         run: |
           sed -i "s/version = \".*\"/version = \"${RELEASE_VERSION}\"/" pyproject.toml
+      - name: Update version in uplaybook
+        run: |
+          sed -i "s/version = \".*\"/version = \"${RELEASE_VERSION}\"/" uplaybook/internals.py
       - name: Build package
         run: python -m build
       - name: Publish package

@@ -241,15 +241,19 @@ def run(
     extra.returncode = p.returncode
     failure = p.returncode != 0
 
+    failure_msg = f"Exit code: {p.returncode}"
+    if p.stdout:
+        failure_msg += f"\n   >stdout: {p.stdout.rstrip()}"
+    if p.stderr:
+        failure_msg += f"\n   >stderr: {p.stderr.rstrip()}"
+
     return Return(
         changed=change,
         failure=failure,
         output=p.stdout.rstrip(),
         extra=extra,
         ignore_failure=ignore_failure,
-        raise_exc=Failure(f"Exit code {p.returncode}")
-        if failure and not ignore_failure
-        else None,
+        raise_exc=Failure(failure_msg) if failure and not ignore_failure else None,
     )
 
 

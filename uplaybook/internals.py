@@ -8,6 +8,8 @@ for reference by users.  These are typically not used directly by end-users, tho
 parts of the documentation may refer to these classes.
 """
 
+uplaybook_version = "dev"
+
 import sys
 import inspect
 from typing import Optional, Union, List, Callable, Any, Iterator
@@ -723,6 +725,11 @@ def parse_args() -> argparse.Namespace:
         help="Display additional debugging information during playbook run.",
     )
     parser.add_argument(
+        "--up-version",
+        action="store_true",
+        help="Display the version and exit?",
+    )
+    parser.add_argument(
         "--up-docs",
         type=str,
         nargs="?",
@@ -734,6 +741,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "playbook", type=str, nargs="?", default=None, help="Name of the playbook."
     )
+
+    if "--up-version" in sys.argv:
+        print(f"uPlaybook version: {uplaybook_version}")
+        sys.exit(0)
 
     args, remaining_args = parser.parse_known_args()
 
@@ -888,17 +899,17 @@ def find_file(filename: str) -> Path:
     )
 
 
-def show_playbook_traceback() -> None:
+def show_playbook_traceback(e: Exception) -> None:
     """
     Display the current traceback, but only the parts that reference the playbook(s).
     Traceback is printed to stdout.
     """
     tb_lines = traceback.format_exc().splitlines()
-    print(tb_lines[0])
+    up_context.console.print(f"[bold red]{tb_lines[0]}[/]")
     print_next_line = False
     for line in tb_lines[1:-1]:
         if print_next_line:
-            print(line)
+            up_context.console.print(line, highlight=True)
             print_next_line = False
             continue
         if line.startswith("  File "):
@@ -906,7 +917,13 @@ def show_playbook_traceback() -> None:
             if filename in up_context.playbook_files_seen:
                 print(line)
                 print_next_line = True
-    print(tb_lines[-1])
+    if tb_lines[-1]:
+        print(tb_lines[-1])
+
+    if isinstance(e, Failure):
+        up_context.console.print(
+            f"[bold red]Task Failure, Cause:[/]\n   {str(e)}", highlight=True
+        )
 
 
 def cli() -> None:
@@ -934,11 +951,11 @@ def cli() -> None:
     except Exit as e:
         return_code = e.return_code
         pass
-    except Exception:
+    except Exception as e:
         if args.up_full_traceback or not full_playbook_path:
             print(traceback.format_exc())
         else:
-            show_playbook_traceback()
+            show_playbook_traceback(e)
         return_code = 1
 
     up_context.flush_handlers()
