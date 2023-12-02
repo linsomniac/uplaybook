@@ -904,25 +904,27 @@ def show_playbook_traceback(e: Exception) -> None:
     Display the current traceback, but only the parts that reference the playbook(s).
     Traceback is printed to stdout.
     """
-    tb_lines = traceback.format_exc().splitlines()
-    up_context.console.print(f"[bold red]{tb_lines[0]}[/]")
-    print_next_line = False
-    for line in tb_lines[1:-1]:
-        if print_next_line:
-            up_context.console.print(line, highlight=True)
-            print_next_line = False
+    up_context.console.print(
+        f"[bold red]uPlaybook Traceback (most recent call last):[/]"
+    )
+    exc_type, exc_value, exc_tb = sys.exc_info()
+    for entry in traceback.extract_tb(exc_tb):
+        if entry.filename not in up_context.playbook_files_seen:
             continue
-        if line.startswith("  File "):
-            filename = line.split()[1].strip('",')
-            if filename in up_context.playbook_files_seen:
-                print(line)
-                print_next_line = True
-    if tb_lines[-1]:
-        print(tb_lines[-1])
+        up_context.console.print(
+            f'  File: "{entry.filename}", line {entry.lineno}, in {entry.name}',
+            highlight=True,
+        )
+        up_context.console.print(f"    {entry.line}", highlight=True)
+        #', '_line', 'filename', 'line', 'lineno', 'locals', 'name']
 
     if isinstance(e, Failure):
         up_context.console.print(
             f"[bold red]Task Failure, Cause:[/]\n   {str(e)}", highlight=True
+        )
+    else:
+        up_context.console.print(
+            "".join(traceback.format_exception_only(exc_value)).rstrip(), highlight=True
         )
 
 

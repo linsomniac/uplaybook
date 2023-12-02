@@ -608,7 +608,10 @@ def include(playbook: TemplateStr, hoist_vars: bool = True) -> Return:
             )
         module = module_from_spec(spec)
         keys_before = set(module.__dict__.keys())
+
+        up_context.playbook_files_seen.add(str(full_playbook_path))
         spec.loader.exec_module(module)
+        up_context.playbook_files_seen.remove(str(full_playbook_path))
 
         if hoist_vars:
             for key, value in module.__dict__.items():
