@@ -905,7 +905,7 @@ def show_playbook_traceback(e: Exception) -> None:
     Traceback is printed to stdout.
     """
     up_context.console.print(
-        f"[bold red]uPlaybook Traceback (most recent call last):[/]"
+        "[bold red]uPlaybook Traceback (most recent call last):[/]"
     )
     exc_type, exc_value, exc_tb = sys.exc_info()
     for entry in traceback.extract_tb(exc_tb):
