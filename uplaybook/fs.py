@@ -15,7 +15,9 @@ from .internals import (
     up_context,
     task,
     CallDepth,
+    PasswordNeeded,
 )
+from .fernetreader import FernetReader
 from . import internals
 from typing import Union, Optional, Callable
 from types import SimpleNamespace
@@ -547,15 +549,25 @@ def cp(
                 sha.update(fp_in.read())
                 hash_before = sha.hexdigest()
 
-        with open(src, "r") as fp_in:
-            data = fp_in.read()
+        def UnknownPassword():
+            raise PasswordNeeded(
+                f"An encrypted file was found ({src}) but no decryption key was given"
+            )
+
+        to_decrypt = decrypt_password if decrypt_password else UnknownPassword
+
+        encoding = "latin-1"
+        with FernetReader(src, to_decrypt) as fp_in:
+            data: bytes = fp_in.read()
             if template:
-                data = up_context.jinja_env.from_string(data).render(
-                    up_context.get_env()
+                data = (
+                    up_context.jinja_env.from_string(data.decode(encoding))
+                    .render(up_context.get_env())
+                    .encode(encoding)
                 )
 
         sha = hashlib.sha256()
-        sha.update(data.encode("latin-1"))
+        sha.update(data)
         hash_after = sha.hexdigest()
 
         if mode is not None:
@@ -569,7 +581,7 @@ def cp(
         pathTmp = path + ".tmp." + _random_ext()
         mode_arg = {} if mode is None else {"mode": mode}
         fd = os.open(pathTmp, os.O_WRONLY | os.O_CREAT, **mode_arg)
-        with os.fdopen(fd, "w") as fp_out:
+        with os.fdopen(fd, "wb") as fp_out:
             fp_out.write(data)
         os.rename(pathTmp, path)
 

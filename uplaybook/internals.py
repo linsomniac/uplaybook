@@ -55,6 +55,14 @@ class Exit(Exception):
         self.return_code = return_code
 
 
+class PasswordNeeded(Exception):
+    """
+    An exception which indicates a password is unavailable for decrypting input files.
+    """
+
+    pass
+
+
 def PlatformInfo() -> types.SimpleNamespace:
     """
     See "docs/templating.md#platform_info" for more information.

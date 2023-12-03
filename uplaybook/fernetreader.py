@@ -108,7 +108,7 @@ class FernetReader:
         self._file.close()
 
 
-class JinaFernetReader:
+class JinjaFernetReader:
     """
     A wrapper on top of FernetReader that will render the template contained in the file.
 
