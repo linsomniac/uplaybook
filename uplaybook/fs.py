@@ -17,9 +17,10 @@ from .internals import (
     CallDepth,
     PasswordNeeded,
 )
+from .core import Item
 from .fernetreader import FernetReader
 from . import internals
-from typing import Union, Optional, Callable
+from typing import Union, Optional, Callable, List
 from types import SimpleNamespace
 import symbolicmode
 import os
@@ -627,43 +628,50 @@ def cp(
 
 
 @task
-def builder(
+def fs(
     path: TemplateStr,
+    action: Union[TemplateStr, str] = "template",
     src: Optional[TemplateStr] = None,
     mode: Optional[Union[TemplateStr, int]] = None,
     owner: Optional[TemplateStr] = None,
     group: Optional[TemplateStr] = None,
-    action: Union[TemplateStr, str] = "template",
     notify: Optional[Callable] = None,
 ) -> Return:
     """
-    All-in-one filesystem builder.
+    This is a unified entry point for the `fs` module that can take paths and
+    actions and call the other functions in the module based on the action.
 
     This is targeted for use with Items() loops, for easily populating or
     modifying many filesystem objects in compact declarations.
 
     Args:
         path: Name of destination filesystem object. (templateable).
+        action: Type of `path` to build, can be: (optional, templatable, default="template")
+            - "directory"
+            - "template"
+            - "exists"
+            - "copy"
+            - "absent"
+            - "link"
+            - "symlink"
         src: Name of template to use as source (optional, templateable).
             Defaults to the basename of `path` + ".j2".
         mode: Permissions of file (optional, templatable string or int).
         owner: Ownership to set on `path`. (optional, templatable).
         group: Group to set on `path`. (optional, templatable).
-        action: Type of `path` to build, can be: "directory", "template", "exists",
-            "copy", "absent", "link", "symlink". (optional, templatable, default="template")
         notify:  Handler to notify of changes.
             (optional, Callable)
 
     Examples:
 
     ```python
-    fs.builder("/tmp/foo")
-    fs.builder("/tmp/bar", action="directory")
+    fs.fs(path="/tmp/foo")
+    fs.fs(path="/tmp/bar", action="directory")
     for _ in [
-            Item(path="/tmp/{{ modname }}", action="directory"),
-            Item(path="/tmp/{{ modname }}/__init__.py"),
+            core.Item(path="/tmp/{{ modname }}", action="directory"),
+            core.Item(path="/tmp/{{ modname }}/__init__.py"),
             ]:
-        builder()
+        fs.fs()
     ```
     """
 
@@ -694,6 +702,79 @@ def builder(
         r = r.notify(notify)
 
     return Return(changed=r.changed)
+
+
+@task
+def builder(
+    items: List[Item],
+    defaults: Item = Item(),
+) -> Return:
+    """
+    All-in-one filesystem builder.  This is the swiss-army knife of the fs module, given a list
+    of all the filesystem changes that need to be accomplished, it will carry them out.
+
+    This is targeted for use with Items() loops, for easily populating or
+    modifying many filesystem objects in compact declarations.
+
+    Args:
+        items: A list of the file-system actions to take, `Item()` objects with attributes as below.
+        defaults: An `Item()` specifying defaults that can be overridden by the specific
+            items, for example if most owners should be "root", but a few need to be
+            "nobody", specify `owner="root"` in the defaults.  (Optional)
+
+    Item Attributes:
+        Items can have these attributes (from `fs.fs`):
+
+            path: Name of destination filesystem object. (templateable).
+            action: Type of `path` to build, can be: (optional, templatable, default="template")
+                - "directory"
+                - "template"
+                - "exists"
+                - "copy"
+                - "absent"
+                - "link"
+                - "symlink"
+            src: Name of template to use as source (optional, templateable).
+                Defaults to the basename of `path` + ".j2".
+            mode: Permissions of file (optional, templatable string or int).
+            owner: Ownership to set on `path`. (optional, templatable).
+            group: Group to set on `path`. (optional, templatable).
+            notify:  Handler to notify of changes.
+                (optional, Callable)
+
+    Examples:
+
+    ```python
+    fs.builder(items=[
+        #  creates "/tmp/foo" from "foo.j2" as a template
+        Item(path="/tmp/foo",
+
+        #  makes the "/tmp/bar" directory
+        Item(path="/tmp/bar", action="directory"),
+        ]))
+
+
+    fs.builder(defaults=Item(owner="root", group="root", mode="a=rX,u+w",
+               items=[
+                   Item(path="/tmp/{{ modname }}", action="directory"),
+                   Item(path="/tmp/{{ modname }}/__init__.py"),
+                   Item(path="/tmp/should-not-exist", action="absent"),
+                   Item(path="/tmp/{{ modname }}/nobody-file", owner="nobody", group="nobody"),
+                   Item(path="/tmp/{{ modname }}/site.conf", notify=restart_apache),
+               ])
+    ```
+    """
+    changed = False
+
+    for item in items:
+        args = defaults.copy()
+        args.update(item)
+        r = fs(**args)
+
+        if r.changed:
+            changed = True
+
+    return Return(changed=changed)
 
 
 @task
