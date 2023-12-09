@@ -3,8 +3,47 @@
 """
 Filesystem Related Tasks
 
-This module contains uPlaybook tasks that are related to file system operations.
+Tasks to manipulate the filesystem: create/delete files and directories, manage
+permissions, etc...
 
+There are individual tasks that are named using UNIX conventions.  There are also
+higher-level tasks: `builder()` and `fs()`, which are controlled by the `action` argument.
+
+## fs.builder -- The file-system power-house
+
+`fs.builder()` is a power-house for setting up your file-system, as it takes a list of
+`core.Item`s to streamline the creation large swaths of your file-system.
+
+For example, you could:
+
+    - Write an apt.sources.list file, and trigger an apt update if written.
+    - Create a var directory.
+    - Template a systemd file and trigger a daemon-reload if written.
+    - Create a /usr/local/src directory.
+    - Template a docker-compose file into it.
+    - Trigger a `docker compose` run if updated.
+
+Here is an example:
+
+```python
+def semaphore_compose():
+    with fs.cd(path="/usr/local/src/ansible-semaphore"):
+        core.run(cmd="docker compose up -d")
+
+fs.builder([
+    core.Item(path="/usr/local/src/ansible-semaphore", state="directory"),
+    core.item(path="/usr/local/src/ansible-semaphore/docker-compose.yml",
+              notify=semaphore_compose),
+    ])
+```
+
+## fs.fs -- the builder() back-end
+
+`fs.fs()` is just like `fs.builder()`, except it does not take a list of `Item`s, it takes
+the exploded arguments.  Mostly, it exists as a back-end for `fs.builder()`, though there
+may be situations where it is useful, so it is left as exposed.
+
+## Tasks
 """
 
 from .internals import (
