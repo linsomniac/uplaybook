@@ -68,6 +68,7 @@ import random
 import string
 import hashlib
 import shutil
+from pathlib import Path
 
 
 def _mode_from_arg(
@@ -567,7 +568,7 @@ def cp(
     """
 
     def _copy_file(
-        src: str,
+        src: Path,
         path: str,
         mode: Optional[Union[str, int]] = None,
         decrypt_password: Union[str, None] = None,
@@ -597,7 +598,7 @@ def cp(
         to_decrypt = decrypt_password if decrypt_password else UnknownPassword
 
         encoding = "latin-1"
-        with FernetReader(src, to_decrypt) as fp_in:
+        with FernetReader(src.as_posix(), to_decrypt) as fp_in:
             data: bytes = fp_in.read()
             if template:
                 data = (
@@ -627,8 +628,8 @@ def cp(
 
         return "Contents"
 
-    src = src if src is not None else os.path.basename(path) + ".j2"
-    src = internals.find_file(src)
+    src_name = src if src is not None else os.path.basename(path) + ".j2"
+    src: Path = internals.find_file(src_name)
 
     if encrypt_password or decrypt_password:
         raise NotImplementedError("Crypto not implemented yet")
@@ -640,6 +641,8 @@ def cp(
             for dirpath, dirnames, filenames in os.walk(src):
                 path_dir = os.path.join(path, os.path.relpath(dirpath, src))
 
+                if not template_filenames:
+                    path_dir = RawStr(path_dir)
                 r = mkdir(path=path_dir, mode=mode)
                 if r.changed:
                     changes_made.add("Subdir")
@@ -647,6 +650,8 @@ def cp(
                 for filename in filenames:
                     src_file = RawStr(os.path.join(dirpath, filename))
                     path_file = os.path.join(path_dir, filename)
+                    if not template_filenames:
+                        path_file = RawStr(path_file)
                     r = cp(src=src_file, path=path_file)
                     if r.changed:
                         changes_made.add("Subfile")
