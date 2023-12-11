@@ -5,7 +5,7 @@ from uplaybook import fs, core
 fs.rm(path="testdir", recursive=True)
 fs.mkdir(path="testdir")
 with fs.cd(path="testdir"):
-    fs.cp(path="testfile")
+    fs.write(path="testfile")
     assert fs.exists("testfile")
 
 core.run(command="date")

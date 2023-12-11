@@ -35,11 +35,11 @@ for item in [
         core.Item(src="foo.cfg.j2", path="/etc/foo/foo.cfg"),
         core.Item(src="bar.cfg.j2", path="/etc/foo/bar.cfg"),
         ]:
-    fs.cp(**item)
+    fs.write(**item)
     #  or:
-    fs.cp(src=item.src, path=item.dst)
+    fs.write(src=item.src, path=item.dst)
     #  or:
-    fs.cp(src="{{item.src}}", path="{{item.dst}}")
+    fs.write(src="{{item.src}}", path="{{item.dst}}")
 ```
 
 The `**item` syntax applies the attributes from `item` as if they are arguments to the

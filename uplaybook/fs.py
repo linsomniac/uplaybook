@@ -531,7 +531,7 @@ def ln(
 
 
 @task
-def cp(
+def write(
     path: TemplateStr,
     src: Optional[TemplateStr] = None,
     mode: Optional[Union[TemplateStr, int]] = None,
@@ -562,8 +562,8 @@ def cp(
     Examples:
 
     ```python
-    fs.cp(path="/tmp/foo")
-    fs.cp(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
+    fs.write(path="/tmp/foo")
+    fs.write(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
     ```
     """
 
@@ -652,7 +652,7 @@ def cp(
                     path_file = os.path.join(path_dir, filename)
                     if not template_filenames:
                         path_file = RawStr(path_file)
-                    r = cp(src=src_file, path=path_file)
+                    r = write(src=src_file, path=path_file)
                     if r.changed:
                         changes_made.add("Subfile")
     else:
@@ -721,9 +721,9 @@ def fs(
 
     with CallDepth():
         if action == "template":
-            r = cp(src=src, path=path)
+            r = write(src=src, path=path)
         elif action == "copy":
-            r = cp(src=src, path=path, template=False)
+            r = write(src=src, path=path, template=False)
         elif action == "directory":
             r = mkdir(path=path, mode=mode)
         elif action == "exists":

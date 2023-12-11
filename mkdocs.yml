@@ -49,6 +49,7 @@ theme:
 nav:
 - Overview: index.md
 - Getting Started: getting_started.md
+- Tutorial: tutorial.md
 - Installing: installing.md
 - Running: running.md
 - uPlaybook Library: uplaybook_library.md

@@ -39,8 +39,8 @@ arguments it takes:
 
 Run `up --up-docs module.task` to get help about a task:
 
-    $ up --up-docs fs.cp
-    # fs.cp
+    $ up --up-docs fs.write
+    # fs.write
 
     Copy the `src` file to `dst`, optionally templating the contents in `src`.
     [...]
