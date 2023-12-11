@@ -542,7 +542,16 @@ def write(
     recursive: bool = True,
 ) -> Return:
     """
-    Copy the `src` file to `path`, optionally templating the contents in `src`.
+    Write the `src` file(s) from the playbook to `path`.
+    The `write()` task pulls the `src` file(s) from the playbook and writes them to
+    `path`. This is typically used for templates or other files/data that are provided
+    as a part of the playbook to write to the destination system (for example:
+    configurations, scaffolding, etc).
+
+    Optionally templating the contents in `src`.  It can also template file names when
+    doing recursive operations.
+
+    The `src` files are searched for using the `UP_FILES_PATH` search path.
 
     Args:
         path: Name of destination file. (templateable).
