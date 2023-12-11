@@ -25,7 +25,7 @@ with fs.cd(path="testdir"):
 
     #  test templating file names
     project_name = "my_project"
-    fs.write(src="project", path=".")
+    fs.cp(src="project", path=".")
     assert os.path.exists("my_project/my_project_test")
     core.grep(path="my_project/my_project_test", search="This is a test")
     core.grep(path="my_project/my_project_subdir/my_project_subfile", search="Another test")
@@ -33,5 +33,5 @@ with fs.cd(path="testdir"):
 
     #  test NOT-templating file names
     project_name = "my_project"
-    fs.write(src="project", path=".", template_filenames=False)
+    fs.cp(src="project", path=".", template_filenames=False)
     assert os.path.exists("{{project_name}}/{{project_name}}_subdir/{{project_name}}_subfile")

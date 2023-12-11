@@ -69,21 +69,21 @@ in it, but if you do you have these options:
 
 - Use a RawStr
     ```
-    fs.write(src="template.j2", path=core.RawStr("{{filename}}"))
+    fs.cp(src="template.j2", path=core.RawStr("{{filename}}"))
     ```
 - Put the value in a variable that is template expanded:
     ```
     filename = "{{ my weird filename"
-    fs.write(src="template.j2", path="{{filename}}")
+    fs.cp(src="template.j2", path="{{filename}}")
     ```
 - Use the "raw" Jinja2 tag:
     ```
-    fs.write(src="template.j2", path="{{raw}}{{filename}}{{endraw}}")
+    fs.cp(src="template.j2", path="{{raw}}{{filename}}{{endraw}}")
     ```
 
 ## Files with cp()
 
-The `src` file in `fs.write()` will be template expanded (if `template` argument is set to
+The `src` file in `fs.cp()` will be template expanded (if `template` argument is set to
 True, the default).
 
 !!! For Ansible Users

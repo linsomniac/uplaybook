@@ -531,7 +531,7 @@ def ln(
 
 
 @task
-def write(
+def cp(
     path: TemplateStr,
     src: Optional[TemplateStr] = None,
     mode: Optional[Union[TemplateStr, int]] = None,
@@ -542,16 +542,17 @@ def write(
     recursive: bool = True,
 ) -> Return:
     """
-    Write the `src` file(s) from the playbook to `path`.
-    The `write()` task pulls the `src` file(s) from the playbook and writes them to
-    `path`. This is typically used for templates or other files/data that are provided
+    Copy the `src` file(s) to `path`.
+
+    If `src` is a relative path, the `src` is searched for in the playbook (using
+    UP_FILES_PATH).  A fully qualified `src` will NOT be relative to the playbook.
+
+    Relative `src` is typically used for templates or other files/data that are provided
     as a part of the playbook to write to the destination system (for example:
     configurations, scaffolding, etc).
 
     Optionally templating the contents in `src`.  It can also template file names when
     doing recursive operations.
-
-    The `src` files are searched for using the `UP_FILES_PATH` search path.
 
     Args:
         path: Name of destination file. (templateable).
@@ -571,8 +572,8 @@ def write(
     Examples:
 
     ```python
-    fs.write(path="/tmp/foo")
-    fs.write(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
+    fs.cp(path="/tmp/foo")
+    fs.cp(src="bar-{{ fqdn }}.j2", path="/tmp/bar", template=False)
     ```
     """
 
@@ -661,7 +662,7 @@ def write(
                     path_file = os.path.join(path_dir, filename)
                     if not template_filenames:
                         path_file = RawStr(path_file)
-                    r = write(src=src_file, path=path_file)
+                    r = cp(src=src_file, path=path_file)
                     if r.changed:
                         changes_made.add("Subfile")
     else:
@@ -730,9 +731,9 @@ def fs(
 
     with CallDepth():
         if action == "template":
-            r = write(src=src, path=path)
+            r = cp(src=src, path=path)
         elif action == "copy":
-            r = write(src=src, path=path, template=False)
+            r = cp(src=src, path=path, template=False)
         elif action == "directory":
             r = mkdir(path=path, mode=mode)
         elif action == "exists":

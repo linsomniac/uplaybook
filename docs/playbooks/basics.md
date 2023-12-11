@@ -148,9 +148,9 @@ modules, and writing several configuration files, these all may "notify" the
 def restart_apache():
     core.run("systemctl restart apache2")
 core.run("apt -y install apache2", creates="/etc/apache2").notify(restart_apache)
-fs.write(src="site1.conf.j2", path="/etc/apache2/sites-enabled/site1.conf").notify(restart_apache)
-fs.write(src="site2.conf.j2", path="/etc/apache2/sites-enabled/site2.conf").notify(restart_apache)
-fs.write(src="site3.conf.j2", path="/etc/apache2/sites-enabled/site3.conf").notify(restart_apache)
+fs.cp(src="site1.conf.j2", path="/etc/apache2/sites-enabled/site1.conf").notify(restart_apache)
+fs.cp(src="site2.conf.j2", path="/etc/apache2/sites-enabled/site2.conf").notify(restart_apache)
+fs.cp(src="site3.conf.j2", path="/etc/apache2/sites-enabled/site3.conf").notify(restart_apache)
 core.flush_handlers()
 #  ensure apache is running
 run("wget -O /dev/null http://localhost/")
@@ -167,7 +167,7 @@ core.notify(handler)
 Handlers can be either a single handler function or a list of handlers:
 
 ```python
-fs.write(src="site.conf.j2", path="/etc/apache2/sites-available/site.conf").notify([
+fs.cp(src="site.conf.j2", path="/etc/apache2/sites-available/site.conf").notify([
     a2ensite,
     restart_apache
     ])

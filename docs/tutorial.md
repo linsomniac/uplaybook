@@ -214,7 +214,7 @@ for module_name in ["proxy", "uwsgi"]:
     fs.ln(src="/etc/apache2/mods-available/{{ module_name }}.load",
           path="/etc/apache2/mods-enabled",
           symbolic=True).notify(restart_apache)
-fs.write(path="/etc/apache2/sites-available/my-website.conf").notify(restart_apache)
+fs.cp(path="/etc/apache2/sites-available/my-website.conf").notify(restart_apache)
 fs.ln(src="/etc/apache2/sites-available/my-website.conf",
       path="/etc/apache2/sites-enabled",
       symbolic=True).notify(restart_apache)
@@ -226,7 +226,7 @@ Also write the file "my-website/my-website.conf.j2" with the following contents:
 
     #  My uwsgi website
 
-Why do we call the file "my-website.conf.j2"?  By default, `fs.write()` will: use the base
+Why do we call the file "my-website.conf.j2"?  By default, `fs.cp()` will: use the base
 name of the resulting file as the source, and add ".j2" because by default it will do
 Jinja2 template expansion on the file contents.  It can also Jinja2 expand file names as
 well, if doing a recursive write.

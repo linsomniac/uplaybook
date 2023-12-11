@@ -50,7 +50,7 @@ information to uPlaybook about:
 
 It is a tasks responsibility to determine if the arguments to it specify the existing
 system state, or if a change will be made.  For example, the
-[fs.write()](tasks/fs.md#uplaybook.fs.write) task will check the destination file permissions,
+[fs.cp()](tasks/fs.md#uplaybook.fs.cp) task will check the destination file permissions,
 template the source file and compare it's hash with the existing file, and only apply the
 changes if they are meaningful.
 

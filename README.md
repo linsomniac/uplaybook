@@ -106,7 +106,7 @@ def restart_apache():
     pyinfra.systemd.service(service="apache2", restarted=True)
 
 pyinfra.apt.packages(packages=["apache2"])
-fs.write(src="my-site.conf.j2", path="/etc/apache2/sites-available/my-site.conf").notify(restart_apache)
+fs.cp(src="my-site.conf.j2", path="/etc/apache2/sites-available/my-site.conf").notify(restart_apache)
 fs.ln(src="/etc/apache2/sites-available/my-site.conf", path="/etc/apache2/sites-enabled/", symbolic=True).notify(restart_apache)
 ```
 
