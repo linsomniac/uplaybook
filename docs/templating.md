@@ -25,28 +25,35 @@ The following information is available in the `platform` namespace on the follow
 platforms:
 
 - Linux:
-  - arch: 'x86_64',
-  - release_codename: 'jammy',
-  - release_id: 'ubuntu',
-  - os_family: 'debian',
-  - release_name: 'Ubuntu',
-  - release_version: '22.04',
-  - system: 'Linux'
+
+    - arch: 'x86_64',
+    - release_codename: 'jammy',
+    - release_id: 'ubuntu',
+    - os_family: 'debian',
+    - release_name: 'Ubuntu',
+    - release_version: '22.04',
+    - system: 'Linux'
+
 - MacOS:
-  - arch: 'arm64',
-  - release_version: '13.0.1',
-  - system: 'Darwin'
+
+    - arch: 'arm64',
+    - release_version: '13.0.1',
+    - system: 'Darwin'
+
 - Windows:
-  - arch: 'AMD64',
-  - release_edition: 'ServerStandard',
-  - release_name: '10',
-  - release_version: '10.0.17763',
-  - system: 'Windows'
+
+    - arch: 'AMD64',
+    - release_edition: 'ServerStandard',
+    - release_name: '10',
+    - release_version: '10.0.17763',
+    - system: 'Windows'
+
 - Platforms with "psutil" module available:
-  - memory_total = Total memory
-  - memory_available = Available memory
-  - memory_used = Used memory
-  - memory_percent_used = Percent used
+
+    - memory_total = Total memory
+    - memory_available = Available memory
+    - memory_used = Used memory
+    - memory_percent_used = Percent used
 
 ## Additional Filters
 

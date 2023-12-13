@@ -65,7 +65,9 @@ class PasswordNeeded(Exception):
 
 def PlatformInfo() -> types.SimpleNamespace:
     """
-    See "docs/templating.md#platform_info" for more information.
+    See
+    [Platform Info in docs/templating.md](../../templating/#platform-info)
+    for more information.
     """
     env = types.SimpleNamespace()
     uname = platform.uname()
