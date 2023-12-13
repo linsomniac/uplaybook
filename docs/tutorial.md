@@ -244,7 +244,7 @@ template_filenames=True, recursive=True) (Contents)
 => ln(path=/etc/apache2/sites-enabled, src=/etc/apache2/sites-available/my-website.conf, symbolic=True)
 =# service(service=apache2, running=True, restarted=False, reloaded=False, enabled=True, daemon_reload=False,
 user_mode=False)
->> *** Starting handler: restart_apacheu
+>> *** Starting handler: restart_apache
 => service(service=apache2, running=True, restarted=True, reloaded=False, daemon_reload=False, user_mode=False)
 >> *** Done with handlers
 
@@ -257,10 +257,10 @@ directory.
 
 ## Templates
 
-Your playbooks can include Jinja2 template files, which are a convenient way to provide
-configuration files and similar.  When you `fs.cp()` files with the "template" argument
-set to True (the default), the files are rendered using Jinja2, and pick up values from
-the uplaybook variables.
+Your playbooks can include [Jinja2](https://jinja.palletsprojects.com/en/3.1.x/templates/)
+template files, which are a convenient way to provide configuration files and similar.
+When you `fs.cp()` files with the "template" argument set to True (the default),
+the files are rendered using Jinja2, and pick up values from the uplaybook variables.
 
 uPlaybook includes some "magic" that causes variables in your playbooks, arguments, and
 [platform special variables](templating/#platform-info).
@@ -269,7 +269,7 @@ For example, if you have a "setup.conf.j2":
 
 ```
 {% if platform.release_id == 'ubuntu' %}
-memory = {{ ((platform.memory_total / 1024) * 0.5) | int}})
+memory_mb = {{ ((platform.memory_total / (1024 * 1024)) * 0.5) | int}}
 {% endif %}
 ```
 
@@ -282,7 +282,7 @@ fs.cp(src="setup.conf.j2", path="/etc/myservice/setup.conf")
 Then on the ubuntu platform, the file will contain (on a system with 32GB of memory):
 
 ```
-memory = 16000
+memory_mb = 16000
 ```
 
 (or so).

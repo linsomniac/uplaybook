@@ -91,7 +91,7 @@ Which creates a "my-test-playbook" directory with the skeleton playbook file
 
 ## Documentation
 
-[Full uPlaybook Documentation](https://linsomniac.github.com/uplaybook)
+[Full uPlaybook Documentation](https://linsomniac.github.io/uplaybook)
 
 ## Simple Examples
 
