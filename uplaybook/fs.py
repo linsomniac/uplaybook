@@ -816,6 +816,14 @@ def builder(
                    Item(path="/tmp/{{ modname }}/nobody-file", owner="nobody", group="nobody"),
                    Item(path="/tmp/{{ modname }}/site.conf", notify=restart_apache),
                ])
+
+    fs.builder(defaults=Item(owner="headscale", group="headscale", mode="a=-,ug+rwX"),
+               items=[
+                   Item(path="/etc/headscale", state="directory"),
+                   Item(path="/etc/headscale/config.yaml", notify=restart_headscale),
+                   Item(path="/etc/headscale/acls.yaml", notify=restart_headscale),
+                   Item(path="/etc/headscale/derp.yaml", notify=restart_headscale),
+                   ])
     ```
     """
     changed = False

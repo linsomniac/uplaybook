@@ -115,6 +115,30 @@ user_mode=False)
 *** RECAP:  total=5 changed=3 failure=0
 ```
 
+## fs.builder()
+
+[`fs.builder()`](tasks/fs/#uplaybook.fs.builder) is a powerful way to create a large
+set of filesystem objects.  It takes a list of operations to perform, and optionally a set
+of defaults.  So you can specify defaults for permissions, ownership, etc, and then
+optionally override them in the specific items.
+
+For example, to set up headscale:
+
+```python
+from uplaybook.core import Item
+
+def restart_headscale():
+    pyinfra.systemd.service(service="headscale", restarted=True)
+
+fs.builder(defaults=Item(owner="headscale", group="headscale", mode="a=-,ug+rwX"),
+           items=[
+               Item(path="/etc/headscale", state="directory"),
+               Item(path="/etc/headscale/config.yaml", notify=restart_headscale),
+               Item(path="/etc/headscale/acls.yaml", notify=restart_headscale),
+               Item(path="/etc/headscale/derp.yaml", notify=restart_headscale),
+               ])
+```
+
 ## Reading Docs
 
 How do you know what tasks and arguments are available?  uPlaybook includes an "--up-docs"
@@ -349,7 +373,5 @@ commands, etc.  In my Ansible project, I had a playbook that creates a new "role
 templating to set up the scaffolding.
 
 ## Playbook Documentation
-
-## fs.builder()
 
 ## Include Playbooks
