@@ -287,11 +287,68 @@ memory_mb = 16000
 
 (or so).
 
+## Playbook Magic
+
+Playbooks are largely Python, but there are some conventions and customizations to make it
+more suiltable for an Ansible-like use case.  Here are the things that diverge from normal
+Python semantics:
+
+### "Global" Variables
+
+Variables set in your playbooks become available to the other playbooks and also (most
+importantly) to file and argument templates.  The primary reason for this is to allow
+including "settings" files:
+
+```python
+core.include(playbook="{{ environment }}")
+debug(msg="This is a {{ env_type | default('development') }} environment")
+```
+
+In programming having this sort of flat name-space is discouraged, but for playbooks it
+seems more ergonomic.
+
+### Templating Arguments
+
+Many arguments (denoted as "templatable" in the documentation) can take Jinja2 template
+expressions.  This is partly a hold-over from Ansible, where you can't do "f strings" in
+YAML, but also can be useful for situations like picking up default values:
+
+```python
+fs.cp(dst="{{ dirname | default('/var/lib/my_project') }}/my_project.config")
+```
+
+### Keyword Arguments
+
+To make playbooks more clear, it's a convention to always use the argument keyword name:
+
+```python
+fs.cp(src="foo", dst="bar")
+```
+
+This is another hold-over from Ansible, where the YAML **requires** that you have the
+argument names.  It just makes the playbooks more self-explanatory.
+
 ## Playbook Search Path
 
-## Playbook Documentation
+uPlaybook searches for playbooks through multiple directories (specified by the
+"UP_PLAYBOOK_PATH" environment variable), which defaults to:
+`.:.uplaybooks:~/.config/uplaybook:~/.config/uplaybook/library:/etc/uplaybook"`.
 
-## Playbook Magic
+This allows you to have playbooks in directories that are local to that project and
+available an discoverable when you are in the project, but also have per-user and
+system-wide playbook as well.
+
+When you run `up` without any arguments, it displays a list of playbooks it finds
+in the search path, along with short descriptions of them.  You can then run `up
+[PLAYBOOK_NAME] --help` to get more detailed information about the playbook and the
+arguments it takes.
+
+For example, I have playbooks in my "release" project which create a new release, and
+archive old releases.  This makes use of templating files in the project, running git
+commands, etc.  In my Ansible project, I had a playbook that creates a new "role", using
+templating to set up the scaffolding.
+
+## Playbook Documentation
 
 ## fs.builder()
 
