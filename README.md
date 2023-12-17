@@ -16,6 +16,10 @@ declarative nature allows you to specify the desired state of a system or servic
 playbook will make the required changes.  Modify the playbook and re-run it to gain new
 state, and keep the playbook in git to version and reuse it.
 
+# Tutorial
+
+[Jump to the Tutorial](https://linsomniac.github.io/uplaybook/tutorial/)
+
 # Benefits
 
 - Targets running on the local system: Does away with the complexities of managing a
