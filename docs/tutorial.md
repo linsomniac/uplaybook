@@ -374,4 +374,48 @@ templating to set up the scaffolding.
 
 ## Playbook Documentation
 
+Playbooks can include a docstring.  The first line of the docstring should contain a
+short description of the playbook, and the remainder of the docstring should go into
+further detail about the playbook.  The description is used when playbooks are listed and
+the additional documentation is displayed with "--help":
+
+For example, if you have the file "new_blog.pb":
+
+```python
+#!/usr/bin/env python3
+
+"""Create and edit a new blog entry
+Add a new blog entry, and optionally commit it to the git repo and publish it
+to the blog webserver.
+"""
+
+from uplaybook import core
+
+core.playbook_args()
+
+[...]
+```
+
+You get the following output when running uPlaybook:
+
+```bash
+$ up
+usage: up [--help] [--up-full-traceback] [--up-list-playbooks] [--up-debug] [--up-docs [DOCS_ARG]] [playbook]
+
+Available playbooks:
+  - new_blog.pb (.)
+      Create and edit a new blog entry
+
+$ up new_blog --help
+usage: up:new_blog [-h]
+
+Create and edit a new blog entry Add a new blog entry, and optionally commit it to the
+git repo and publish it to the blog webserver.
+
+options:
+  -h, --help  show this help message and exit
+```
+
+
+## She-bang
 ## Include Playbooks
