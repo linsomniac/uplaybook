@@ -4,13 +4,12 @@
 
 if [ -d .git ]; then
   PYTHONPATH=$(pwd)
-  UP2='python3 -c "from uplaybook.internals import cli; cli()" --up-full-traceback'
   TESTDIR=$(pwd)/tests
 else
   PYTHONPATH=$(pwd)/..
-  UP2='python3 -c "from uplaybook.internals import cli; cli()" --up-full-traceback'
   TESTDIR=$(pwd)
 fi
+UP2='python3 -c "from uplaybook.cli import cli; cli()" --up-full-traceback'
 export UP2
 export PYTHONPATH
 export TESTDIR

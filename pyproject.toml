@@ -21,4 +21,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-up = "uplaybook.internals:cli"
+up = "uplaybook.cli:cli"

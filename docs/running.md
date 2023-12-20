@@ -61,11 +61,9 @@ Or to get a list of tasks in a module, specify `up --up-docs module`
 ## "Command" (she-bang) Playbooks
 
 uPlaybook can be run as a "script" on Unix-like OSes by adding a "she-bang" line
-`#!/usr/bin/env up`, however this will prevent the detection of file-type.  A vim
-"modeline" can be used to fix this:
+`#!/usr/bin/env -S python3 -m uplaybook.cli`.
 
-    #!/usr/bin/env up
-    # vim: filetype=python
+    #!/usr/bin/env -S python3 -m uplaybook.cli
     [rest of playbook here]
 
 If you `chmod 755` the playbook file, you can then directly run the playbook file as a

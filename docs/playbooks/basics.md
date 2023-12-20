@@ -6,7 +6,7 @@ A playbook is a Python source file, let's take a look at a simple playbook that 
 simple new project scaffold:
 
 ```python
-#!/usr/bin/env python3
+#!/usr/bin/env -S python3 -m uplaybook.cli
 
 #  The Python docstring: The first line is used as the short description of the playbook
 #  and displayed when the user types "up" to get a list of playbooks.  The full docstring

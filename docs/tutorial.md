@@ -418,4 +418,20 @@ options:
 
 
 ## She-bang
-## Include Playbooks
+
+uPlaybook can be run as a "script" on Unix-like OSes by adding a "she-bang" line
+`#!/usr/bin/env -S python3 -m uplaybook.cli`.
+
+    #!/usr/bin/env -S python3 -m uplaybook.cli
+    [rest of playbook here]
+
+If you `chmod 755` the playbook file, you can then directly run the playbook file as a
+command.  For example if your playbook is in a file called "myplaybook", you can now run
+`myplaybook` instead of `up myplaybook`.  This would primarily be used for file-based
+playbooks, not directory-based, as for directory playbooks you'd need to do
+`path/to/directory/playbook`; that will work it just isn't conventional.
+
+## Include Other Playbooks
+
+
+<!-- vim: set tw=90: -->
