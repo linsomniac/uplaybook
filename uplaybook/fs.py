@@ -224,7 +224,7 @@ def cd(path: TemplateStr) -> Return:
     return Return(
         changed=False,
         extra=SimpleNamespace(old_dir=old_dir),
-        context_manager=lambda: cd(old_dir),
+        context_manager=lambda: cd(path=old_dir),
     )
 
 
@@ -314,7 +314,7 @@ def mkdir(
         return Return(changed=True)
 
     with CallDepth():
-        chmod(path, mode, is_directory=True)
+        chmod(path=path, mode=mode, is_directory=True)
 
     return Return(changed=False)
 
@@ -748,12 +748,12 @@ def fs(
             raise ValueError(f"Unknown action: {action}")
 
         if mode is not None:
-            chmod(path, mode)
+            chmod(path=path, mode=mode)
         if owner is not None or group is not None:
-            chown(path, owner, group)
+            chown(path=path, owner=owner, group=group)
 
     if notify is not None:
-        r = r.notify(notify)
+        r = r.notify(handler=notify)
 
     return Return(changed=r.changed)
 

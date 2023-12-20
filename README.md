@@ -119,11 +119,11 @@ Enable an Apache module:
 ```python
 from uplaybook import fs, core, pyinfra
 
-core.playbook_args(
+core.playbook_args(options=[
         core.Argument(name="module_name", description="Name of module"),
         core.Argument(name="remove", type="bool", default=False,
                       description="Remove the module rather than install it"),
-        )
+        ])
 
 def restart_and_enable_apache():
     pyinfra.systemd.service(service="apache2", restarted=True, enabled=True)

@@ -10,8 +10,8 @@ from uplaybook import fs, core
 
 #  example arguments
 #  This sets up the playbook to be called as "up playbook <NAME> [--force] [--optional=foo]"
-core.playbook_args(
+core.playbook_args(options=[
         core.Argument(name="name", description="Name of subdirectory"),
         core.Argument(name="force", default=False, type="bool", description="Reset if already exists?"),
         core.Argument(name="optional", default="default", description="Optional argument"),
-        )
+        ])

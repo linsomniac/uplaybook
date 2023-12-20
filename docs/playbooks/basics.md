@@ -178,7 +178,7 @@ fs.cp(src="site.conf.j2", path="/etc/apache2/sites-available/site.conf").notify(
 Playbooks can include arguments and options for customizing the playbook run.  For
 example:
 
-    core.playbook_args(
+    core.playbook_args(options=[
             core.Argument(name="playbook_name",
                           description="Name of playbook to create, creates directory of this name."),
             core.Argument(name="git", default=False, type="bool",
@@ -188,7 +188,7 @@ example:
             core.Argument(name="force", default=False, type="bool",
                           description="Reset the playbook back to the default if it "
                           "already exists (default is to abort if playbook already exists)."),
-            )
+            ])
 
 This set up an argument of "playbook_name" and options of "--git", "--single-file", and
 "--force".

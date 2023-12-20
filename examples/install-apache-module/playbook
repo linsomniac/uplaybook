@@ -7,16 +7,18 @@ Apache modules need to be installed, configured, and Apache restarted to
 take effect.  This does all of that.
 """
 
-from uplaybook import fs, core, pyinfra
+from uplaybook import fs, core, pyinfra, ARGS
 
 core.playbook_args(
-    core.Argument(name="module_name", description="Name of module"),
-    core.Argument(
-        name="remove",
-        type="bool",
-        default=False,
-        description="Remove the module rather than install it",
-    ),
+    options=[
+        core.Argument(name="module_name", description="Name of module"),
+        core.Argument(
+            name="remove",
+            type="bool",
+            default=False,
+            description="Remove the module rather than install it",
+        ),
+    ]
 )
 
 

@@ -11,9 +11,13 @@ from uplaybook import fs, core, pyinfra, ARGS
 import sys
 
 core.playbook_args(
-    core.Argument(
-        name="package-name", description="Name of the package to install.", default=None
-    ),
+    options=[
+        core.Argument(
+            name="package-name",
+            description="Name of the package to install.",
+            default=None,
+        ),
+    ]
 )
 
 packages = {

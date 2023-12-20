@@ -9,7 +9,7 @@ used as a skeleton to create new uplaybooks.
 
 from uplaybook import fs, core, ARGS
 
-core.playbook_args(
+core.playbook_args(options=[
         core.Argument(name="playbook_name",
                       description="Name of playbook to create, creates directory of this name."),
         core.Argument(name="git", default=False, type="bool",
@@ -19,7 +19,7 @@ core.playbook_args(
         core.Argument(name="force", default=False, type="bool",
                       description="Reset the playbook back to the default if it already "
                       "exists (default is to abort if playbook already exists)."),
-        )
+        ])
 
 if ARGS.git and ARGS.single_file:
     core.fail(msg="*** ERROR: Cannot do '--git' with '--single-file'.")

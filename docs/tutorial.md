@@ -173,9 +173,9 @@ specified on the command-line:
 ```python
 from uplaybook import pyinfra, fs, core, ARGS   # <-- Need "core, ARGS" now
 
-core.playbook_args(
+core.playbook_args(options=[
     core.Argument(name="module_name"),
-)
+])
 
 def restart_apache():
     pyinfra.systemd.service(service="apache2", restarted=True)
@@ -343,7 +343,7 @@ fs.cp(dst="{{ dirname | default('/var/lib/my_project') }}/my_project.config")
 
 ### Keyword Arguments
 
-To make playbooks more clear, it's a convention to always use the argument keyword name:
+To make playbooks more clear, it's required to always use the argument keyword name:
 
 ```python
 fs.cp(src="foo", dst="bar")
@@ -391,6 +391,7 @@ to the blog webserver.
 
 from uplaybook import core
 
+#  this is needed for "--help" to work
 core.playbook_args()
 
 [...]

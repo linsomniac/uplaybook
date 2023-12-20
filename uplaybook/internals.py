@@ -10,7 +10,6 @@ parts of the documentation may refer to these classes.
 
 uplaybook_version = "dev"
 
-import sys
 import inspect
 from typing import Optional, Union, List, Callable, Any, Iterator
 from types import ModuleType
@@ -22,15 +21,9 @@ import types
 import multiprocessing
 import socket
 from types import SimpleNamespace
-import traceback
-import ast
 import argparse
-import importlib
-import pydoc
-import re
 from pathlib import Path
 from collections import namedtuple
-import itertools
 from rich.console import Console
 
 
@@ -40,6 +33,14 @@ PlaybookInfo = namedtuple("PlaybookInfo", ["name", "directory", "playbook_file"]
 class Failure(Exception):
     """
     The default exception raised if a task fails.
+    """
+
+    pass
+
+
+class UnqualifiedArgumentError(Exception):
+    """
+    An argument was passed without a "keyword=".
     """
 
     pass
@@ -288,7 +289,6 @@ TaskCallInfo = namedtuple(
         "function_qualname",
         "module_name",
         "annotations",
-        "args",
         "kwargs",
     ],
 )
@@ -307,6 +307,11 @@ def calling_context(func: Callable[..., Any]) -> Callable[..., Any]:
 
     @wraps(func)
     def wrapper(*args, **kwargs):
+        if args:
+            raise UnqualifiedArgumentError(
+                f"All arguments must have keyword, got unqualified args: {args}"
+            )
+
         current_frame = inspect.currentframe()
         env = current_frame.f_back.f_locals.copy()
         up_context.calling_context = env
@@ -315,7 +320,6 @@ def calling_context(func: Callable[..., Any]) -> Callable[..., Any]:
             func.__qualname__,
             func.__module__,
             func.__annotations__,
-            args,
             kwargs.copy(),
         )
 

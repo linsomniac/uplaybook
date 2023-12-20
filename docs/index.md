@@ -19,7 +19,7 @@ uPlaybook playbooks are written in Python but follow some specific conventions:
 - Declare desired state rather than imperatively defining steps
 - Tasks communicate if they changed something
 - Changed tasks can trigger handlers
-- Jinja2 templating with
+- Jinja2 templating of many argument values
 - Status output
 
 To get started, see the [Getting Started Guide](getting_started.md)

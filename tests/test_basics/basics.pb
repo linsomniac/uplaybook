@@ -6,7 +6,7 @@ fs.rm(path="testdir", recursive=True)
 fs.mkdir(path="testdir")
 with fs.cd(path="testdir"):
     fs.cp(path="testfile")
-    assert fs.exists("testfile")
+    assert fs.exists(path="testfile")
 
 core.run(command="date")
 r = core.run(command="true")
@@ -15,7 +15,7 @@ r = core.run(command="false", ignore_failure=True)
 assert not r
 
 var = "bar"
-r = core.render("foo{{ var }}")
+r = core.render(s="foo{{ var }}")
 assert r == "foobar"
 core.debug(msg="Expanding template: {{var}}")
 core.print(msg="Expanding template: {{var}}")
@@ -35,5 +35,5 @@ assert not test_handler.ran
 core.flush_handlers()
 assert test_handler.ran
 
-core.exit(0)
-core.run("false")   #  if control gets here, the exit above didn't work
+core.exit(returncode=0)
+core.run(command="false")   #  if control gets here, the exit above didn't work

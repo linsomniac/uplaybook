@@ -281,11 +281,11 @@ class Argument:
     Examples:
 
     ```python
-    core.playbook_args(
+    core.playbook_args(options=[
             core.Argument(name="user"),
             core.Argument(name="hostname", default=None)
             core.Argument(name="enable", type="bool", default=True)
-            )
+            ])
     core.debug(msg="Arguments: user={{ARGS.user}}  hostname={{ARGS.hostname}} enable={{ARGS.enable}}")
 
     #  Run with "up2 playbookname --hostname=localhost --no-enable username
@@ -307,7 +307,7 @@ class Argument:
 
 @task
 def playbook_args(
-    *options: List[Argument],
+    options: List[Argument],
 ) -> None:
     """
     Specify arguments for a playbook.
@@ -319,11 +319,11 @@ def playbook_args(
     Examples:
 
     ```python
-    core.playbook_args(
+    core.playbook_args(options=[
             core.Argument(name="is_owner", default=False, type="bool"),
             core.Argument(name="user"),
             core.Argument(name="hostname", default="localhost")
-            )
+            ])
     core.debug(msg="Arguments: user={{playbook_args.user}}  hostname={{playbook_args.hostname}}")
     core.debug(msg="Arguments: is_owner={{playbook_args.is_owner}}")
     #  run examples:
