@@ -434,5 +434,14 @@ playbooks, not directory-based, as for directory playbooks you'd need to do
 
 ## Include Other Playbooks
 
+Your playbooks can reference other files. This can be useful for logical separation of
+components, including common variables, etc...
+
+```python
+core.include(playbook="common-vars")
+```
+
+By default, variables set in an included playbook are "hoisted" up into the global name
+space, but that can be overridden with the argument `hoist_vars=False`.
 
 <!-- vim: set tw=90: -->
