@@ -58,8 +58,25 @@ def find_updocs(name: str) -> str:
     """
     if name == "__main__":
         from . import __doc__
+        import uplaybook
+        import types
 
-        return __doc__
+        modules_doc = "\nBuiltin Modules:\n\n"
+        module_list = [
+            mod
+            for mod in [getattr(uplaybook, attr) for attr in dir(uplaybook)]
+            if isinstance(mod, types.ModuleType)
+        ]
+        for module in module_list:
+            if not hasattr(module, "__is_task_module__"):
+                continue
+            doc_firstline = module.__doc__.strip().split("\n")[0]
+            mod_name = module.__name__
+            if mod_name.startswith("uplaybook."):
+                mod_name = mod_name.split(".", 1)[1]
+            modules_doc += f"    {mod_name} - {doc_firstline}\n"
+
+        return __doc__ + modules_doc
 
     #  if a module is specified
     try:
@@ -289,9 +306,6 @@ def parse_args() -> argparse.Namespace:
         remaining_args.insert(0, "--help")
     if args.docs_arg:
         display_docs(args.docs_arg)
-        if args.docs_arg == "__main__":
-            print()
-            parser.print_help()
         sys.exit(0)
 
     if not args.playbook:

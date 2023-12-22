@@ -6,6 +6,8 @@ Core Tasks
 Tasks that are a core part of uPlaybook.
 """
 
+__is_task_module__ = True
+
 from .internals import (
     Return,
     Exit,

@@ -46,6 +46,8 @@ may be situations where it is useful, so it is left as exposed.
 ## Tasks
 """
 
+__is_task_module__ = True
+
 from .internals import (
     Return,
     Failure,

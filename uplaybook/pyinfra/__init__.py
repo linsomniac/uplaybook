@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 """
+A rich set of OS tasks
+
 ##  pyinfra Introduction
 
 uPlaybook wrappers of pyinfra https://docs.pyinfra.com/en/2.x/ operators.
@@ -8,6 +10,8 @@ uPlaybook wrappers of pyinfra https://docs.pyinfra.com/en/2.x/ operators.
 This set of tasks provides a rich set of system management routines.
 This wraps the pyinfra application.
 """
+
+__is_task_module__ = True
 
 #  Full docs are in `docs/tasks/pyinfra/intro.md`
 
