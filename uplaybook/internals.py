@@ -352,6 +352,11 @@ class Return:
     Args:
         changed: If True, mark the task as having changed system state. (bool)
         failure: If True, mark the task as having failed. (optional, bool)
+        success: Was the action successful, meaning trigger handlers and if used in an `if`
+                statement will it evaluate True?  If not specified, it defaults to `changed`.
+                Otherwise, it overrides `changed`.  For situations where no change is made,
+                but the operation should notify handlers and compare True in an if statement.
+                (optional, bool, default None)
         ignore_failure: If True, failure is not considered fatal, execution can continue on.
                 (bool, default False)
         extra_message: An extra message to display in the status line in parens (optional, str)
@@ -367,6 +372,7 @@ class Return:
         context_manager: This type can optionally behave as a Context Manager, and if so this function
                 will be called with no parameters at the end of the context.  Use a closure if you want to
                 associate data with the function call ("lambda: function(args)").  (optional, Callable).
+        do_notify: If True, a notification will be sent even if "failure" is False.  (optional, bool)
 
     Examples:
 
@@ -381,6 +387,7 @@ class Return:
         self,
         changed: bool,
         failure: bool = False,
+        success: Optional[bool] = None,
         ignore_failure: bool = False,
         extra_message: Optional[str] = None,
         output: Optional[str] = None,
@@ -399,6 +406,7 @@ class Return:
         self.secret_args = secret_args
         self.raise_exc = raise_exc
         self.context_manager = context_manager
+        self.success = success
 
         self.print_status()
 
@@ -475,10 +483,13 @@ class Return:
         if self.changed:
             prefix = "=>"
             style = "green"
-        if self.failure:
+        elif self.failure:
             prefix = "=!"
             suffix = " (failure ignored)"
             style = "red"
+        elif self.success:
+            prefix = "=."
+            style = "green"
         call_depth = "=" * up_context.call_depth
 
         up_context.console.print(
@@ -495,6 +506,8 @@ class Return:
         Format this object for display.
         """
         values = [f"changed={self.changed}"]
+        if self.success is not None:
+            values.append(f"success={self.success}")
         if self.extra_message is not None:
             values.append(f"extra_message={repr(self.extra_message)}")
         if self.extra is not None:
@@ -513,6 +526,8 @@ class Return:
         """
         If checked for truthfulness, return True if not `failure`.
         """
+        if self.success is not None:
+            return self.success
         return not self.failure
 
     def notify(self, handler: Union[Callable, List]) -> None:
@@ -523,7 +538,7 @@ class Return:
             handler:  A function or a list of functions to register for calling later,
                     if the task has changed the system.  (callable or list)
         """
-        if self.changed:
+        if self.changed or self.success == True:
             if callable(handler):
                 up_context.add_handler(handler)
             else:

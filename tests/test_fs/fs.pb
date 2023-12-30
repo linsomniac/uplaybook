@@ -35,3 +35,23 @@ with fs.cd(path="testdir"):
     project_name = "my_project"
     fs.cp(src="project", path=".", template_filenames=False)
     assert os.path.exists(path="{{project_name}}/{{project_name}}_subdir/{{project_name}}_subfile")
+
+    import time
+
+    with open('older', 'w') as fp:
+        fp.write('foo')
+    time.sleep(0.01)
+    with open('newer', 'w') as fp:
+        fp.write('foo')
+
+    assert fs.newer_than(src='older', path='nonexistant_file')
+    assert not fs.newer_than(src='older', path='newer')
+    assert fs.newer_than(src='newer', path='older')
+
+    did_handler = False
+    def handler():
+        global did_handler
+        did_handler = True
+    fs.newer_than(src='newer', path='older').notify(handler)
+    core.flush_handlers()
+    assert did_handler

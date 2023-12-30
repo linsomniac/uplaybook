@@ -873,3 +873,46 @@ def exists(
         if not ignore_failure
         else None,
     )
+
+
+@task
+def newer_than(
+    src: TemplateStr,
+    path: TemplateStr,
+    ignore_failure: bool = True,
+) -> object:
+    """
+    Is `src` newer than `path`?  If `path` does not exist, it is treated as older than `src`,
+    Like `[fs.cp()](tasks/fs.md#uplaybook.fs.cp)`, `src` is found using the UP_FILES_PATH.
+    Can be used in an `if`, and can trigger a handler.
+
+    Args:
+        src: File to check if is newer than `path`. (templateable).
+        path: Destination location to check age against. (templateable).
+        ignore_failure: If True, do noth treat age check as fatal failure.
+             (optional, bool, default=True)
+
+    Examples:
+
+    ```python
+    src_file = "foo.c"
+    if fs.newer_than(src=src_file, path="{{src_file.rsplit('.', 1)[0]}}.o"):
+        core.run(cmd="cc -c {{src_file}}")
+
+    def compile():
+        core.run(cmd="cc -c {{src_file}}")
+    fs.newer_than(src=src_file, path="{{src_file.rsplit('.', 1)[0]}}.o").notify(compile)
+    ```
+    """
+    if not os.path.exists(path):
+        return Return(
+            changed=False, extra_message="`path` does not exist", success=True
+        )
+
+    src_stat = os.stat(internals.find_file(src))
+    path_stat = os.stat(path)
+
+    if src_stat.st_mtime >= path_stat.st_mtime:
+        return Return(changed=False, extra_message="is newer", success=True)
+
+    return Return(changed=False, success=False)
