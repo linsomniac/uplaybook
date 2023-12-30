@@ -67,7 +67,7 @@ class PasswordNeeded(Exception):
 def PlatformInfo() -> types.SimpleNamespace:
     """
     See
-    [Platform Info in docs/templating.md](../../templating/#platform-info)
+    [Platform Info in docs/templating.md](../templating.md#platform-info)
     for more information.
     """
     env = types.SimpleNamespace()
@@ -372,7 +372,6 @@ class Return:
         context_manager: This type can optionally behave as a Context Manager, and if so this function
                 will be called with no parameters at the end of the context.  Use a closure if you want to
                 associate data with the function call ("lambda: function(args)").  (optional, Callable).
-        do_notify: If True, a notification will be sent even if "failure" is False.  (optional, bool)
 
     Examples:
 

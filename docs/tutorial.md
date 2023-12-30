@@ -117,7 +117,7 @@ user_mode=False)
 
 ## fs.builder()
 
-[`fs.builder()`](tasks/fs/#uplaybook.fs.builder) is a powerful way to create a large
+[`fs.builder()`](tasks/fs.md#uplaybook.fs.builder) is a powerful way to create a large
 set of filesystem objects.  It takes a list of operations to perform, and optionally a set
 of defaults.  So you can specify defaults for permissions, ownership, etc, and then
 optionally override them in the specific items.
@@ -287,7 +287,7 @@ When you `fs.cp()` files with the "template" argument set to True (the default),
 the files are rendered using Jinja2, and pick up values from the uplaybook variables.
 
 uPlaybook includes some "magic" that causes variables in your playbooks, arguments, and
-[platform special variables](templating/#platform-info).
+[platform special variables](templating.md/#platform-info).
 
 For example, if you have a "setup.conf.j2":
 
