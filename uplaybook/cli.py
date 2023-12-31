@@ -47,11 +47,11 @@ def find_updocs(name: str) -> str:
     """
     Given a module/task name, return the docstring for it.
 
-    This iterates over the various options for how a "--up-docs" may be requested and returns
+    This iterates over the various options for how a "updocs" may be requested and returns
     the first appropriate docstring found.
 
     Args:
-        name: The "--up-docs" document to find.
+        name: The "updocs" document to find.
 
     Returns:
         The associated updoc.
@@ -122,6 +122,29 @@ def display_docs(name: str) -> None:
     """
     docs = find_updocs(name)
     pydoc.pager(re.sub(r"#\w+", "", docs).rstrip())
+
+
+def updocs():
+    """
+    The CLI entry-point for the `updocs` command.
+    """
+    parser = argparse.ArgumentParser(
+        prog="updocs",
+        description="Display help documentation for `up`, run with no arguments for overview.",
+        add_help=True,
+    )
+
+    parser.add_argument(
+        "documentation",
+        type=str,
+        nargs="?",
+        default="__main__",
+        help="What documentation display, usually a module or task name.  If omitted, an "
+        "overview is displayed.",
+    )
+    args = parser.parse_args()
+    display_docs(args.documentation)
+    sys.exit(0)
 
 
 class UpArgumentParser(argparse.ArgumentParser):
@@ -277,15 +300,6 @@ def parse_args() -> argparse.Namespace:
         help="Display the version and exit?",
     )
     parser.add_argument(
-        "--up-docs",
-        type=str,
-        nargs="?",
-        const="__main__",
-        default=None,
-        dest="docs_arg",
-        help="Display documentation, if an optional value is given the help for that component will be displayed.",
-    )
-    parser.add_argument(
         "playbook", type=str, nargs="?", default=None, help="Name of the playbook."
     )
 
@@ -304,9 +318,6 @@ def parse_args() -> argparse.Namespace:
             parser.print_help()
             sys.exit(0)
         remaining_args.insert(0, "--help")
-    if args.docs_arg:
-        display_docs(args.docs_arg)
-        sys.exit(0)
 
     if not args.playbook:
         parser.print_usage()

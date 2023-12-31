@@ -141,15 +141,15 @@ fs.builder(defaults=Item(owner="headscale", group="headscale", mode="a=-,ug+rwX"
 
 ## Reading Docs
 
-How do you know what tasks and arguments are available?  uPlaybook includes an "--up-docs"
-argument that will display documentation:
+How do you know what tasks and arguments are available?  uPlaybook includes an "updocs"
+command that will display documentation:
 
 ```shell
-$ up --up-docs
+$ updocs
 [lists available modules]
 $ up --up-doc fs
 [lists available "fs" tasks]
-$ up --up-docs fs.
+$ updocs fs.
 # fs.ln
 
     Create a link from `src` to `path`.
@@ -401,7 +401,7 @@ You get the following output when running uPlaybook:
 
 ```bash
 $ up
-usage: up [--help] [--up-full-traceback] [--up-list-playbooks] [--up-debug] [--up-docs [DOCS_ARG]] [playbook]
+usage: up [--help] [--up-full-traceback] [--up-list-playbooks] [--up-debug] [playbook]
 
 Available playbooks:
   - new_blog.pb (.)

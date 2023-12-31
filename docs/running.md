@@ -5,7 +5,7 @@
 Running "up" will list available playbooks and their descriptions:
 
     $ up
-    usage: up [--help] [--up-full-traceback] [--up-list-playbooks] [--up-debug] [--up-docs [DOCS_ARG]] [playbook]
+    usage: up [--help] [--up-full-traceback] [--up-list-playbooks] [--up-debug] [playbook]
 
     Available playbooks:
       - install-apache-module (.uplaybooks/install-apache-module)
@@ -37,17 +37,17 @@ arguments it takes:
 
 ## Getting Task Help
 
-Run `up --up-docs module.task` to get help about a task:
+Run `updocs module.task` to get help about a task:
 
-    $ up --up-docs fs.cp
+    $ updocs fs.cp
     # fs.cp
 
     Copy the `src` file to `dst`, optionally templating the contents in `src`.
     [...]
 
-Or to get a list of tasks in a module, specify `up --up-docs module`
+Or to get a list of tasks in a module, specify `updocs module`
 
-    $ up --up-docs fs
+    $ updocs fs
     Filesystem Related Tasks
 
     This module contains uPlaybook tasks that are related to file system operations.

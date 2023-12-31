@@ -19,7 +19,7 @@ started you probably want to clone the git repo to get an example playbook:
 This should produce a list of available playbooks, similar to:
 
     usage: up [--help] [--up-full-traceback] [--up-list-playbooks] [--up-debug]
-           [--up-docs [DOCS_ARG]] [playbook]
+           [playbook]
 
     Available playbooks:
       - new-uplaybook (.uplaybooks/new-uplaybook)
