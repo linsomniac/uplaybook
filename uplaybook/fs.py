@@ -701,6 +701,9 @@ def fs(
     This is targeted for use with Items() loops, for easily populating or
     modifying many filesystem objects in compact declarations.
 
+    **NOTE**: Arguments are inserted into templating context so that arguments
+    can reference other arguments as templates.
+
     Args:
         path: Name of destination filesystem object. (templateable).
         action: Type of `path` to build, can be: (optional, templatable, default="template")
