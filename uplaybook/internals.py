@@ -158,6 +158,14 @@ class UpContext:
 
         self.handler_list.append(fn)
 
+    def context_push(self, ctx):
+        """Push a context onto the context stack."""
+        up_context.item_context.insert(0, ctx)
+
+    def context_pop(self):
+        """Remove the most recent context from the context stack."""
+        return up_context.item_context.pop(0)
+
     def flush_handlers(self) -> None:
         """Run all the handler functions."""
         did_handler = False

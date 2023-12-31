@@ -61,7 +61,7 @@ from .internals import (
 from .core import Item
 from .fernetreader import FernetReader
 from . import internals
-from typing import Union, Optional, Callable, List
+from typing import Union, Optional, Callable, List, Iterator
 from types import SimpleNamespace
 import symbolicmode
 import os
@@ -71,6 +71,7 @@ import string
 import hashlib
 import shutil
 from pathlib import Path
+import glob
 
 
 def _mode_from_arg(
@@ -833,7 +834,10 @@ def builder(
     for item in items:
         args = defaults.copy()
         args.update(item)
+
+        up_context.context_push(args)  #  expose arguments to the templating context
         r = fs(**args)
+        up_context.context_pop()
 
         if r.changed:
             changed = True
@@ -845,7 +849,7 @@ def builder(
 def exists(
     path: TemplateStr,
     ignore_failure: bool = True,
-) -> object:
+) -> Return:
     """
     Does `path` exist?
 
@@ -879,8 +883,7 @@ def exists(
 def newer_than(
     src: TemplateStr,
     path: TemplateStr,
-    ignore_failure: bool = True,
-) -> object:
+) -> Return:
     """
     Is `src` newer than `path`?  If `path` does not exist, it is treated as older than `src`,
     Like `[fs.cp()](tasks/fs.md#uplaybook.fs.cp)`, `src` is found using the UP_FILES_PATH.
@@ -889,8 +892,6 @@ def newer_than(
     Args:
         src: File to check if is newer than `path`. (templateable).
         path: Destination location to check age against. (templateable).
-        ignore_failure: If True, do noth treat age check as fatal failure.
-             (optional, bool, default=True)
 
     Examples:
 
@@ -916,3 +917,46 @@ def newer_than(
         return Return(changed=False, extra_message="is newer", success=True)
 
     return Return(changed=False, success=False)
+
+
+def globitems(
+    path: TemplateStr,
+    recursive: bool = True,
+    use_cwd: bool = False,
+    **kwargs,
+) -> Iterator[Item]:
+    """
+    Walk the filesystem looking for matching filenames and produce Item()s for each.
+
+    This is a uPlaybook wrapper around the [Python glob.iglob()](https://docs.python.org/3/library/glob.html#glob.iglob)
+    function.  If `recursive` is true, "**" in the `path` will match (possibly 0) intermediate directories.
+    Other arguments given will be passed directly to the returned Item() arguments.
+
+    Args:
+        path: Glob to expand.  (templateable)
+        recursive: If True (default), "**" in the path will expand to 0 or more intermediate directories.
+                For example "**/*.pb" will look for all playbook files in and below the current directory.
+        use_cwd: If True, the process current working directory is used, if False (default) the playbook
+                directory is used.  False causes files to be found next to the playbook, for example template
+                files.
+
+    Examples:
+
+    ```python
+    fs.builder(
+            defaults=Item(mode="a=rX"),
+            items=[
+                Item(path="config_dir", state="directory")
+                ] +
+                list(fs.globitems(path="**.j2", src="{{path}}", mode="a=r")) +
+                list(fs.globitems(path="bin/*", src="{{path}}"))
+            )
+    ```
+    """
+    if use_cwd:
+        root_dir = "."
+    else:
+        root_dir = up_context.playbook_directory
+
+    for path in glob.iglob(path, root_dir=root_dir, recursive=recursive):
+        yield Item(path=path, **kwargs)

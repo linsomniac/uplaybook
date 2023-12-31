@@ -67,6 +67,13 @@ class Item(dict):
     Examples:
 
     ```python
+    fs.builder(
+            defaults=Item(owner="root", mode="a=rX"),
+            items=[
+                Item(path="foo"),
+                Item(path="bar"),
+                ])
+
     for item in [
             Item(path="foo"),
             Item(path="bar"),
@@ -111,11 +118,11 @@ class Item(dict):
             )
 
     def __enter__(self):
-        up_context.item_context.insert(0, self)
+        up_context.context_push(self)
         return self
 
     def __exit__(self, *_):
-        up_context.item_context.pop(0)
+        up_context.context_pop()
 
 
 @task
