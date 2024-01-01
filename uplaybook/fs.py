@@ -55,6 +55,7 @@ from .internals import (
     RawStr,
     up_context,
     task,
+    template_args,
     CallDepth,
     PasswordNeeded,
 )
@@ -922,8 +923,9 @@ def newer_than(
     return Return(changed=False, success=False)
 
 
+@template_args
 def globitems(
-    path: TemplateStr,
+    path: Union[TemplateStr, str],
     recursive: bool = True,
     use_cwd: bool = False,
     **kwargs,

@@ -55,3 +55,8 @@ with fs.cd(path="testdir"):
     fs.newer_than(src='newer', path='older').notify(handler)
     core.flush_handlers()
     assert did_handler
+
+    assert not fs.exists(path="fs.pb")
+    path="*.pb"
+    fs.builder(items=list(fs.globitems(path="{{path}}", src="{{path}}")))
+    assert fs.exists(path="fs.pb")
