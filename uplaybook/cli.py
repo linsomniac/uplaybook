@@ -369,7 +369,13 @@ def cli() -> None:
     try:
         pb_name = args.playbook
         up_context.playbook_name = pb_name
-        playbook = find_playbook(pb_name)
+
+        try:
+            playbook = find_playbook(pb_name)
+        except FileNotFoundError as e:
+            print("ERROR: Unable to locate playbook.")
+            return
+
         up_context.playbook_directory = playbook.directory.absolute()
         full_playbook_path = Path(playbook.playbook_file).absolute()
 
@@ -382,7 +388,6 @@ def cli() -> None:
         )
     except Exit as e:
         return_code = e.return_code
-        pass
     except Exception as e:
         if args.up_full_traceback or not full_playbook_path:
             print(traceback.format_exc())
