@@ -29,10 +29,10 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: 3.12  # or another version you prefer
 
@@ -49,17 +49,17 @@ jobs:
         PYTHONPATH=. mkdocs build
 
     - name: Setup Pages
-      uses: actions/configure-pages@v5
+      uses: actions/configure-pages@v6
 
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-pages-artifact@v4
       with:
         # Upload entire repository
         path: 'site'
 
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v4
+      uses: actions/deploy-pages@v5
 
 #    - name: Deploy to GitHub Pages
 #      uses: peaceiris/actions-gh-pages@v3
