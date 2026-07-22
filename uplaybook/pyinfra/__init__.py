@@ -5,7 +5,7 @@ A rich set of OS tasks
 
 ##  pyinfra Introduction
 
-uPlaybook wrappers of pyinfra https://docs.pyinfra.com/en/2.x/ operators.
+uPlaybook wrappers of pyinfra https://docs.pyinfra.com/en/3.x/ operators.
 
 This set of tasks provides a rich set of system management routines.
 This wraps the pyinfra application.
@@ -17,10 +17,10 @@ __is_task_module__ = True
 
 from collections import namedtuple
 from typing import Dict
+import json
 import tempfile
 import subprocess
 import os
-import re
 
 PyInfraResults = namedtuple("PyInfraResults", ["changed", "no_change", "errors"])
 
@@ -66,7 +66,9 @@ def _run_pyinfra(
         tmp_file.close()
 
         s = subprocess.run(
-            ["pyinfra", "@local", tmp_file.name], text=True, capture_output=True
+            ["pyinfra", "--json", "-y", "@local", tmp_file.name],
+            text=True,
+            capture_output=True,
         )
 
         os.remove(tmp_file.name)
@@ -76,24 +78,19 @@ def _run_pyinfra(
                 f"Exit code {s.returncode}, expecting 0.", s.stdout, s.stderr
             )
 
-        # [@local]   Changed: 0   No change: 1   Errors: 0
-        match = re.search(
-            r"\[@local\]\s+Changed:\s*(?P<changed>\d+)\s+No change:\s*(?P<no_change>\d+)\s+Errors:\s*(?P<errors>\d+)",
-            s.stderr,
-        )
-        if not match:
+        try:
+            totals = json.loads(s.stdout)["results"]["totals"]
+            return PyInfraResults(
+                int(totals["success"]),
+                int(totals["no_change"]),
+                int(totals["error"]),
+            )
+        except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
             raise PyInfraFailed(
-                f"Unable to parse pyinfra output for 'Changed' message",
+                "Unable to parse pyinfra JSON results.",
                 s.stdout,
                 s.stderr,
-            )
-
-        groups = match.groupdict()
-        return PyInfraResults(
-            int(groups["changed"]),
-            int(groups["no_change"]),
-            int(groups["errors"]),
-        )
+            ) from exc
 
 
 from . import apk

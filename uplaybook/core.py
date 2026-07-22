@@ -358,6 +358,8 @@ def playbook_args(
             kw_args["help"] = arg.description
         if arg.type == "bool":
             kw_args["action"] = argparse.BooleanOptionalAction
+        else:
+            kw_args["type"] = arg_type
 
         #  name is "--<NAME>" if default is specified, else make it a positional arg
         argument = arg.name if arg.default is None else "--" + arg.name
@@ -366,7 +368,7 @@ def playbook_args(
         else:
             argument = argument.replace("-", "_")
 
-        parser.add_argument(argument, type=arg_type, default=arg.default, **kw_args)
+        parser.add_argument(argument, default=arg.default, **kw_args)
 
     args, remaining = parser.parse_known_args(up_context.remaining_args)
     up_context.remaining_args = remaining

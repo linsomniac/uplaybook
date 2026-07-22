@@ -88,6 +88,7 @@ def line(
     escape_regex_characters=False,
     assume_present=False,
     ensure_newline=False,
+    extended_regex=False,
 ):
     """
     Ensure lines in files using grep to locate and sed to replace.
@@ -99,9 +100,10 @@ def line(
     + flags: list of flags to pass to sed when replacing/deleting
     + backup: whether to backup the file (see below)
     + interpolate_variables: whether to interpolate variables in ``replace``
-    + assume_present: whether to assume a matching line already exists in the file
     + escape_regex_characters: whether to escape regex characters from the matching line
+    + assume_present: deprecated compatibility option; pyinfra 3 only supports ``False``
     + ensure_newline: ensures that the appended line is on a new line
+    + extended_regex: use extended regular expressions with sed
 
     Regex line matching:
         Unless line matches a line (starts with ^, ends $), pyinfra will wrap it such that
@@ -172,6 +174,9 @@ def line(
     )
     ```
     """
+    if assume_present:
+        raise ValueError("pyinfra 3 no longer supports files.line(assume_present=True)")
+
     operargs = {
         "path": repr(path),
         "line": repr(line),
@@ -181,8 +186,8 @@ def line(
         "backup": repr(backup),
         "interpolate_variables": repr(interpolate_variables),
         "escape_regex_characters": repr(escape_regex_characters),
-        "assume_present": repr(assume_present),
         "ensure_newline": repr(ensure_newline),
+        "extended_regex": repr(extended_regex),
     }
 
     result = _run_pyinfra(
@@ -649,7 +654,7 @@ def link(
     + path: the name of the link
     + target: the file/directory the link points to
     + present: whether the link should exist
-    + assume_present: whether to assume the link exists
+    + assume_present: deprecated compatibility option; pyinfra 3 only supports ``False``
     + user: user to own the link
     + group: group to own the link
     + symbolic: whether to make a symbolic link (vs hard link)
@@ -676,28 +681,15 @@ def link(
         target="/etc/issue",
     )
 
-
-    # Complex example demonstrating the assume_present option
-    from pyinfra.operations import apt, files
-
-    install_nginx = apt.packages(
-        name="Install nginx",
-        packages=["nginx"],
-    )
-
-    files.link(
-        name="Remove default nginx site",
-        path="/etc/nginx/sites-enabled/default",
-        present=False,
-        assume_present=install_nginx.changed,
-    )
     ```
     """
+    if assume_present:
+        raise ValueError("pyinfra 3 no longer supports files.link(assume_present=True)")
+
     operargs = {
         "path": repr(path),
         "target": repr(target),
         "present": repr(present),
-        "assume_present": repr(assume_present),
         "user": repr(user),
         "group": repr(group),
         "symbolic": repr(symbolic),
@@ -735,7 +727,7 @@ def file(
 
     + path: name/path of the remote file
     + present: whether the file should exist
-    + assume_present: whether to assume the file exists
+    + assume_present: deprecated compatibility option; pyinfra 3 only supports ``False``
     + user: user to own the files
     + group: group to own the files
     + mode: permissions of the files as an integer, eg: 755
@@ -765,10 +757,12 @@ def file(
     )
     ```
     """
+    if assume_present:
+        raise ValueError("pyinfra 3 no longer supports files.file(assume_present=True)")
+
     operargs = {
         "path": repr(path),
         "present": repr(present),
-        "assume_present": repr(assume_present),
         "user": repr(user),
         "group": repr(group),
         "mode": repr(mode),
@@ -808,7 +802,7 @@ def directory(
 
     + path: path of the remote folder
     + present: whether the folder should exist
-    + assume_present: whether to assume the directory exists
+    + assume_present: deprecated compatibility option; pyinfra 3 only supports ``False``
     + user: user to own the folder
     + group: group to own the folder
     + mode: permissions of the folder
@@ -841,10 +835,14 @@ def directory(
         )
     ```
     """
+    if assume_present:
+        raise ValueError(
+            "pyinfra 3 no longer supports files.directory(assume_present=True)"
+        )
+
     operargs = {
         "path": repr(path),
         "present": repr(present),
-        "assume_present": repr(assume_present),
         "user": repr(user),
         "group": repr(group),
         "mode": repr(mode),

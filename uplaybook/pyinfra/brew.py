@@ -94,10 +94,8 @@ def packages(packages=None, present=True, latest=False, update=False, upgrade=Fa
 
 
 @task
-def cask_args(host):
-    operargs = {
-        "host": repr(host),
-    }
+def cask_args(host=None):
+    operargs = {}
 
     result = _run_pyinfra(
         "from pyinfra.operations import brew", "brew.cask_args", operargs

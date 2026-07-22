@@ -603,7 +603,7 @@ def user(
     + system: whether to create a system account
     + uid: use a specific userid number
     + comment: the user GECOS comment
-    + add_deploy_dir: any public_key filenames are relative to the deploy directory
+    + add_deploy_dir: deprecated compatibility option; pyinfra 3 always uses the deploy directory
     + unique: prevent creating users with duplicate UID
 
     Home directory:
@@ -640,6 +640,11 @@ def user(
                 present=False,
             )
     """
+    if not add_deploy_dir:
+        raise ValueError(
+            "pyinfra 3 no longer supports server.user(add_deploy_dir=False)"
+        )
+
     operargs = {
         "user": repr(user),
         "present": repr(present),
@@ -654,7 +659,6 @@ def user(
         "system": repr(system),
         "uid": repr(uid),
         "comment": repr(comment),
-        "add_deploy_dir": repr(add_deploy_dir),
         "unique": repr(unique),
     }
 

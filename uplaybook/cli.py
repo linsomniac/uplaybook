@@ -33,14 +33,7 @@ def extract_docstring_from_file(filename: str) -> Union[str, None]:
         except Exception:
             return None
 
-        if (
-            node.body
-            and isinstance(node.body[0], ast.Expr)
-            and isinstance(node.body[0].value, ast.Str)
-        ):
-            return ast.get_docstring(node)
-
-    return None
+        return ast.get_docstring(node)
 
 
 def find_updocs(name: str) -> str:
