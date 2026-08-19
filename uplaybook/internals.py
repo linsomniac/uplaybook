@@ -78,7 +78,6 @@ def PlatformInfo() -> types.SimpleNamespace:
         env.release_name = release["NAME"]
         env.release_id = release["ID"]
         env.release_version = release["VERSION_ID"]
-        env.release_like = release["ID_LIKE"]
         env.release_codename = release["VERSION_CODENAME"]
     if env.system == "Darwin":
         macver = platform.mac_ver()
